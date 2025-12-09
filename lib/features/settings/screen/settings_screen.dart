@@ -1,30 +1,32 @@
 import 'dart:io';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/settings/controller/settings_controller.dart';
+import 'package:online_chat/navigations/app_navigation.dart';
+import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
+import 'package:shimmer_skeleton/shimmer_skeleton.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
+
+  final controller = Get.put(SettingsController());
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(SettingsController());
-
     return Scaffold(
       backgroundColor: AppColor.ScaffoldColor,
       appBar: _buildAppBar(),
       body: Obx(
         () => controller.isLoading.value
-            ? Center(
-                child: CircularProgressIndicator(
-                  color: AppColor.primaryColor,
-                ),
-              )
+            ? _buildShimmerLoader()
             : RefreshIndicator(
                 onRefresh: () async {
                   controller.loadUserData();
@@ -50,26 +52,20 @@ class SettingsScreen extends StatelessWidget {
                       _buildAccountSection(controller),
                       SizedBox(height: Spacing.lg),
 
-                      // Notifications Section
-                      _buildSectionTitle(AppString.notifications),
-                      SizedBox(height: Spacing.sm),
-                      _buildNotificationsSection(controller),
-                      SizedBox(height: Spacing.lg),
+                      // // Notifications Section
+                      // _buildSectionTitle(AppString.notifications),
+                      // SizedBox(height: Spacing.sm),
+                      // _buildNotificationsSection(controller),
+                      // SizedBox(height: Spacing.lg),
+                      //
+                      // // About Section
+                      // _buildSectionTitle(AppString.about),
+                      // SizedBox(height: Spacing.sm),
+                      // _buildAboutSection(controller),
+                      // SizedBox(height: Spacing.lg),
 
-                      // App Settings Section
-                      _buildSectionTitle(AppString.appSettings),
-                      SizedBox(height: Spacing.sm),
-                      _buildAppSettingsSection(controller),
-                      SizedBox(height: Spacing.lg),
-
-                      // About Section
-                      _buildSectionTitle(AppString.about),
-                      SizedBox(height: Spacing.sm),
-                      _buildAboutSection(controller),
-                      SizedBox(height: Spacing.lg),
-
-                      // Delete Account Button
-                      _buildDeleteAccountButton(controller),
+                      // Logout Button
+                      _buildLogoutButton(controller),
                       SizedBox(height: Spacing.xl),
                     ],
                   ),
@@ -83,21 +79,31 @@ class SettingsScreen extends StatelessWidget {
     return AppBar(
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
-      leading: IconButton(
-        icon: Icon(
-          Icons.arrow_back_ios,
-          color: AppColor.darkGrey,
-          size: 20.sp,
-        ),
-        onPressed: () => Get.back(),
+      leadingWidth: 0,
+      automaticallyImplyLeading: false,
+      leading: SizedBox.shrink(),
+      title: Row(
+        children: [
+          // Profile Picture
+          GestureDetector(
+            onTap: () => AppNavigation.back(),
+            child: SizedBox(
+              width: 50.r,
+              height: 50.r,
+              child: Icon(Icons.arrow_back_ios, size: 25.r),
+            ),
+          ),
+
+          AppText(
+            text: AppString.settings,
+            fontSize: 18.sp,
+            fontWeight: FontWeight.w600,
+            color: AppColor.darkGrey,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          )
+        ],
       ),
-      title: AppText(
-        text: AppString.settings,
-        fontSize: 20.sp,
-        fontWeight: FontWeight.w600,
-        color: AppColor.darkGrey,
-      ),
-      centerTitle: false,
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.h),
         child: Container(
@@ -110,110 +116,147 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _buildProfileSection(SettingsController controller) {
     return Obx(
-      () => Container(
-        decoration: BoxDecoration(
-          color: AppColor.whiteColor,
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.primaryColor.withOpacity(0.08),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.all(Spacing.md),
-        child: Row(
-          children: [
-            // Profile Picture
-            Container(
-              width: 80.w,
-              height: 80.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(
-                  color: AppColor.primaryColor,
-                  width: 3,
-                ),
-                gradient: const LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    AppColor.primaryColor,
-                    AppColor.secondaryColor,
-                    AppColor.accentColor,
-                  ],
-                ),
+      () {
+        final currentUser = AppPreference.currentUser.value;
+        final userName = currentUser?.name ?? controller.userName.value;
+        final userEmail = currentUser?.email ?? controller.userEmail.value;
+        final userPhone = currentUser?.phone ??
+            (controller.userPhone.value.isNotEmpty
+                ? controller.userPhone.value
+                : null);
+        final userProfileImage = currentUser?.profileImage ??
+            (controller.userProfileImage.value.isNotEmpty
+                ? controller.userProfileImage.value
+                : null);
+
+        return Container(
+          decoration: BoxDecoration(
+            color: AppColor.whiteColor,
+            borderRadius: BorderRadius.circular(8.r),
+            boxShadow: [
+              BoxShadow(
+                color: AppColor.primaryColor.withOpacity(0.08),
+                blurRadius: 10,
+                spreadRadius: 0,
+                offset: const Offset(0, 2),
               ),
-              child: ClipOval(
-                child: controller.userProfileImage.value.isNotEmpty &&
-                        !controller.userProfileImage.value.startsWith('http')
-                    ? Image.file(
-                        File(controller.userProfileImage.value),
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildProfilePlaceholder(controller);
-                        },
-                      )
-                    : _buildProfilePlaceholder(controller),
-              ),
-            ),
-            SizedBox(width: Spacing.md),
-            // User Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppText(
-                    text: controller.userName.value.isNotEmpty
-                        ? controller.userName.value
-                        : 'User',
-                    fontSize: 18.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.darkGrey,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 4.h),
-                  AppText(
-                    text: controller.userEmail.value.isNotEmpty
-                        ? controller.userEmail.value
-                        : 'email@example.com',
-                    fontSize: 14.sp,
-                    color: AppColor.greyColor,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  if (controller.userPhone.value.isNotEmpty) ...[
+            ],
+          ),
+          padding: EdgeInsets.all(Spacing.md),
+          child: Row(
+            children: [
+              // Profile Picture
+              _displaing_profile_image(userProfileImage, userName),
+              SizedBox(width: Spacing.md),
+              // User Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _userName(userName),
                     SizedBox(height: 4.h),
-                    AppText(
-                      text: controller.userPhone.value,
-                      fontSize: 14.sp,
-                      color: AppColor.greyColor,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                    _userEmail(userEmail),
+                    if (userPhone != null && userPhone.isNotEmpty) ...[
+                      SizedBox(height: 4.h),
+                      _contactInfo(userPhone),
+                    ],
                   ],
-                ],
+                ),
               ),
-            ),
-            // Edit Button
-            IconButton(
-              onPressed: controller.navigateToEditProfile,
-              icon: Icon(
-                Icons.edit_outlined,
-                color: AppColor.primaryColor,
-                size: 24.sp,
+              // Edit Button
+              IconButton(
+                onPressed: controller.navigateToEditProfile,
+                icon: Icon(
+                  Icons.edit_outlined,
+                  color: AppColor.primaryColor,
+                  size: 24.sp,
+                ),
               ),
-            ),
-          ],
-        ),
-      ),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildProfilePlaceholder(SettingsController controller) {
+  AppText _contactInfo(String userPhone) {
+    return AppText(
+      text: userPhone,
+      fontSize: 14.sp,
+      color: AppColor.greyColor,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  AppText _userEmail(String userEmail) {
+    return AppText(
+      text: userEmail.isNotEmpty ? userEmail : 'email@example.com',
+      fontSize: 14.sp,
+      color: AppColor.greyColor,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  AppText _userName(String userName) {
+    return AppText(
+      text: userName.isNotEmpty ? userName : 'User',
+      fontSize: 17.sp,
+      fontWeight: FontWeight.w600,
+      color: AppColor.darkGrey,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
+  }
+
+  Container _displaing_profile_image(
+      String? userProfileImage, String userName) {
+    return Container(
+      width: 60.w,
+      height: 60.h,
+      clipBehavior: Clip.antiAlias,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: AppColor.primaryColor,
+          width: 3,
+        ),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            AppColor.primaryColor,
+            AppColor.secondaryColor,
+            AppColor.accentColor,
+          ],
+        ),
+      ),
+      child: userProfileImage != null &&
+              userProfileImage.isNotEmpty &&
+              userProfileImage.startsWith('http')
+          ? CachedNetworkImage(
+              imageUrl: userProfileImage,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => _buildProfilePlaceholder(userName),
+              errorWidget: (context, url, error) =>
+                  _buildProfilePlaceholder(userName),
+            )
+          : userProfileImage != null &&
+                  userProfileImage.isNotEmpty &&
+                  !userProfileImage.startsWith('http')
+              ? Image.file(
+                  File(userProfileImage),
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return _buildProfilePlaceholder(userName);
+                  },
+                )
+              : _buildProfilePlaceholder(userName),
+    );
+  }
+
+  Widget _buildProfilePlaceholder(String userName) {
     return Container(
       decoration: const BoxDecoration(
         shape: BoxShape.circle,
@@ -229,9 +272,7 @@ class SettingsScreen extends StatelessWidget {
       ),
       child: Center(
         child: AppText(
-          text: controller.userName.value.isNotEmpty
-              ? controller.userName.value[0].toUpperCase()
-              : 'U',
+          text: userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
           fontSize: 32.sp,
           fontWeight: FontWeight.w600,
           color: AppColor.whiteColor,
@@ -256,7 +297,7 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
@@ -288,7 +329,7 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
@@ -309,36 +350,11 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAppSettingsSection(SettingsController controller) {
-    return Container(
-      decoration: BoxDecoration(
-        color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(16.r),
-        boxShadow: [
-          BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 10,
-            spreadRadius: 0,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Obx(
-        () => _buildSelectionTile(
-          icon: Icons.palette_outlined,
-          title: AppString.theme,
-          value: _getThemeDisplayName(controller.selectedTheme.value),
-          onTap: () => _showThemeDialog(controller),
-        ),
-      ),
-    );
-  }
-
   Widget _buildAboutSection(SettingsController controller) {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(16.r),
+        borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
@@ -356,53 +372,23 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildDeleteAccountButton(SettingsController controller) {
-    return Obx(
-      () => Container(
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(16.r),
-          boxShadow: [
-            BoxShadow(
-              color: AppColor.redColor.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 0,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: AppColor.redColor,
-          borderRadius: BorderRadius.circular(16.r),
-          child: InkWell(
-            onTap: controller.isLoading.value
-                ? null
-                : controller.showDeleteAccountConfirmation,
-            borderRadius: BorderRadius.circular(16.r),
-            child: Container(
-              padding: EdgeInsets.symmetric(vertical: 16.h),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.delete_outline,
-                    color: AppColor.whiteColor,
-                    size: 20.sp,
-                  ),
-                  SizedBox(width: 8.w),
-                  AppText(
-                    text: AppString.deleteAccount,
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.whiteColor,
-                  ),
-                ],
-              ),
-            ),
+  Widget _buildLogoutButton(SettingsController controller) {
+    return Obx(() => CustomButton(
+          text: AppString.logout,
+          onPressed: controller.isLoading.value
+              ? () {}
+              : controller.showLogoutConfirmation,
+          isLoading: controller.isLoading.value,
+          backgroundColor: AppColor.lightRedColor,
+          borderRadius: 8,
+          height: 44.h,
+          prefixIcon: Icon(
+            Icons.logout,
+            color: AppColor.whiteColor,
+            size: 20.sp,
           ),
-        ),
-      ),
-    );
+          enableAnimation: false,
+        ));
   }
 
   Widget _buildSettingsTile({
@@ -578,99 +564,78 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  String _getThemeDisplayName(String theme) {
-    switch (theme) {
-      case 'light':
-        return AppString.light;
-      case 'dark':
-        return AppString.dark;
-      default:
-        return AppString.light;
-    }
-  }
-
-  void _showThemeDialog(SettingsController controller) {
-    Get.dialog(
-      Dialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16.r),
-        ),
-        child: Container(
-          padding: EdgeInsets.all(Spacing.md),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppText(
-                text: AppString.theme,
-                fontSize: 18.sp,
-                fontWeight: FontWeight.w600,
-                color: AppColor.darkGrey,
+  Widget _buildShimmerLoader() {
+    return SingleChildScrollView(
+      padding: EdgeInsets.all(Spacing.md),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Profile Section Shimmer
+          ShimmerSkeleton(
+            child: Container(
+              width: double.infinity,
+              height: 100.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: AppColor.lightGrey,
               ),
-              SizedBox(height: Spacing.md),
-              Obx(
-                () => Column(
-                  children: [
-                    _buildThemeOption(
-                      controller,
-                      'light',
-                      AppString.light,
-                      Icons.light_mode_outlined,
-                    ),
-                    SizedBox(height: Spacing.sm),
-                    _buildThemeOption(
-                      controller,
-                      'dark',
-                      AppString.dark,
-                      Icons.dark_mode_outlined,
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: Spacing.md),
-            ],
+            ),
+            isLoading: true,
           ),
-        ),
+          SizedBox(height: Spacing.lg),
+          // Account Section Shimmer
+          ShimmerSkeleton(
+            child: Container(
+              width: double.infinity,
+              height: 120.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: AppColor.lightGrey,
+              ),
+            ),
+            isLoading: true,
+          ),
+          SizedBox(height: Spacing.lg),
+          // Notifications Section Shimmer
+          ShimmerSkeleton(
+            child: Container(
+              width: double.infinity,
+              height: 80.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: AppColor.lightGrey,
+              ),
+            ),
+            isLoading: true,
+          ),
+          SizedBox(height: Spacing.lg),
+          // About Section Shimmer
+          ShimmerSkeleton(
+            child: Container(
+              width: double.infinity,
+              height: 80.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: AppColor.lightGrey,
+              ),
+            ),
+            isLoading: true,
+          ),
+          SizedBox(height: Spacing.lg),
+          // Delete Button Shimmer
+          ShimmerSkeleton(
+            child: Container(
+              width: double.infinity,
+              height: 56.h,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.r),
+                color: AppColor.lightGrey,
+              ),
+            ),
+            isLoading: true,
+          ),
+        ],
       ),
-    );
-  }
-
-  Widget _buildThemeOption(
-    SettingsController controller,
-    String value,
-    String label,
-    IconData icon,
-  ) {
-    final isSelected = controller.selectedTheme.value == value;
-    return ListTile(
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12.r),
-        side: BorderSide(
-          color: isSelected
-              ? AppColor.primaryColor
-              : AppColor.lightGrey,
-          width: isSelected ? 2 : 1,
-        ),
-      ),
-      leading: Icon(
-        icon,
-        color: isSelected ? AppColor.primaryColor : AppColor.greyColor,
-      ),
-      title: AppText(
-        text: label,
-        fontSize: 15.sp,
-        fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-        color: isSelected ? AppColor.primaryColor : AppColor.darkGrey,
-      ),
-      trailing: isSelected
-          ? Icon(
-              Icons.check_circle,
-              color: AppColor.primaryColor,
-            )
-          : null,
-      onTap: () {
-        controller.changeTheme(value);
-        Get.back();
-      },
     );
   }
 }

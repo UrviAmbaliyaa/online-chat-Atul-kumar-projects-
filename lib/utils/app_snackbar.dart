@@ -18,7 +18,7 @@ class AppSnackbar {
     required String title,
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     _showSnackbar(
       title: title,
@@ -34,7 +34,7 @@ class AppSnackbar {
     required String title,
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     _showSnackbar(
       title: title,
@@ -50,7 +50,7 @@ class AppSnackbar {
     required String title,
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     _showSnackbar(
       title: title,
@@ -66,7 +66,7 @@ class AppSnackbar {
     required String title,
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     _showSnackbar(
       title: title,
@@ -83,7 +83,7 @@ class AppSnackbar {
   static void success({
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     showSuccess(
       title: AppString.successTitle,
@@ -97,7 +97,7 @@ class AppSnackbar {
   static void error({
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     showError(
       title: AppString.errorTitle,
@@ -111,7 +111,7 @@ class AppSnackbar {
   static void info({
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     showInfo(
       title: AppString.infoTitle,
@@ -125,7 +125,7 @@ class AppSnackbar {
   static void warning({
     String? message,
     Duration duration = const Duration(seconds: 3),
-    SnackPosition position = SnackPosition.BOTTOM,
+    SnackPosition position = SnackPosition.TOP,
   }) {
     showWarning(
       title: AppString.warningTitle,
@@ -152,15 +152,15 @@ class AppSnackbar {
       titleText: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(8.w),
+            padding: EdgeInsets.all(6.w),
             decoration: BoxDecoration(
               color: AppColor.whiteColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(8.r),
+              borderRadius: BorderRadius.circular(5.r),
             ),
             child: Icon(
               icon,
               color: AppColor.whiteColor,
-              size: 20.sp,
+              size: 13.sp,
             ),
           ),
           SizedBox(width: 12.w),
@@ -169,14 +169,14 @@ class AppSnackbar {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                AppText(
-                  text: title,
-                  fontSize: 16.sp,
-                  fontWeight: FontWeight.w600,
-                  color: AppColor.whiteColor,
-                ),
+                // AppText(
+                //   text: title,
+                //   fontSize: 16.sp,
+                //   fontWeight: FontWeight.w600,
+                //   color: AppColor.whiteColor,
+                // ),
                 if (message != null && message.isNotEmpty) ...[
-                  SizedBox(height: 4.h),
+                  // SizedBox(height: 4.h),
                   AppText(
                     text: message,
                     fontSize: 14.sp,
@@ -243,4 +243,3 @@ class AppSnackbar {
     }
   }
 }
-

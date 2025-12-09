@@ -22,7 +22,8 @@ class AuthScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.lg),
+          padding: EdgeInsets.symmetric(
+              horizontal: Spacing.md, vertical: Spacing.lg),
           child: Form(
             key: controller.formKey,
             child: Column(
@@ -32,7 +33,8 @@ class AuthScreen extends StatelessWidget {
                 _buildAnimatedHeader()
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 100.ms)
-                    .slideY(begin: -0.2, end: 0, duration: 600.ms, delay: 100.ms),
+                    .slideY(
+                        begin: -0.2, end: 0, duration: 600.ms, delay: 100.ms),
 
                 SizedBox(height: 40.h),
 
@@ -40,7 +42,8 @@ class AuthScreen extends StatelessWidget {
                 _buildWelcomeSection()
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 200.ms)
-                    .slideY(begin: -0.1, end: 0, duration: 600.ms, delay: 200.ms),
+                    .slideY(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 200.ms),
 
                 SizedBox(height: 40.h),
 
@@ -48,7 +51,8 @@ class AuthScreen extends StatelessWidget {
                 _buildEmailField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 300.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
 
                 SizedBox(height: 20.h),
 
@@ -56,7 +60,8 @@ class AuthScreen extends StatelessWidget {
                 _buildPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 400.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
 
                 SizedBox(height: 12.h),
 
@@ -71,7 +76,11 @@ class AuthScreen extends StatelessWidget {
                 _buildSignInButton(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 600.ms),
+                    .scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        delay: 600.ms),
 
                 SizedBox(height: 32.h),
 
@@ -118,11 +127,18 @@ class AuthScreen extends StatelessWidget {
         ),
       )
           .animate(onPlay: (controller) => controller.repeat())
-          .shimmer(duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
+          .shimmer(
+              duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
           .then()
-          .scale(duration: 1000.ms, begin: const Offset(1, 1), end: const Offset(1.05, 1.05))
+          .scale(
+              duration: 1000.ms,
+              begin: const Offset(1, 1),
+              end: const Offset(1.05, 1.05))
           .then()
-          .scale(duration: 1000.ms, begin: const Offset(1.05, 1.05), end: const Offset(1, 1)),
+          .scale(
+              duration: 1000.ms,
+              begin: const Offset(1.05, 1.05),
+              end: const Offset(1, 1)),
     );
   }
 

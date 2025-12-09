@@ -11,79 +11,79 @@ class PhoneNumberFormatter {
       case 'CA':
         // US/Canada: (XXX) XXX-XXXX
         return _USPhoneFormatter();
-      
+
       case 'GB':
         // UK: XXXX XXXXXX
         return _UKPhoneFormatter();
-      
+
       case 'IN':
         // India: XXXXX XXXXXX
         return _IndiaPhoneFormatter();
-      
+
       case 'AU':
         // Australia: XXXX XXX XXX
         return _AustraliaPhoneFormatter();
-      
+
       case 'DE':
         // Germany: XXXX XXXXXXX
         return _GermanyPhoneFormatter();
-      
+
       case 'FR':
         // France: XX XX XX XX XX
         return _FrancePhoneFormatter();
-      
+
       case 'JP':
         // Japan: XXX-XXXX-XXXX
         return _JapanPhoneFormatter();
-      
+
       case 'CN':
         // China: XXX XXXX XXXX
         return _ChinaPhoneFormatter();
-      
+
       case 'BR':
         // Brazil: (XX) XXXXX-XXXX
         return _BrazilPhoneFormatter();
-      
+
       case 'RU':
         // Russia: XXX XXX-XX-XX
         return _RussiaPhoneFormatter();
-      
+
       case 'KR':
         // South Korea: XXX-XXXX-XXXX
         return _SouthKoreaPhoneFormatter();
-      
+
       case 'IT':
         // Italy: XXX XXX XXXX
         return _ItalyPhoneFormatter();
-      
+
       case 'ES':
         // Spain: XXX XXX XXX
         return _SpainPhoneFormatter();
-      
+
       case 'MX':
         // Mexico: XX XXXX XXXX
         return _MexicoPhoneFormatter();
-      
+
       case 'ID':
         // Indonesia: XXX-XXXX-XXXX
         return _IndonesiaPhoneFormatter();
-      
+
       case 'TR':
         // Turkey: XXX XXX XX XX
         return _TurkeyPhoneFormatter();
-      
+
       case 'SA':
         // Saudi Arabia: XX XXX XXXX
         return _SaudiArabiaPhoneFormatter();
-      
+
       case 'AE':
         // UAE: XX XXX XXXX
         return _UAEPhoneFormatter();
-      
+
       case 'ZA':
         // South Africa: XX XXX XXXX
         return _SouthAfricaPhoneFormatter();
-      
+
       default:
         // Default: Allow digits only, max 15 digits (international standard)
         return FilteringTextInputFormatter.digitsOnly;
@@ -146,20 +146,21 @@ class _USPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = '($text';
     } else if (text.length <= 6) {
       formatted = '(${text.substring(0, 3)}) ${text.substring(3)}';
     } else {
-      formatted = '(${text.substring(0, 3)}) ${text.substring(3, 6)}-${text.substring(6, 10)}';
+      formatted =
+          '(${text.substring(0, 3)}) ${text.substring(3, 6)}-${text.substring(6, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -175,18 +176,18 @@ class _UKPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 4) {
       formatted = text;
     } else {
       formatted = '${text.substring(0, 4)} ${text.substring(4, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -202,18 +203,18 @@ class _IndiaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 5) {
       formatted = text;
     } else {
       formatted = '${text.substring(0, 5)} ${text.substring(5, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -229,20 +230,21 @@ class _AustraliaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 4) {
       formatted = text;
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 4)} ${text.substring(4)}';
     } else {
-      formatted = '${text.substring(0, 4)} ${text.substring(4, 7)} ${text.substring(7, 10)}';
+      formatted =
+          '${text.substring(0, 4)} ${text.substring(4, 7)} ${text.substring(7, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -258,18 +260,18 @@ class _GermanyPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 4) {
       formatted = text;
     } else {
       formatted = '${text.substring(0, 4)} ${text.substring(4, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -285,11 +287,11 @@ class _FrancePhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     for (int i = 0; i < text.length; i += 2) {
       if (i > 0) formatted += ' ';
@@ -300,7 +302,7 @@ class _FrancePhoneFormatter extends TextInputFormatter {
         break;
       }
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -316,20 +318,21 @@ class _JapanPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted =
+          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -345,20 +348,21 @@ class _ChinaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 7)} ${text.substring(7, 11)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 7)} ${text.substring(7, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -374,20 +378,21 @@ class _BrazilPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 2) {
       formatted = '($text';
     } else if (text.length <= 7) {
       formatted = '(${text.substring(0, 2)}) ${text.substring(2)}';
     } else {
-      formatted = '(${text.substring(0, 2)}) ${text.substring(2, 7)}-${text.substring(7, 11)}';
+      formatted =
+          '(${text.substring(0, 2)}) ${text.substring(2, 7)}-${text.substring(7, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -403,22 +408,24 @@ class _RussiaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else if (text.length <= 8) {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6)}';
     } else {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6, 8)}-${text.substring(8, 10)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6, 8)}-${text.substring(8, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -434,20 +441,21 @@ class _SouthKoreaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted =
+          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -463,20 +471,21 @@ class _ItalyPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 10)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -492,20 +501,21 @@ class _SpainPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 9)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 9)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -521,20 +531,21 @@ class _MexicoPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 2) {
       formatted = text;
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted = '${text.substring(0, 2)} ${text.substring(2, 6)} ${text.substring(6, 10)}';
+      formatted =
+          '${text.substring(0, 2)} ${text.substring(2, 6)} ${text.substring(6, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -550,20 +561,21 @@ class _IndonesiaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted =
+          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -579,22 +591,24 @@ class _TurkeyPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 3) {
       formatted = text;
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else if (text.length <= 8) {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6)}';
     } else {
-      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 8)} ${text.substring(8, 10)}';
+      formatted =
+          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 8)} ${text.substring(8, 10)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -610,20 +624,21 @@ class _SaudiArabiaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 2) {
       formatted = text;
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted =
+          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -639,20 +654,21 @@ class _UAEPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 2) {
       formatted = text;
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted =
+          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -668,24 +684,24 @@ class _SouthAfricaPhoneFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     if (text.isEmpty) {
       return newValue.copyWith(text: '');
     }
-    
+
     String formatted = '';
     if (text.length <= 2) {
       formatted = text;
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted =
+          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }
-

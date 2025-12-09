@@ -3,11 +3,11 @@ import 'dart:ui';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:online_chat/utils/app_color.dart';
 
-class AppTextStyle{
+class AppTextStyle {
   static TextStyle headingStyle = TextStyle(
     fontSize: 24.sp,
     fontWeight: FontWeight.bold,
-    color:AppColor.primaryColor,
+    color: AppColor.primaryColor,
   );
 
   static TextStyle titleStyle = TextStyle(
@@ -19,7 +19,7 @@ class AppTextStyle{
   static TextStyle bodyStyle = TextStyle(
     fontSize: 16.sp,
     fontWeight: FontWeight.normal,
-    color:AppColor.darkGrey,
+    color: AppColor.darkGrey,
   );
 
   static TextStyle captionStyle = TextStyle(
@@ -33,5 +33,4 @@ class AppTextStyle{
     fontWeight: FontWeight.normal,
     color: AppColor.greyColor,
   );
-
 }

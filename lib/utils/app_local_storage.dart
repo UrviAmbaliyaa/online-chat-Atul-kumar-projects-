@@ -1,6 +1,7 @@
 import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:online_chat/utils/app_local_keys.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 /// Common local storage management utility
 /// Provides centralized methods for managing local data storage
@@ -386,4 +387,3 @@ class AppLocalStorage {
     return _prefs.getKeys();
   }
 }
-

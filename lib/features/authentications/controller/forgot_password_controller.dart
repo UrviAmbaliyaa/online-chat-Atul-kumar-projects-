@@ -67,4 +67,3 @@ class ForgotPasswordController extends GetxController {
     emailController.clear();
   }
 }
-

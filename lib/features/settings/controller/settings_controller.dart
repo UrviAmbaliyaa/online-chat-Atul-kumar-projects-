@@ -1,13 +1,11 @@
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/navigations/routes.dart';
 import 'package:online_chat/services/firebase_service.dart';
-import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
-import 'package:online_chat/utils/app_text.dart';
 
 class SettingsController extends GetxController {
   // User Data Observables
@@ -24,7 +22,6 @@ class SettingsController extends GetxController {
   final RxBool readReceiptsEnabled = true.obs;
   final RxBool typingIndicatorEnabled = true.obs;
   final RxBool onlineStatusEnabled = true.obs;
-  final RxString selectedTheme = 'light'.obs;
   final RxString selectedLanguage = 'en'.obs;
 
   // UI State
@@ -36,6 +33,10 @@ class SettingsController extends GetxController {
     super.onInit();
     loadUserData();
     loadSettings();
+    // Load current user model if not already loaded
+    if (AppPreference.currentUser.value == null) {
+      AppPreference.loadCurrentUser();
+    }
   }
 
   /// Load user data from local storage
@@ -55,20 +56,7 @@ class SettingsController extends GetxController {
     readReceiptsEnabled.value = AppLocalStorage.getReadReceipts();
     typingIndicatorEnabled.value = AppLocalStorage.getTypingIndicator();
     onlineStatusEnabled.value = AppLocalStorage.getOnlineStatus();
-    selectedTheme.value = AppLocalStorage.getThemeMode();
     selectedLanguage.value = AppLocalStorage.getLanguage();
-    
-    // Apply saved theme
-    _applyTheme(selectedTheme.value);
-  }
-  
-  /// Apply theme mode
-  void _applyTheme(String theme) {
-    if (theme == 'dark') {
-      Get.changeThemeMode(ThemeMode.dark);
-    } else {
-      Get.changeThemeMode(ThemeMode.light);
-    }
   }
 
   /// Toggle notifications
@@ -120,21 +108,6 @@ class SettingsController extends GetxController {
     await _saveSettings();
   }
 
-  /// Change theme
-  Future<void> changeTheme(String theme) async {
-    selectedTheme.value = theme;
-    await AppLocalStorage.saveThemeMode(theme);
-    
-    // Apply theme immediately
-    if (theme == 'dark') {
-      Get.changeThemeMode(ThemeMode.dark);
-    } else {
-      Get.changeThemeMode(ThemeMode.light);
-    }
-    
-    await _saveSettings();
-  }
-
   /// Change language
   Future<void> changeLanguage(String language) async {
     selectedLanguage.value = language;
@@ -156,99 +129,20 @@ class SettingsController extends GetxController {
   }
 
   /// Navigate to edit profile
-  void navigateToEditProfile() {
-    // TODO: Navigate to edit profile screen
-    AppSnackbar.info(message: AppString.featureComingSoon);
+  Future<void> navigateToEditProfile() async {
+    await AppNavigation.toNamed(AppRoutes.editProfileScreen);
+    // Refresh user data after returning from edit profile
+    loadUserData();
   }
 
   /// Navigate to change password
   void navigateToChangePassword() {
-    AppNavigation.toNamed(AppRoutes.forgotPassword);
+    AppNavigation.toNamed(AppRoutes.changePasswordScreen);
   }
 
-  /// Show delete account confirmation
-  void showDeleteAccountConfirmation() {
-    Get.dialog(
-      AlertDialog(
-        title: AppText(
-          text: AppString.deleteAccount,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-        content: AppText(
-            text: AppString.deleteAccountConfirmation,
-            fontSize: 14,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: AppText(
-              text: AppString.no,
-              color: AppColor.greyColor,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              _deleteAccount();
-            },
-            child: AppText(
-              text: AppString.yes,
-              color: AppColor.redColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  /// Delete account
-  Future<void> _deleteAccount() async {
-    try {
-      isLoading.value = true;
-      // TODO: Implement account deletion
-      AppSnackbar.info(message: AppString.featureComingSoon);
-    } catch (e) {
-      AppSnackbar.error(message: AppString.operationFailed);
-    } finally {
-      isLoading.value = false;
-    }
-  }
-
-  /// Show logout confirmation
+  /// Logout user (no confirmation)
   void showLogoutConfirmation() {
-    Get.dialog(
-      AlertDialog(
-        title: AppText(
-          text: AppString.logout,
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-        ),
-        content: AppText(
-          text: AppString.logoutConfirmation,
-          fontSize: 14,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: AppText(
-              text: AppString.no,
-              color: AppColor.greyColor,
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              Get.back();
-              logout();
-            },
-            child: AppText(
-              text: AppString.yes,
-              color: AppColor.redColor,
-            ),
-          ),
-        ],
-      ),
-    );
+    logout();
   }
 
   /// Logout user
@@ -302,4 +196,3 @@ class SettingsController extends GetxController {
     AppSnackbar.info(message: AppString.featureComingSoon);
   }
 }
-

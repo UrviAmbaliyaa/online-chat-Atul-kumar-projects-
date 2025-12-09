@@ -1,3 +1,6 @@
+import 'package:get/get.dart';
+import 'package:online_chat/features/home/models/user_model.dart';
+import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
 
 /// AppPreference - Legacy wrapper for backward compatibility
@@ -5,6 +8,9 @@ import 'package:online_chat/utils/app_local_storage.dart';
 /// This class maintains backward compatibility with existing code
 @Deprecated('Use AppLocalStorage instead')
 class AppPreference {
+  // Reactive UserModel for current user
+  static final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
+
   /// Initialize local storage
   /// Must be called before using any storage methods
   static Future<void> init() async {
@@ -95,5 +101,47 @@ class AppPreference {
   /// Get DateTime object
   static DateTime? getDateTime(String key) {
     return AppLocalStorage.getDateTime(key);
+  }
+
+  // ==================== USER MODEL METHODS ====================
+
+  /// Load current user model from Firebase
+  /// This should be called on app start or after login
+  static Future<void> loadCurrentUser() async {
+    try {
+      final userModel = await FirebaseService.getCurrentUserModel();
+      if (userModel != null) {
+        currentUser.value = userModel;
+        // Also update local storage
+        await AppLocalStorage.saveUserName(userModel.name);
+        await AppLocalStorage.saveUserEmail(userModel.email);
+        if (userModel.phone != null) {
+          await AppLocalStorage.saveUserPhone(userModel.phone!);
+        }
+        if (userModel.profileImage != null) {
+          await AppLocalStorage.saveUserProfileImage(userModel.profileImage!);
+        }
+      }
+    } catch (e) {
+      // Handle error silently or log it
+      currentUser.value = null;
+    }
+  }
+
+  /// Update current user model
+  /// This should be called whenever user data is updated
+  static void updateCurrentUser(UserModel userModel) {
+    currentUser.value = userModel;
+  }
+
+  /// Clear current user model
+  /// This should be called on logout
+  static void clearCurrentUser() {
+    currentUser.value = null;
+  }
+
+  /// Get current user model
+  static UserModel? getCurrentUser() {
+    return currentUser.value;
   }
 }

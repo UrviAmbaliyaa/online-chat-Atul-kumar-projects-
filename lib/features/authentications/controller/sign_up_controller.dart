@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -22,7 +23,8 @@ class SignUpController extends GetxController {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController confirmPasswordController =
+      TextEditingController();
 
   // Observables
   final RxBool isPasswordVisible = false.obs;
@@ -76,7 +78,8 @@ class SignUpController extends GetxController {
   String? validateEmail(String? value) => AppValidator.validateEmail(value);
 
   // Password validation
-  String? validatePassword(String? value) => AppValidator.validatePassword(value);
+  String? validatePassword(String? value) =>
+      AppValidator.validatePassword(value);
 
   // Confirm password validation
   String? validateConfirmPassword(String? value) =>
@@ -167,7 +170,8 @@ class SignUpController extends GetxController {
       isLoading.value = true;
 
       // Remove formatting from phone number
-      final cleanedPhone = phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+      final cleanedPhone =
+          phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
       final fullPhoneNumber = '${selectedCountry.value.dialCode}$cleanedPhone';
 
       // Step 1: Create user with Firebase Authentication
@@ -185,7 +189,8 @@ class SignUpController extends GetxController {
 
       // Step 2: Upload profile image if exists
       if (profileImage.value != null) {
-        final imagePath = 'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final imagePath =
+            'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
         profileImageUrl = await FirebaseService.uploadFile(
           file: profileImage.value!,
           path: imagePath,
@@ -199,7 +204,7 @@ class SignUpController extends GetxController {
         'phone': fullPhoneNumber,
         'countryCode': selectedCountry.value.code,
         'dialCode': selectedCountry.value.dialCode,
-        if (profileImageUrl != null) 'profileImage': profileImageUrl,
+        'profileImage': profileImageUrl ?? "",
         'isOnline': false,
       };
 
@@ -244,4 +249,3 @@ class SignUpController extends GetxController {
     AppNavigation.offNamed(AppRoutes.signIn);
   }
 }
-

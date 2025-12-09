@@ -23,7 +23,8 @@ class SignUpScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.lg),
+          padding: EdgeInsets.symmetric(
+              horizontal: Spacing.md, vertical: Spacing.lg),
           child: Form(
             key: controller.formKey,
             child: Column(
@@ -33,7 +34,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildWelcomeSection()
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 100.ms)
-                    .slideY(begin: -0.1, end: 0, duration: 600.ms, delay: 100.ms),
+                    .slideY(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 100.ms),
 
                 SizedBox(height: 24.h),
 
@@ -41,7 +43,11 @@ class SignUpScreen extends StatelessWidget {
                 _buildProfilePicture(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 200.ms)
-                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 200.ms),
+                    .scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        delay: 200.ms),
 
                 SizedBox(height: 24.h),
 
@@ -49,7 +55,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildNameField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 300.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
 
                 SizedBox(height: 16.h),
 
@@ -57,7 +64,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildEmailField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 400.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
 
                 SizedBox(height: 16.h),
 
@@ -65,7 +73,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildPhoneField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 500.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 500.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 500.ms),
 
                 SizedBox(height: 16.h),
 
@@ -73,7 +82,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 600.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 600.ms),
 
                 SizedBox(height: 16.h),
 
@@ -81,7 +91,8 @@ class SignUpScreen extends StatelessWidget {
                 _buildConfirmPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 700.ms)
-                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 700.ms),
+                    .slideX(
+                        begin: -0.1, end: 0, duration: 600.ms, delay: 700.ms),
 
                 // SizedBox(height: 16.h),
 
@@ -96,7 +107,11 @@ class SignUpScreen extends StatelessWidget {
                 _buildSignUpButton(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 900.ms)
-                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 900.ms),
+                    .scale(
+                        begin: const Offset(0.9, 0.9),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        delay: 900.ms),
 
                 SizedBox(height: 24.h),
 
@@ -111,7 +126,6 @@ class SignUpScreen extends StatelessWidget {
       ),
     );
   }
-
 
   Widget _buildWelcomeSection() {
     return Column(
@@ -290,7 +304,8 @@ class SignUpScreen extends StatelessWidget {
                   ),
                   validator: controller.validatePhone,
                   focusNode: controller.phoneFocusNode,
-                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                  contentPadding:
+                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   inputFormatters: controller.getPhoneFormatters(),
                   maxLength: controller.getPhoneMaxLength(),
                   onSubmitted: (_) {
@@ -501,4 +516,3 @@ class SignUpScreen extends StatelessWidget {
     );
   }
 }
-

@@ -1,9 +1,13 @@
+import 'dart:developer';
 import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
+import 'package:online_chat/utils/firebase_constants.dart';
 
 /// Firebase Service - Centralized Firebase CRUD operations
 /// All Firebase operations should go through this service
@@ -83,7 +87,7 @@ class FirebaseService {
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to sign out. Please try again.',
+        message: AppString.signOutError,
       );
       return false;
     }
@@ -94,7 +98,7 @@ class FirebaseService {
     try {
       await _auth.sendPasswordResetEmail(email: email.trim());
       AppSnackbar.success(
-        message: 'Password reset email sent. Please check your inbox.',
+        message: AppString.passwordResetEmailSent,
       );
       return true;
     } on FirebaseAuthException catch (e) {
@@ -102,44 +106,72 @@ class FirebaseService {
       return false;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to send password reset email. Please try again.',
+        message: AppString.passwordResetEmailError,
       );
+      return false;
+    }
+  }
+
+  /// Change user password
+  /// Requires reauthentication with current password
+  /// [currentPassword] - User's current password
+  /// [newPassword] - New password to set
+  /// Returns true on success, false on failure
+  static Future<bool> changePassword({
+    required String currentPassword,
+    required String newPassword,
+  }) async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        AppSnackbar.error(message: AppString.userNotLoggedIn);
+        return false;
+      }
+
+      // Step 1: Reauthenticate user with current password
+      final credential = EmailAuthProvider.credential(
+        email: user.email!,
+        password: currentPassword,
+      );
+
+      try {
+        await user.reauthenticateWithCredential(credential);
+      } on FirebaseAuthException catch (e) {
+        final errorMessage = FirebaseConstants.getAuthErrorMessage(e.code);
+        if (e.code == FirebaseConstants.authErrorWrongPassword) {
+          AppSnackbar.error(message: AppString.reauthenticationFailed);
+        } else {
+          AppSnackbar.error(message: errorMessage);
+        }
+        return false;
+      } catch (e) {
+        AppSnackbar.error(message: AppString.reauthenticationFailed);
+        return false;
+      }
+
+      // Step 2: Update password
+      try {
+        await user.updatePassword(newPassword);
+        AppSnackbar.success(message: AppString.passwordChanged);
+        return true;
+      } on FirebaseAuthException catch (e) {
+        final errorMessage = FirebaseConstants.getAuthErrorMessage(e.code);
+        AppSnackbar.error(message: errorMessage);
+        return false;
+      } catch (e) {
+        AppSnackbar.error(message: AppString.passwordChangeError);
+        return false;
+      }
+    } catch (e) {
+      AppSnackbar.error(message: AppString.passwordChangeError);
       return false;
     }
   }
 
   /// Handle Firebase Auth exceptions
   static void _handleAuthException(FirebaseAuthException e) {
-    String message;
-    switch (e.code) {
-      case 'user-not-found':
-        message = 'No user found with this email.';
-        break;
-      case 'wrong-password':
-        message = 'Wrong password provided.';
-        break;
-      case 'email-already-in-use':
-        message = 'An account already exists with this email.';
-        break;
-      case 'weak-password':
-        message = 'The password provided is too weak.';
-        break;
-      case 'invalid-email':
-        message = 'The email address is invalid.';
-        break;
-      case 'user-disabled':
-        message = 'This user account has been disabled.';
-        break;
-      case 'too-many-requests':
-        message = 'Too many requests. Please try again later.';
-        break;
-      case 'operation-not-allowed':
-        message = 'This operation is not allowed.';
-        break;
-      default:
-        message = e.message ?? 'An error occurred. Please try again.';
-    }
-    AppSnackbar.error(message: message);
+    final message = FirebaseConstants.getAuthErrorMessage(e.code);
+    AppSnackbar.error(message: e.message ?? message);
   }
 
   // ==================== FIRESTORE CRUD METHODS ====================
@@ -165,7 +197,7 @@ class FirebaseService {
       return docRef.id;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to create document. Please try again.',
+        message: AppString.createDocumentError,
       );
       return null;
     }
@@ -187,7 +219,7 @@ class FirebaseService {
       return null;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to get document. Please try again.',
+        message: AppString.getDocumentError,
       );
       return null;
     }
@@ -208,7 +240,7 @@ class FirebaseService {
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to update document. Please try again.',
+        message: AppString.updateDocumentError,
       );
       return false;
     }
@@ -227,7 +259,7 @@ class FirebaseService {
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to delete document. Please try again.',
+        message: AppString.deleteDocumentError,
       );
       return false;
     }
@@ -245,15 +277,15 @@ class FirebaseService {
   }) async {
     try {
       Query query = _firestore.collection(collection);
-      
+
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-      
+
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -263,7 +295,7 @@ class FirebaseService {
           .toList();
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to get documents. Please try again.',
+        message: AppString.getDocumentsError,
       );
       return [];
     }
@@ -284,16 +316,17 @@ class FirebaseService {
     int? limit,
   }) async {
     try {
-      Query query = _firestore.collection(collection).where(field, isEqualTo: value);
-      
+      Query query =
+          _firestore.collection(collection).where(field, isEqualTo: value);
+
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-      
+
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -303,7 +336,7 @@ class FirebaseService {
           .toList();
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to get documents. Please try again.',
+        message: AppString.getDocumentsError,
       );
       return [];
     }
@@ -320,15 +353,15 @@ class FirebaseService {
     int? limit,
   }) {
     Query query = _firestore.collection(collection);
-    
+
     if (orderBy != null) {
       query = query.orderBy(orderBy);
     }
-    
+
     if (limit != null) {
       query = query.limit(limit);
     }
-    
+
     return query.snapshots();
   }
 
@@ -360,12 +393,15 @@ class FirebaseService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
-      
-      await _firestore.collection('user').doc(userId).set(data);
+
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .set(data);
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to create user profile. Please try again.',
+        message: AppString.createUserDocumentError,
       );
       return false;
     }
@@ -375,7 +411,87 @@ class FirebaseService {
   /// [userId] - User ID
   /// Returns user data on success, null on failure
   static Future<Map<String, dynamic>?> getUserDocument(String userId) async {
-    return await getDocument(collection: 'user', docId: userId);
+    return await getDocument(
+        collection: FirebaseConstants.userCollection, docId: userId);
+  }
+
+  /// Get current user document from Firestore
+  /// Returns user data on success, null on failure
+  static Future<Map<String, dynamic>?> getCurrentUserDocument() async {
+    final userId = getCurrentUserId();
+    if (userId == null) return null;
+    return await getUserDocument(userId);
+  }
+
+  /// Get current user as UserModel from Firestore
+  /// Returns UserModel on success, null on failure
+  static Future<UserModel?> getCurrentUserModel() async {
+    try {
+      final userId = getCurrentUserId();
+      if (userId == null) return null;
+
+      final doc = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .get();
+      if (doc.exists && doc.data() != null) {
+        return UserModel.fromFirestore(doc.data()!, doc.id);
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Update user profile using UserModel
+  /// [userId] - User ID
+  /// [userModel] - Updated UserModel
+  /// Returns true on success, false on failure
+  static Future<bool> updateUserProfile({
+    required String userId,
+    required UserModel userModel,
+  }) async {
+    try {
+      final data = userModel.toJson();
+      // Remove id from data as it's the document ID
+      data.remove('id');
+
+      // Ensure profileImage URL is always included in the update if it exists
+      // This ensures the profile image URL is stored in the user document
+      if (userModel.profileImage != null &&
+          userModel.profileImage!.isNotEmpty) {
+        data['profileImage'] = userModel.profileImage;
+      }
+
+      data['updatedAt'] = FieldValue.serverTimestamp();
+
+      // Update the user document in Firestore
+      // The profileImage URL will be stored in the document with userId as documentId
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .update(data);
+      return true;
+    } on FirebaseException catch (e) {
+      // Handle Firebase specific errors with dynamic messages
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.profileUpdateError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      // Handle other errors
+      String errorMessage = AppString.profileUpdateError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
   }
 
   /// Update user document in Firestore
@@ -391,12 +507,30 @@ class FirebaseService {
         ...userData,
         'updatedAt': FieldValue.serverTimestamp(),
       };
-      return await updateDocument(
-        collection: 'user',
-        docId: userId,
-        data: data,
+
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .update(data);
+      return true;
+    } on FirebaseException catch (e) {
+      // Handle Firebase specific errors with dynamic messages
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.profileUpdateError,
       );
+      AppSnackbar.error(message: errorMessage);
+      return false;
     } catch (e) {
+      // Handle other errors
+      String errorMessage = AppString.profileUpdateError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
       return false;
     }
   }
@@ -405,7 +539,8 @@ class FirebaseService {
   /// [userId] - User ID
   /// Returns true on success, false on failure
   static Future<bool> deleteUserDocument(String userId) async {
-    return await deleteDocument(collection: 'user', docId: userId);
+    return await deleteDocument(
+        collection: FirebaseConstants.userCollection, docId: userId);
   }
 
   // ==================== STORAGE METHODS ====================
@@ -424,8 +559,9 @@ class FirebaseService {
       final downloadUrl = await ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
+      log("Upload image error  ::::::::::::::::::::::::::$e");
       AppSnackbar.error(
-        message: 'Failed to upload file. Please try again.',
+        message: AppString.uploadFileError,
       );
       return null;
     }
@@ -440,7 +576,7 @@ class FirebaseService {
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to delete file. Please try again.',
+        message: AppString.deleteFileError,
       );
       return false;
     }
@@ -466,7 +602,7 @@ class FirebaseService {
   static Future<bool> batchWrite(List<BatchOperation> operations) async {
     try {
       final batch = _firestore.batch();
-      
+
       for (var operation in operations) {
         switch (operation.type) {
           case BatchOperationType.create:
@@ -488,12 +624,12 @@ class FirebaseService {
             break;
         }
       }
-      
+
       await batch.commit();
       return true;
     } catch (e) {
       AppSnackbar.error(
-        message: 'Failed to perform batch operation. Please try again.',
+        message: AppString.batchOperationError,
       );
       return false;
     }
@@ -521,4 +657,3 @@ enum BatchOperationType {
   update,
   delete,
 }
-

@@ -24,12 +24,12 @@ class _SplashScreenState extends State<SplashScreen> {
   void _inItFunction() {
     Future.delayed(
         Duration(seconds: 1),
-            () => AppNavigation.offNamed(
-          FirebaseService.isUserLoggedIn() || AppLocalStorage.isUserLoggedIn()
-              ? AppRoutes.homeScreen
-              : AppRoutes.signIn, // This will replace splash screen
-        )
-    );
+        () => AppNavigation.offNamed(
+              FirebaseService.isUserLoggedIn() ||
+                      AppLocalStorage.isUserLoggedIn()
+                  ? AppRoutes.homeScreen
+                  : AppRoutes.signIn, // This will replace splash screen
+            ));
   }
 
   @override

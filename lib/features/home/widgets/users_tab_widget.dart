@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -54,20 +55,101 @@ class UsersTabWidget extends StatelessWidget {
         ),
         leading: Stack(
           children: [
-            CircleAvatar(
-              radius: 28.r,
-              backgroundColor: AppColor.primaryColor,
-              backgroundImage: user.profileImage != null && user.profileImage!.startsWith('http')
-                  ? NetworkImage(user.profileImage!)
-                  : null,
-              child: user.profileImage == null || !user.profileImage!.startsWith('http')
-                  ? AppText(
-                      text: user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
-                      fontSize: 18.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.whiteColor,
-                    )
-                  : null,
+            Container(
+              width: 56.w,
+              height: 56.h,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    AppColor.primaryColor,
+                    AppColor.secondaryColor,
+                    AppColor.accentColor,
+                  ],
+                ),
+              ),
+              child: ClipOval(
+                child: user.profileImage != null &&
+                        user.profileImage!.startsWith('http')
+                    ? CachedNetworkImage(
+                        imageUrl: user.profileImage!,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppColor.primaryColor,
+                                AppColor.secondaryColor,
+                                AppColor.accentColor,
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: AppText(
+                              text: user.name.isNotEmpty
+                                  ? user.name[0].toUpperCase()
+                                  : 'U',
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.whiteColor,
+                            ),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                AppColor.primaryColor,
+                                AppColor.secondaryColor,
+                                AppColor.accentColor,
+                              ],
+                            ),
+                          ),
+                          child: Center(
+                            child: AppText(
+                              text: user.name.isNotEmpty
+                                  ? user.name[0].toUpperCase()
+                                  : 'U',
+                              fontSize: 18.sp,
+                              fontWeight: FontWeight.w600,
+                              color: AppColor.whiteColor,
+                            ),
+                          ),
+                        ),
+                      )
+                    : Container(
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              AppColor.primaryColor,
+                              AppColor.secondaryColor,
+                              AppColor.accentColor,
+                            ],
+                          ),
+                        ),
+                        child: Center(
+                          child: AppText(
+                            text: user.name.isNotEmpty
+                                ? user.name[0].toUpperCase()
+                                : 'U',
+                            fontSize: 18.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.whiteColor,
+                          ),
+                        ),
+                      ),
+              ),
             ),
             if (user.isOnline)
               Positioned(
@@ -170,4 +252,3 @@ class UsersTabWidget extends StatelessWidget {
     }
   }
 }
-

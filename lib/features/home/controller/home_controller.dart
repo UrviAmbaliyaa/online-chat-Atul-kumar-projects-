@@ -5,6 +5,7 @@ import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/navigations/routes.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 
 class HomeController extends GetxController {
@@ -18,19 +19,23 @@ class HomeController extends GetxController {
   void onInit() {
     super.onInit();
     loadData();
+    // Load current user model if not already loaded
+    if (AppPreference.currentUser.value == null) {
+      AppPreference.loadCurrentUser();
+    }
   }
 
   // Load users and groups
   Future<void> loadData() async {
     isLoading.value = true;
-    
+
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Load added users (from local storage or API)
       await loadAddedUsers();
-      
+
       // Load created groups (from local storage or API)
       await loadCreatedGroups();
     } catch (e) {
@@ -46,7 +51,7 @@ class HomeController extends GetxController {
     try {
       // Try to load from local storage
       final usersJson = AppLocalStorage.getList('added_users');
-      
+
       if (usersJson != null && usersJson.isNotEmpty) {
         addedUsers.value = usersJson
             .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
@@ -66,10 +71,11 @@ class HomeController extends GetxController {
     try {
       // Try to load from local storage
       final groupsJson = AppLocalStorage.getList('created_groups');
-      
+
       if (groupsJson != null && groupsJson.isNotEmpty) {
         createdGroups.value = groupsJson
-            .map((json) => GroupChatModel.fromJson(json as Map<String, dynamic>))
+            .map(
+                (json) => GroupChatModel.fromJson(json as Map<String, dynamic>))
             .toList();
       } else {
         // If no data, use sample data for demonstration
@@ -135,19 +141,19 @@ class HomeController extends GetxController {
   Future<void> logout() async {
     try {
       isLoading.value = true;
-      
+
       // Sign out from Firebase
       final success = await FirebaseService.signOut();
-      
+
       if (success) {
         // Clear local storage
         await AppLocalStorage.logout();
-        
+
         // Show success message
         AppSnackbar.success(
           message: 'Logged out successfully',
         );
-        
+
         // Navigate to sign in screen
         AppNavigation.replaceAllNamed(AppRoutes.signIn);
       }
@@ -220,4 +226,3 @@ class HomeController extends GetxController {
     ];
   }
 }
-

@@ -1,12 +1,13 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:online_chat/utils/app_color.dart';
+import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
-import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_text.dart';
 
 /// Common image picker utility class
@@ -160,10 +161,10 @@ class AppImagePicker {
               SizedBox(height: Spacing.sm),
               // Options
               if (allowMultiple && onMultipleSelected != null)
-              _buildDialogOption(
-                icon: Icons.photo_library_outlined,
-                title: AppString.selectMultipleImages,
-                onTap: () async {
+                _buildDialogOption(
+                  icon: Icons.photo_library_outlined,
+                  title: AppString.selectMultipleImages,
+                  onTap: () async {
                     Get.back();
                     final images = await pickMultipleImages(
                       maxWidth: maxWidth,
@@ -403,4 +404,3 @@ class AppImagePicker {
     );
   }
 }
-

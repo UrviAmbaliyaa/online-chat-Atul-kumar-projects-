@@ -55,16 +55,18 @@ class GroupsTabWidget extends StatelessWidget {
         leading: CircleAvatar(
           radius: 28.r,
           backgroundColor: AppColor.secondaryColor,
-          backgroundImage: group.groupImage != null && group.groupImage!.startsWith('http')
-              ? NetworkImage(group.groupImage!)
-              : null,
-          child: group.groupImage == null || !group.groupImage!.startsWith('http')
-              ? Icon(
-                  Icons.group,
-                  size: 28.sp,
-                  color: AppColor.whiteColor,
-                )
-              : null,
+          backgroundImage:
+              group.groupImage != null && group.groupImage!.startsWith('http')
+                  ? NetworkImage(group.groupImage!)
+                  : null,
+          child:
+              group.groupImage == null || !group.groupImage!.startsWith('http')
+                  ? Icon(
+                      Icons.group,
+                      size: 28.sp,
+                      color: AppColor.whiteColor,
+                    )
+                  : null,
         ),
         title: AppText(
           text: group.name,
@@ -157,4 +159,3 @@ class GroupsTabWidget extends StatelessWidget {
     return DateFormat('MMM d, yyyy').format(dateTime);
   }
 }
-

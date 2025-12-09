@@ -23,7 +23,8 @@ class ForgotPasswordScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.lg),
+          padding: EdgeInsets.symmetric(
+              horizontal: Spacing.md, vertical: Spacing.lg),
           child: Form(
             key: controller.formKey,
             child: Obx(
@@ -91,7 +92,11 @@ class ForgotPasswordScreen extends StatelessWidget {
         _buildSendButton(controller)
             .animate()
             .fadeIn(duration: 600.ms, delay: 400.ms)
-            .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 400.ms),
+            .scale(
+                begin: const Offset(0.9, 0.9),
+                end: const Offset(1, 1),
+                duration: 600.ms,
+                delay: 400.ms),
 
         SizedBox(height: 24.h),
 
@@ -113,7 +118,11 @@ class ForgotPasswordScreen extends StatelessWidget {
         _buildSuccessIcon()
             .animate()
             .fadeIn(duration: 600.ms, delay: 100.ms)
-            .scale(begin: const Offset(0.5, 0.5), end: const Offset(1, 1), duration: 600.ms, delay: 100.ms),
+            .scale(
+                begin: const Offset(0.5, 0.5),
+                end: const Offset(1, 1),
+                duration: 600.ms,
+                delay: 100.ms),
 
         SizedBox(height: 40.h),
 
@@ -137,7 +146,11 @@ class ForgotPasswordScreen extends StatelessWidget {
         _buildBackToSignInButton(controller)
             .animate()
             .fadeIn(duration: 600.ms, delay: 400.ms)
-            .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 400.ms),
+            .scale(
+                begin: const Offset(0.9, 0.9),
+                end: const Offset(1, 1),
+                duration: 600.ms,
+                delay: 400.ms),
 
         SizedBox(height: 16.h),
 
@@ -180,11 +193,18 @@ class ForgotPasswordScreen extends StatelessWidget {
         ),
       )
           .animate(onPlay: (controller) => controller.repeat())
-          .shimmer(duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
+          .shimmer(
+              duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
           .then()
-          .scale(duration: 1000.ms, begin: const Offset(1, 1), end: const Offset(1.05, 1.05))
+          .scale(
+              duration: 1000.ms,
+              begin: const Offset(1, 1),
+              end: const Offset(1.05, 1.05))
           .then()
-          .scale(duration: 1000.ms, begin: const Offset(1.05, 1.05), end: const Offset(1, 1)),
+          .scale(
+              duration: 1000.ms,
+              begin: const Offset(1.05, 1.05),
+              end: const Offset(1, 1)),
     );
   }
 
@@ -324,4 +344,3 @@ class ForgotPasswordScreen extends StatelessWidget {
     );
   }
 }
-

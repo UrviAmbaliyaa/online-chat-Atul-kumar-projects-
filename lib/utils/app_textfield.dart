@@ -85,7 +85,6 @@ class AppTextField extends StatelessWidget {
           inputFormatters: inputFormatters,
           textCapitalization: textCapitalization,
           readOnly: readOnly,
-          
           onTap: onTap,
           style: textStyle ??
               TextStyle(
@@ -176,4 +175,3 @@ class AppTextField extends StatelessWidget {
     );
   }
 }
-

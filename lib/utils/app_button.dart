@@ -36,7 +36,7 @@ class CustomButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final baseColor = backgroundColor ?? AppColor.primaryColor;
-    
+
     Widget buttonContent = Container(
       width: width ?? double.infinity,
       height: height ?? 50.h,

@@ -114,7 +114,8 @@ class AppValidator {
   /// [minLength] - Minimum required length
   /// [fieldName] - Name of the field for error message
   /// Returns error message if invalid, null if valid
-  static String? validateMinLength(String? value, int minLength, String fieldName) {
+  static String? validateMinLength(
+      String? value, int minLength, String fieldName) {
     if (value == null || value.isEmpty) {
       return '$fieldName is required';
     }
@@ -128,7 +129,8 @@ class AppValidator {
   /// [maxLength] - Maximum allowed length
   /// [fieldName] - Name of the field for error message
   /// Returns error message if invalid, null if valid
-  static String? validateMaxLength(String? value, int maxLength, String fieldName) {
+  static String? validateMaxLength(
+      String? value, int maxLength, String fieldName) {
     if (value != null && value.length > maxLength) {
       return '$fieldName must not exceed $maxLength characters';
     }
@@ -139,7 +141,8 @@ class AppValidator {
   /// [pattern] - Regular expression pattern
   /// [errorMessage] - Error message to display
   /// Returns error message if invalid, null if valid
-  static String? validatePattern(String? value, RegExp pattern, String errorMessage) {
+  static String? validatePattern(
+      String? value, RegExp pattern, String errorMessage) {
     if (value == null || value.isEmpty) {
       return 'This field is required';
     }
@@ -153,7 +156,8 @@ class AppValidator {
   /// [minAge] - Minimum age (default: 13)
   /// [maxAge] - Maximum age (default: 120)
   /// Returns error message if invalid, null if valid
-  static String? validateAge(String? value, {int minAge = 13, int maxAge = 120}) {
+  static String? validateAge(String? value,
+      {int minAge = 13, int maxAge = 120}) {
     if (value == null || value.isEmpty) {
       return 'Age is required';
     }
@@ -191,7 +195,8 @@ class AppValidator {
   /// [value2] - Second value to match
   /// [fieldName] - Name of the field for error message
   /// Returns error message if invalid, null if valid
-  static String? validateMatch(String? value1, String? value2, String fieldName) {
+  static String? validateMatch(
+      String? value1, String? value2, String fieldName) {
     if (value1 == null || value1.isEmpty) {
       return '$fieldName is required';
     }
@@ -201,4 +206,3 @@ class AppValidator {
     return null;
   }
 }
-

@@ -4,6 +4,7 @@ import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/navigations/routes.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_validator.dart';
@@ -59,7 +60,8 @@ class SignInController extends GetxController {
   String? validateEmail(String? value) => AppValidator.validateEmail(value);
 
   // Password validation
-  String? validatePassword(String? value) => AppValidator.validatePassword(value);
+  String? validatePassword(String? value) =>
+      AppValidator.validatePassword(value);
 
   // Handle sign in
   Future<void> signIn() async {
@@ -83,8 +85,9 @@ class SignInController extends GetxController {
 
       if (userCredential?.user != null) {
         // Get user data from Firestore
-        final userData = await FirebaseService.getUserDocument(userCredential!.user!.uid);
-        
+        final userData =
+            await FirebaseService.getUserDocument(userCredential!.user!.uid);
+
         // Save email if remember me is checked
         if (rememberMe.value) {
           await AppLocalStorage.saveSavedEmail(emailController.text);
@@ -101,6 +104,9 @@ class SignInController extends GetxController {
           userPhone: userData?['phone'] ?? '',
           userProfileImage: userData?['profileImage'] ?? '',
         );
+
+        // Load current user model into AppPreference
+        await AppPreference.loadCurrentUser();
 
         // Show success message
         AppSnackbar.success(
