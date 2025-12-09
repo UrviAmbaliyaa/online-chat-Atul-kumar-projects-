@@ -120,6 +120,88 @@ class AppString {
   static const String myGroups = "My Groups";
   static const String addedUsers = "Added Users";
   static const String createdGroups = "Created Groups";
+  static const String addContact = "Add Contact";
+  static const String addGroup = "Add Group";
+  static const String createNewGroup = "Create New Group";
+  static const String createGroupSubtitle =
+      "Add a group name and select members from your contacts";
+  static const String groupName = "Group Name";
+  static const String groupNameHint = "Enter group name";
+  static const String groupNameRequired = "Group name is required";
+  static const String groupNameMinLength =
+      "Group name must be at least 3 characters";
+  static const String selectMembers = "Select Members";
+  static const String selected = "selected";
+  static const String noContactsToAdd = "No contacts available";
+  static const String addContactsFirst = "Add contacts first to create a group";
+  static const String selectAtLeastOneMember =
+      "Please select at least one member";
+  static const String createGroup = "Create Group";
+  static const String groupCreatedSuccessfully = "Group created successfully";
+  static const String groupCreateError =
+      "Failed to create group. Please try again.";
+  static const String groupUpdateError =
+      "Failed to update group. Please try again.";
+  static const String groupNotFound = "Group not found";
+  static const String onlyAdminCanAddMembers =
+      "Only group admin can add members";
+  static const String allMembersAlreadyAdded =
+      "All selected members are already in the group";
+  static const String exitFromGroup = "Exit from Group";
+  static const String exitGroupConfirmation =
+      "Are you sure you want to exit from this group?";
+  static const String exitGroup = "Exit Group";
+  static const String groupExitedSuccessfully =
+      "You have exited from the group";
+  static const String exitGroupError =
+      "Failed to exit from group. Please try again.";
+  static const String groupMembers = "Group Members";
+  static const String admin = "Admin";
+  static const String member = "Member";
+  static const String adminCannotExitGroup =
+      "Group admin cannot exit from the group";
+  static const String userNotInGroup = "You are not a member of this group";
+  static const String errorLoadingMembers = "Error loading members";
+  static const String groupDetails = "Group Details";
+  static const String update = "Update";
+  static const String groupNameUpdated = "Group name updated successfully";
+  static const String addMember = "Add Member";
+  static const String noMembersFound = "No members found";
+  static const String removeMember = "Remove Member";
+  static const String removeMemberConfirmation =
+      "Are you sure you want to remove {name} from this group?";
+  static const String remove = "Remove";
+  static const String memberRemovedSuccessfully = "Member removed successfully";
+  static const String removeMemberError =
+      "Failed to remove member. Please try again.";
+  static const String onlyAdminCanRemoveMembers =
+      "Only group admin can remove members";
+  static const String cannotRemoveAdmin = "Cannot remove admin from the group";
+  static const String editMembers = "Edit Members";
+  static const String editGroupMembers = "Edit Group Members";
+  static const String editGroupMembersSubtitle =
+      "Update group name and manage members";
+  static const String updateGroup = "Update Group";
+  static const String groupUpdatedSuccessfully = "Group updated successfully";
+  static const String deleteGroup = "Delete Group";
+  static const String deleteGroupConfirmation =
+      "Are you sure you want to delete this group? This action cannot be undone.";
+  static const String groupDeletedSuccessfully = "Group deleted successfully";
+  static const String deleteGroupError =
+      "Failed to delete group. Please try again.";
+  static const String onlyAdminCanDeleteGroup =
+      "Only group admin can delete the group";
+  static const String addContactTitle = "Add New Contact";
+  static const String addContactSubtitle =
+      "Enter the email address of the person you want to add as a contact";
+  static const String addContactEmailHint = "Enter contact email address";
+  static const String contactAddedSuccessfully = "Contact added successfully";
+  static const String contactAddError =
+      "Failed to add contact. Please try again.";
+  static const String contactAlreadyExists =
+      "This contact is already in your list";
+  static const String cannotAddYourself =
+      "You cannot add yourself as a contact";
   static const String noUsersFound = "No users found";
   static const String noGroupsFound = "No groups found";
   static const String online = "Online";

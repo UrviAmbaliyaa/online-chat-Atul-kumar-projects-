@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
@@ -634,6 +635,644 @@ class FirebaseService {
       return false;
     }
   }
+
+  // ==================== CONTACT METHODS ====================
+
+  /// Check if user exists by email
+  /// [email] - Email to search for
+  /// Returns UserExistsResult with userId if found
+  static Future<UserExistsResult> checkUserExistsByEmail(String email) async {
+    try {
+      // Query Firestore for user with matching email
+      final querySnapshot = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .where('email', isEqualTo: email.toLowerCase())
+          .limit(1)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        return UserExistsResult(
+            exists: true, userId: querySnapshot.docs.first.id);
+      }
+      return UserExistsResult(exists: false, userId: null);
+    } catch (e) {
+      log("Check user exists error: $e");
+      return UserExistsResult(exists: false, userId: null);
+    }
+  }
+
+  /// Check if contact already exists
+  /// [currentUserId] - Current user ID
+  /// [contactUserId] - Contact user ID to check
+  /// Returns true if contact exists, false otherwise
+  static Future<bool> checkContactExists({
+    required String currentUserId,
+    required String contactUserId,
+  }) async {
+    try {
+      final userDoc = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId)
+          .get();
+
+      if (!userDoc.exists || userDoc.data() == null) {
+        return false;
+      }
+
+      final contacts = userDoc.data()!['contacts'] as List<dynamic>?;
+      if (contacts == null) {
+        return false;
+      }
+
+      return contacts.contains(contactUserId);
+    } catch (e) {
+      log("Check contact exists error: $e");
+      return false;
+    }
+  }
+
+  /// Add contact to user's document
+  /// [currentUserId] - Current user ID
+  /// [contactUserId] - Contact user ID to add
+  /// Returns true on success, false on failure
+  static Future<bool> addContact({
+    required String currentUserId,
+    required String contactUserId,
+  }) async {
+    try {
+      final userRef = _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId);
+
+      // Use FieldValue.arrayUnion to add contact if not already present
+      await userRef.update({
+        'contacts': FieldValue.arrayUnion([contactUserId]),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.contactAddError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.contactAddError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+
+  /// Get user contacts
+  /// [userId] - User ID
+  /// Returns list of contact user IDs
+  static Future<List<String>> getUserContacts(String userId) async {
+    try {
+      final userDoc = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .get();
+
+      if (!userDoc.exists || userDoc.data() == null) {
+        return [];
+      }
+
+      final contacts = userDoc.data()!['contacts'] as List<dynamic>?;
+      if (contacts == null) {
+        return [];
+      }
+
+      return contacts.map((e) => e.toString()).toList();
+    } catch (e) {
+      log("Get user contacts error: $e");
+      return [];
+    }
+  }
+
+  /// Get users by IDs
+  /// [userIds] - List of user IDs
+  /// Returns list of UserModel
+  static Future<List<UserModel>> getUsersByIds(List<String> userIds) async {
+    try {
+      if (userIds.isEmpty) {
+        return [];
+      }
+
+      // Firestore 'in' query limit is 10, so we need to batch if more than 10
+      List<UserModel> users = [];
+
+      for (int i = 0; i < userIds.length; i += 10) {
+        final batch = userIds.skip(i).take(10).toList();
+        final querySnapshot = await _firestore
+            .collection(FirebaseConstants.userCollection)
+            .where(FieldPath.documentId, whereIn: batch)
+            .get();
+
+        for (var doc in querySnapshot.docs) {
+          if (doc.exists) {
+            final data = doc.data();
+            try {
+              users.add(UserModel.fromFirestore(data, doc.id));
+            } catch (e) {
+              log("Error parsing user ${doc.id}: $e");
+            }
+          }
+        }
+      }
+
+      return users;
+    } catch (e) {
+      log("Get users by IDs error: $e");
+      return [];
+    }
+  }
+
+  // ==================== GROUP METHODS ====================
+
+  /// Create a new group
+  /// [name] - Group name
+  /// [createdBy] - User ID of the creator (admin)
+  /// [members] - List of member user IDs (includes creator)
+  /// Returns group ID on success, null on failure
+  static Future<String?> createGroup({
+    required String name,
+    required String createdBy,
+    required List<String> members,
+    String? description,
+    String? groupImage,
+  }) async {
+    try {
+      // Generate unique group ID
+      final groupRef =
+          _firestore.collection(FirebaseConstants.groupCollection).doc();
+      final groupId = groupRef.id;
+
+      final groupData = {
+        'id': groupId,
+        'name': name.trim(),
+        'description': description,
+        'groupImage': groupImage,
+        'createdBy': createdBy,
+        'createdAt': FieldValue.serverTimestamp(),
+        'members': members,
+        'memberCount': members.length,
+        'admins': [createdBy], // Creator is admin
+        'updatedAt': FieldValue.serverTimestamp(),
+      };
+
+      await groupRef.set(groupData);
+      return groupId;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.groupCreateError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return null;
+    } catch (e) {
+      String errorMessage = AppString.groupCreateError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return null;
+    }
+  }
+
+  /// Get groups created by user
+  /// [userId] - User ID
+  /// Returns list of GroupChatModel
+  static Future<List<GroupChatModel>> getUserGroups(String userId) async {
+    try {
+      final querySnapshot = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .where('members', arrayContains: userId)
+          .get();
+
+      // Sort by createdAt descending manually since we can't use orderBy with arrayContains
+      final sortedDocs = querySnapshot.docs.toList()
+        ..sort((a, b) {
+          final aTime =
+              (a.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
+          final bTime =
+              (b.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
+          return bTime.compareTo(aTime);
+        });
+
+      return sortedDocs.map((doc) {
+        final data = doc.data();
+        return GroupChatModel(
+          id: data['id'] ?? doc.id,
+          name: data['name'] ?? '',
+          description: data['description'],
+          groupImage: data['groupImage'],
+          createdBy: data['createdBy'] ?? '',
+          createdAt:
+              (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          members: List<String>.from(data['members'] ?? []),
+          memberCount: data['memberCount'] ?? 0,
+          lastMessage: data['lastMessage'],
+          lastMessageTime: (data['lastMessageTime'] as Timestamp?)?.toDate(),
+        );
+      }).toList();
+    } catch (e) {
+      log("Get user groups error: $e");
+      return [];
+    }
+  }
+
+  /// Update group name
+  /// [groupId] - Group ID
+  /// [newName] - New group name
+  /// Returns true on success, false on failure
+  static Future<bool> updateGroupName({
+    required String groupId,
+    required String newName,
+  }) async {
+    try {
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .update({
+        'name': newName.trim(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.groupUpdateError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.groupUpdateError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+
+  /// Add members to group
+  /// [groupId] - Group ID
+  /// [memberIds] - List of member user IDs to add
+  /// [adminId] - User ID of the admin performing the action
+  /// Returns true on success, false on failure
+  static Future<bool> addGroupMembers({
+    required String groupId,
+    required List<String> memberIds,
+    required String adminId,
+  }) async {
+    try {
+      // Check if user is admin
+      final groupDoc = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists || groupDoc.data() == null) {
+        AppSnackbar.error(message: AppString.groupNotFound);
+        return false;
+      }
+
+      final admins = List<String>.from(groupDoc.data()!['admins'] ?? []);
+      if (!admins.contains(adminId)) {
+        AppSnackbar.error(message: AppString.onlyAdminCanAddMembers);
+        return false;
+      }
+
+      final currentMembers =
+          List<String>.from(groupDoc.data()!['members'] ?? []);
+      final newMembers =
+          memberIds.where((id) => !currentMembers.contains(id)).toList();
+
+      if (newMembers.isEmpty) {
+        AppSnackbar.info(message: AppString.allMembersAlreadyAdded);
+        return true;
+      }
+
+      final updatedMembers = [...currentMembers, ...newMembers];
+
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .update({
+        'members': updatedMembers,
+        'memberCount': updatedMembers.length,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.groupUpdateError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.groupUpdateError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+
+  /// Exit from group (remove user from group members)
+  /// [groupId] - Group ID
+  /// [userId] - User ID to remove
+  /// Returns true on success, false on failure
+  static Future<bool> exitFromGroup({
+    required String groupId,
+    required String userId,
+  }) async {
+    try {
+      final groupDoc = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists || groupDoc.data() == null) {
+        AppSnackbar.error(message: AppString.groupNotFound);
+        return false;
+      }
+
+      final data = groupDoc.data()!;
+      final currentMembers = List<String>.from(data['members'] ?? []);
+
+      if (!currentMembers.contains(userId)) {
+        AppSnackbar.info(message: AppString.userNotInGroup);
+        return true; // Already not in group
+      }
+
+      // Remove user from members
+      currentMembers.remove(userId);
+
+      // Also remove from admins if they are admin
+      final admins = List<String>.from(data['admins'] ?? []);
+      admins.remove(userId);
+
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .update({
+        'members': currentMembers,
+        'memberCount': currentMembers.length,
+        'admins': admins,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.exitGroupError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.exitGroupError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+
+  /// Get group members with user details
+  /// [groupId] - Group ID
+  /// Returns list of maps with user info and admin status
+  static Future<List<Map<String, dynamic>>> getGroupMembers(
+      String groupId) async {
+    try {
+      final groupDoc = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists || groupDoc.data() == null) {
+        return [];
+      }
+
+      final data = groupDoc.data()!;
+      final memberIds = List<String>.from(data['members'] ?? []);
+      final admins = List<String>.from(data['admins'] ?? []);
+
+      if (memberIds.isEmpty) {
+        return [];
+      }
+
+      // Get user details for all members
+      final members = <Map<String, dynamic>>[];
+
+      for (int i = 0; i < memberIds.length; i += 10) {
+        final batch = memberIds.skip(i).take(10).toList();
+        final querySnapshot = await _firestore
+            .collection(FirebaseConstants.userCollection)
+            .where(FieldPath.documentId, whereIn: batch)
+            .get();
+
+        for (var doc in querySnapshot.docs) {
+          if (doc.exists) {
+            final userData = doc.data();
+            final userId = doc.id;
+            final isAdmin = admins.contains(userId);
+
+            try {
+              final user = UserModel.fromFirestore(userData, userId);
+              members.add({
+                'user': user,
+                'isAdmin': isAdmin,
+              });
+            } catch (e) {
+              log("Error parsing user $userId: $e");
+            }
+          }
+        }
+      }
+
+      // Sort: admins first, then by name
+      members.sort((a, b) {
+        final aIsAdmin = a['isAdmin'] as bool;
+        final bIsAdmin = b['isAdmin'] as bool;
+        if (aIsAdmin != bIsAdmin) {
+          return bIsAdmin ? 1 : -1;
+        }
+        final aName = (a['user'] as UserModel).name;
+        final bName = (b['user'] as UserModel).name;
+        return aName.compareTo(bName);
+      });
+
+      return members;
+    } catch (e) {
+      log("Get group members error: $e");
+      return [];
+    }
+  }
+
+  /// Remove member from group (admin only)
+  /// [groupId] - Group ID
+  /// [memberId] - Member user ID to remove
+  /// [adminId] - User ID of the admin performing the action
+  /// Returns true on success, false on failure
+  static Future<bool> removeGroupMember({
+    required String groupId,
+    required String memberId,
+    required String adminId,
+  }) async {
+    try {
+      // Check if user is admin
+      final groupDoc = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists || groupDoc.data() == null) {
+        AppSnackbar.error(message: AppString.groupNotFound);
+        return false;
+      }
+
+      final data = groupDoc.data()!;
+      final admins = List<String>.from(data['admins'] ?? []);
+      if (!admins.contains(adminId)) {
+        AppSnackbar.error(message: AppString.onlyAdminCanRemoveMembers);
+        return false;
+      }
+
+      // Check if trying to remove admin
+      if (admins.contains(memberId)) {
+        AppSnackbar.error(message: AppString.cannotRemoveAdmin);
+        return false;
+      }
+
+      final currentMembers = List<String>.from(data['members'] ?? []);
+      if (!currentMembers.contains(memberId)) {
+        AppSnackbar.info(message: AppString.userNotInGroup);
+        return true; // Already not in group
+      }
+
+      // Remove member
+      currentMembers.remove(memberId);
+
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .update({
+        'members': currentMembers,
+        'memberCount': currentMembers.length,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.removeMemberError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.removeMemberError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+
+  /// Delete group (admin only)
+  /// [groupId] - Group ID
+  /// [adminId] - User ID of the admin performing the action
+  /// Returns true on success, false on failure
+  static Future<bool> deleteGroup({
+    required String groupId,
+    required String adminId,
+  }) async {
+    try {
+      // Check if user is admin
+      final groupDoc = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .get();
+
+      if (!groupDoc.exists || groupDoc.data() == null) {
+        AppSnackbar.error(message: AppString.groupNotFound);
+        return false;
+      }
+
+      final data = groupDoc.data()!;
+      final admins = List<String>.from(data['admins'] ?? []);
+      if (!admins.contains(adminId)) {
+        AppSnackbar.error(message: AppString.onlyAdminCanDeleteGroup);
+        return false;
+      }
+
+      // Delete the group
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .delete();
+
+      return true;
+    } on FirebaseException catch (e) {
+      final errorMessage = FirebaseConstants.getFirestoreErrorMessage(
+        e.code,
+        defaultMessage: e.message ?? AppString.deleteGroupError,
+      );
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    } catch (e) {
+      String errorMessage = AppString.deleteGroupError;
+      if (e.toString().contains('network') ||
+          e.toString().contains('Network')) {
+        errorMessage = AppString.networkError;
+      } else if (e.toString().contains('permission')) {
+        errorMessage = AppString.permissionDenied;
+      }
+      AppSnackbar.error(message: errorMessage);
+      return false;
+    }
+  }
+}
+
+/// User exists result model
+class UserExistsResult {
+  final bool exists;
+  final String? userId;
+
+  UserExistsResult({
+    required this.exists,
+    required this.userId,
+  });
 }
 
 /// Batch operation model

@@ -197,19 +197,6 @@ class UsersTabWidget extends StatelessWidget {
             ),
           ],
         ),
-        trailing: IconButton(
-          icon: Icon(
-            Icons.more_vert,
-            color: AppColor.greyColor,
-            size: 20.sp,
-          ),
-          onPressed: () {
-            // TODO: Show user options menu
-          },
-        ),
-        onTap: () {
-          // TODO: Navigate to chat screen
-        },
       ),
     );
   }

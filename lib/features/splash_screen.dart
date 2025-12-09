@@ -34,12 +34,14 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        AppText(
-          text: AppString.appName,
-        )
-      ],
+    return Scaffold(
+      body: Column(
+        children: [
+          AppText(
+            text: AppString.appName,
+          )
+        ],
+      ),
     );
   }
 }

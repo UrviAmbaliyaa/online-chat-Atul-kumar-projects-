@@ -49,41 +49,75 @@ class HomeController extends GetxController {
   // Load added users
   Future<void> loadAddedUsers() async {
     try {
-      // Try to load from local storage
-      final usersJson = AppLocalStorage.getList('added_users');
-
-      if (usersJson != null && usersJson.isNotEmpty) {
-        addedUsers.value = usersJson
-            .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-      } else {
-        // If no data, use sample data for demonstration
-        addedUsers.value = _getSampleUsers();
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId == null) {
+        addedUsers.value = [];
+        return;
       }
+
+      // Get contacts from Firebase
+      final contactIds = await FirebaseService.getUserContacts(currentUserId);
+
+      if (contactIds.isEmpty) {
+        addedUsers.value = [];
+        return;
+      }
+
+      // Get user models for contacts
+      final contacts = await FirebaseService.getUsersByIds(contactIds);
+      addedUsers.value = contacts;
+
+      // Save to local storage for offline access
+      final usersJson = contacts.map((user) => user.toJson()).toList();
+      await AppLocalStorage.setList('added_users', usersJson);
     } catch (e) {
-      // If error, use sample data
-      addedUsers.value = _getSampleUsers();
+      // Fallback to local storage on error
+      try {
+        final usersJson = AppLocalStorage.getList('added_users');
+        if (usersJson != null && usersJson.isNotEmpty) {
+          addedUsers.value = usersJson
+              .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          addedUsers.value = [];
+        }
+      } catch (e2) {
+        addedUsers.value = [];
+      }
     }
   }
 
   // Load created groups
   Future<void> loadCreatedGroups() async {
     try {
-      // Try to load from local storage
-      final groupsJson = AppLocalStorage.getList('created_groups');
-
-      if (groupsJson != null && groupsJson.isNotEmpty) {
-        createdGroups.value = groupsJson
-            .map(
-                (json) => GroupChatModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-      } else {
-        // If no data, use sample data for demonstration
-        createdGroups.value = _getSampleGroups();
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId == null) {
+        createdGroups.value = [];
+        return;
       }
+
+      // Get groups from Firebase where user is a member
+      final groups = await FirebaseService.getUserGroups(currentUserId);
+      createdGroups.value = groups;
+
+      // Save to local storage for offline access
+      final groupsJson = groups.map((group) => group.toJson()).toList();
+      await AppLocalStorage.setList('created_groups', groupsJson);
     } catch (e) {
-      // If error, use sample data
-      createdGroups.value = _getSampleGroups();
+      // Fallback to local storage on error
+      try {
+        final groupsJson = AppLocalStorage.getList('created_groups');
+        if (groupsJson != null && groupsJson.isNotEmpty) {
+          createdGroups.value = groupsJson
+              .map((json) =>
+                  GroupChatModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
+          createdGroups.value = [];
+        }
+      } catch (e2) {
+        createdGroups.value = [];
+      }
     }
   }
 
@@ -135,6 +169,16 @@ class HomeController extends GetxController {
   // Refresh data
   Future<void> refresh() async {
     await loadData();
+  }
+
+  // Refresh contacts after adding new contact
+  Future<void> refreshContacts() async {
+    await loadAddedUsers();
+  }
+
+  // Refresh groups after creating new group
+  Future<void> refreshGroups() async {
+    await loadCreatedGroups();
   }
 
   // Logout user
@@ -224,5 +268,15 @@ class HomeController extends GetxController {
         lastMessageTime: DateTime.now().subtract(const Duration(days: 1)),
       ),
     ];
+  }
+
+  // Navigate to add contact
+  void navigateToAddContact() {
+    AppNavigation.toNamed(AppRoutes.addContactScreen);
+  }
+
+  // Navigate to add group
+  void navigateToAddGroup() {
+    AppNavigation.toNamed(AppRoutes.addGroupScreen);
   }
 }

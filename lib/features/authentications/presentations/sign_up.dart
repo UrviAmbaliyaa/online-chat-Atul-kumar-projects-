@@ -40,16 +40,16 @@ class SignUpScreen extends StatelessWidget {
                 SizedBox(height: 24.h),
 
                 // Profile Picture
-                _buildProfilePicture(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 200.ms)
-                    .scale(
-                        begin: const Offset(0.9, 0.9),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        delay: 200.ms),
-
-                SizedBox(height: 24.h),
+                // _buildProfilePicture(controller)
+                //     .animate()
+                //     .fadeIn(duration: 600.ms, delay: 200.ms)
+                //     .scale(
+                //         begin: const Offset(0.9, 0.9),
+                //         end: const Offset(1, 1),
+                //         duration: 600.ms,
+                //         delay: 200.ms),
+                //
+                // SizedBox(height: 24.h),
 
                 // Name Field
                 _buildNameField(controller)

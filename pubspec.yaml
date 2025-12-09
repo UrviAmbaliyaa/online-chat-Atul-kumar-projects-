@@ -52,6 +52,7 @@ dependencies:
   flutter_plugin_android_lifecycle: 2.0.26
   cached_network_image: ^3.4.1
   shimmer_skeleton: ^0.0.1
+  flutter_speed_dial: ^7.0.0
 
 dev_dependencies:
   flutter_test:

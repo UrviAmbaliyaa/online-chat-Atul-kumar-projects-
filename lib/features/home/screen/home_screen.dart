@@ -3,8 +3,10 @@ import 'dart:io';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_speed_dial/flutter_speed_dial.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
+import 'package:online_chat/features/home/widgets/custom_speed_dial.dart';
 import 'package:online_chat/features/home/widgets/groups_tab_widget.dart';
 import 'package:online_chat/features/home/widgets/users_tab_widget.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
@@ -18,26 +20,27 @@ import 'package:online_chat/utils/app_text.dart';
 import 'package:shimmer_skeleton/shimmer_skeleton.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key});
+  HomeScreen({super.key});
+
+  final HomeController controller = Get.put(HomeController());
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(HomeController());
-
     return Scaffold(
       backgroundColor: AppColor.ScaffoldColor,
       appBar: _buildCustomAppBar(context, controller),
-      body: Obx(
-        () => controller.isLoading.value
-            ? _buildShimmerLoader()
-            : Column(
-                children: [
-                  // Tab Bar
-                  _buildTabBar(controller),
+      floatingActionButton: _buildSpeedDial(),
+      body: Column(
+        children: [
+          // Tab Bar
+          _buildTabBar(controller),
 
-                  // Content
-                  Expanded(
-                    child: RefreshIndicator(
+          // Content
+          Expanded(
+            child: Obx(
+              () => controller.isLoading.value
+                  ? _buildShimmerLoader()
+                  : RefreshIndicator(
                       onRefresh: controller.refresh,
                       color: AppColor.primaryColor,
                       child: Obx(
@@ -46,9 +49,9 @@ class HomeScreen extends StatelessWidget {
                             : GroupsTabWidget(controller: controller),
                       ),
                     ),
-                  ),
-                ],
-              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -85,38 +88,47 @@ class HomeScreen extends StatelessWidget {
     required String title,
     required IconData icon,
   }) {
-    final isSelected = controller.selectedTab.value == index;
+    return Obx(
+      () {
+        final isSelected = controller.selectedTab.value == index;
 
-    return GestureDetector(
-      onTap: () => controller.switchTab(index),
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: 16.h),
-        decoration: BoxDecoration(
-          border: Border(
-            bottom: BorderSide(
-              color: isSelected ? AppColor.primaryColor : AppColor.lightGrey,
-              width: isSelected ? 3 : 1,
+        return GestureDetector(
+          onTap: () => controller.switchTab(index),
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+            padding: EdgeInsets.symmetric(vertical: 16.h),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color:
+                      isSelected ? AppColor.primaryColor : AppColor.lightGrey,
+                  width: isSelected ? 3 : 1,
+                ),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  icon,
+                  size: 20.sp,
+                  color:
+                      isSelected ? AppColor.primaryColor : AppColor.greyColor,
+                ),
+                SizedBox(width: 8.w),
+                AppText(
+                  text: title,
+                  fontSize: 14.sp,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                  color:
+                      isSelected ? AppColor.primaryColor : AppColor.greyColor,
+                ),
+              ],
             ),
           ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              icon,
-              size: 20.sp,
-              color: isSelected ? AppColor.primaryColor : AppColor.greyColor,
-            ),
-            SizedBox(width: 8.w),
-            AppText(
-              text: title,
-              fontSize: 14.sp,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-              color: isSelected ? AppColor.primaryColor : AppColor.greyColor,
-            ),
-          ],
-        ),
-      ),
+        );
+      },
     );
   }
 
@@ -260,106 +272,81 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildShimmerLoader() {
-    return Column(
-      children: [
-        // Tab Bar Shimmer
-        Container(
-          color: AppColor.whiteColor,
-          padding: EdgeInsets.symmetric(vertical: 16.h),
+    return ListView.builder(
+      padding: EdgeInsets.all(Spacing.md),
+      itemCount: 5,
+      itemBuilder: (context, index) {
+        return Container(
+          margin: EdgeInsets.only(bottom: Spacing.sm),
+          padding: EdgeInsets.all(Spacing.md),
+          decoration: BoxDecoration(
+            color: AppColor.whiteColor,
+            borderRadius: BorderRadius.circular(12.r),
+          ),
           child: Row(
             children: [
-              Expanded(
-                child: ShimmerSkeleton(
-                  child: Container(
-                    width: double.infinity,
-                    height: 20.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.r),
-                      color: AppColor.lightGrey,
-                    ),
+              ShimmerSkeleton(
+                child: Container(
+                  width: 50.w,
+                  height: 50.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColor.lightGrey,
                   ),
-                  isLoading: true,
                 ),
+                isLoading: true,
               ),
-              SizedBox(width: 16.w),
+              SizedBox(width: Spacing.md),
               Expanded(
-                child: ShimmerSkeleton(
-                  child: Container(
-                    width: double.infinity,
-                    height: 20.h,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(4.r),
-                      color: AppColor.lightGrey,
-                    ),
-                  ),
-                  isLoading: true,
-                ),
-              ),
-            ],
-          ),
-        ),
-        // Content Shimmer
-        Expanded(
-          child: ListView.builder(
-            padding: EdgeInsets.all(Spacing.md),
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: EdgeInsets.only(bottom: Spacing.sm),
-                padding: EdgeInsets.all(Spacing.md),
-                decoration: BoxDecoration(
-                  color: AppColor.whiteColor,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerSkeleton(
                       child: Container(
-                        width: 50.w,
-                        height: 50.h,
+                        width: double.infinity,
+                        height: 16.h,
                         decoration: BoxDecoration(
-                          shape: BoxShape.circle,
+                          borderRadius: BorderRadius.circular(4.r),
                           color: AppColor.lightGrey,
                         ),
                       ),
                       isLoading: true,
                     ),
-                    SizedBox(width: Spacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          ShimmerSkeleton(
-                            child: Container(
-                              width: double.infinity,
-                              height: 16.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.r),
-                                color: AppColor.lightGrey,
-                              ),
-                            ),
-                            isLoading: true,
-                          ),
-                          SizedBox(height: 8.h),
-                          ShimmerSkeleton(
-                            child: Container(
-                              width: 150.w,
-                              height: 12.h,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4.r),
-                                color: AppColor.lightGrey,
-                              ),
-                            ),
-                            isLoading: true,
-                          ),
-                        ],
+                    SizedBox(height: 8.h),
+                    ShimmerSkeleton(
+                      child: Container(
+                        width: 150.w,
+                        height: 12.h,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(4.r),
+                          color: AppColor.lightGrey,
+                        ),
                       ),
+                      isLoading: true,
                     ),
                   ],
                 ),
-              );
-            },
+              ),
+            ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSpeedDial() {
+    return CustomSpeedDial(
+      direction: SpeedDialDirection.up,
+      options: [
+        SpeedDialOption(
+          icon: Icons.person_add_rounded,
+          label: AppString.addContact,
+          onTap: () => controller.navigateToAddContact(),
+        ),
+        SpeedDialOption(
+          icon: Icons.group_add_rounded,
+          label: AppString.addGroup,
+          onTap: () => controller.navigateToAddGroup(),
         ),
       ],
     );
