@@ -199,9 +199,9 @@ class AuthScreen extends StatelessWidget {
 
   Widget _buildRememberAndForgot(SignInController controller) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
-        Obx(
+        /*Obx(
           () => GestureDetector(
             onTap: controller.toggleRememberMe,
             child: Row(
@@ -240,7 +240,7 @@ class AuthScreen extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        ),*/
         GestureDetector(
           onTap: controller.navigateToForgotPassword,
           child: AppText(

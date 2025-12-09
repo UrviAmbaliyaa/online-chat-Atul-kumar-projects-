@@ -83,12 +83,12 @@ class SignUpScreen extends StatelessWidget {
                     .fadeIn(duration: 600.ms, delay: 700.ms)
                     .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 700.ms),
 
-                SizedBox(height: 16.h),
+                // SizedBox(height: 16.h),
 
                 // Terms and Conditions
-                _buildTermsAndConditions(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 800.ms),
+                // _buildTermsAndConditions(controller)
+                //     .animate()
+                //     .fadeIn(duration: 600.ms, delay: 800.ms),
 
                 SizedBox(height: 24.h),
 

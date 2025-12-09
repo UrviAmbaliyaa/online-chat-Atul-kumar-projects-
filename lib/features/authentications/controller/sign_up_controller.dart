@@ -156,12 +156,12 @@ class SignUpController extends GetxController {
     }
 
     // Check terms agreement
-    if (!agreeToTerms.value) {
-      AppSnackbar.error(
-        message: AppString.termsRequired,
-      );
-      return;
-    }
+    // if (!agreeToTerms.value) {
+    //   AppSnackbar.error(
+    //     message: AppString.termsRequired,
+    //   );
+    //   return;
+    // }
 
     try {
       isLoading.value = true;

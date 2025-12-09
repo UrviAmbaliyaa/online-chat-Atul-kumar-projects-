@@ -5,6 +5,8 @@ import 'package:get/get.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/widgets/groups_tab_widget.dart';
 import 'package:online_chat/features/home/widgets/users_tab_widget.dart';
+import 'package:online_chat/navigations/app_navigation.dart';
+import 'package:online_chat/navigations/routes.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
@@ -235,7 +237,7 @@ class HomeScreen extends StatelessWidget {
             color: AppColor.darkGrey,
           ),
           onPressed: () {
-            _showSettingsMenu(context, controller);
+            AppNavigation.toNamed(AppRoutes.settingsScreen);
           },
         ),
         SizedBox(width: 8.w),
@@ -245,58 +247,6 @@ class HomeScreen extends StatelessWidget {
         child: Container(
           color: AppColor.lightGrey,
           height: 1.h,
-        ),
-      ),
-    );
-  }
-
-  void _showSettingsMenu(BuildContext context, HomeController controller) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: AppColor.whiteColor,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (context) => Container(
-        padding: EdgeInsets.all(Spacing.md),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40.w,
-              height: 4.h,
-              margin: EdgeInsets.only(bottom: Spacing.md),
-              decoration: BoxDecoration(
-                color: AppColor.lightGrey,
-                borderRadius: BorderRadius.circular(2.r),
-              ),
-            ),
-            ListTile(
-              leading: Icon(Icons.person_outline, color: AppColor.primaryColor),
-              title: AppText(
-                text: 'Profile',
-                fontSize: 16.sp,
-                color: AppColor.darkGrey,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                // TODO: Navigate to profile screen
-              },
-            ),
-            ListTile(
-              leading: Icon(Icons.logout, color: AppColor.redColor),
-              title: AppText(
-                text: 'Logout',
-                fontSize: 16.sp,
-                color: AppColor.redColor,
-              ),
-              onTap: () {
-                Navigator.pop(context);
-                controller.logout();
-              },
-            ),
-            SizedBox(height: Spacing.sm),
-          ],
         ),
       ),
     );
