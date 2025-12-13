@@ -301,7 +301,7 @@ class EditProfileController extends GetxController {
           file: profileImage.value!,
           path: imagePath,
         );
-        log("profileImageUrl ::::::::::::::::::::::${profileImageUrl}");
+        log("profileImageUrl ::::::::::::::::::::::$profileImageUrl");
         if (profileImageUrl == null) {
           // Upload failed, show error and return
           AppSnackbar.error(message: AppString.profileImageUploadError);
@@ -324,7 +324,7 @@ class EditProfileController extends GetxController {
       // Step 3: Get current user email (not editable)
       final currentEmail =
           currentUser.value?.email ?? AppLocalStorage.getUserEmail();
-      log("currentEmail ::::::::::::::::::::${currentEmail}");
+      log("currentEmail ::::::::::::::::::::$currentEmail");
       if (currentEmail.isEmpty) {
         AppSnackbar.error(message: AppString.userEmailNotFound);
         isSaving.value = false;

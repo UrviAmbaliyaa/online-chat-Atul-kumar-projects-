@@ -19,12 +19,14 @@ class EditMembersController extends GetxController {
   final FocusNode groupNameFocusNode = FocusNode();
 
   final RxList<UserModel> availableContacts = <UserModel>[].obs;
+  final RxList<UserModel> filteredContacts = <UserModel>[].obs;
   final RxList<String> selectedMemberIds = <String>[].obs;
   final RxList<String> currentMemberIds = <String>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isUpdating = false.obs;
   final RxBool isDeletingGroup = false.obs;
   final RxBool isCurrentUserAdmin = false.obs;
+  final TextEditingController searchController = TextEditingController();
 
   EditMembersController({
     required this.group,
@@ -44,6 +46,7 @@ class EditMembersController extends GetxController {
   void onClose() {
     groupNameController.dispose();
     groupNameFocusNode.dispose();
+    searchController.dispose();
     super.onClose();
   }
 
@@ -70,15 +73,33 @@ class EditMembersController extends GetxController {
     try {
       isLoading.value = true;
       availableContacts.value = homeController.addedUsers.toList();
+      filteredContacts.value = availableContacts.toList();
 
       // Pre-select current members (excluding current user)
       final currentUserId = FirebaseService.getCurrentUserId();
       selectedMemberIds.value =
           group.members.where((id) => id != currentUserId).toList();
+
+      // Listen to search changes
+      searchController.addListener(_filterContacts);
     } catch (e) {
       availableContacts.value = [];
+      filteredContacts.value = [];
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void _filterContacts() {
+    final query = searchController.text.toLowerCase().trim();
+    if (query.isEmpty) {
+      filteredContacts.value = availableContacts.toList();
+    } else {
+      filteredContacts.value = availableContacts
+          .where((contact) =>
+              contact.name.toLowerCase().contains(query) ||
+              contact.email.toLowerCase().contains(query))
+          .toList();
     }
   }
 

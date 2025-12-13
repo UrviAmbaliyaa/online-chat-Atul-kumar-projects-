@@ -25,10 +25,6 @@ class ChangePasswordController extends GetxController {
   final RxBool isConfirmPasswordVisible = false.obs;
   final RxBool isChanging = false.obs;
 
-  @override
-  void onInit() {
-    super.onInit();
-  }
 
   @override
   void onClose() {

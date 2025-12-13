@@ -286,6 +286,7 @@ class HomeScreen extends StatelessWidget {
           child: Row(
             children: [
               ShimmerSkeleton(
+                isLoading: true,
                 child: Container(
                   width: 50.w,
                   height: 50.h,
@@ -294,7 +295,6 @@ class HomeScreen extends StatelessWidget {
                     color: AppColor.lightGrey,
                   ),
                 ),
-                isLoading: true,
               ),
               SizedBox(width: Spacing.md),
               Expanded(
@@ -302,6 +302,7 @@ class HomeScreen extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     ShimmerSkeleton(
+                      isLoading: true,
                       child: Container(
                         width: double.infinity,
                         height: 16.h,
@@ -310,10 +311,10 @@ class HomeScreen extends StatelessWidget {
                           color: AppColor.lightGrey,
                         ),
                       ),
-                      isLoading: true,
                     ),
                     SizedBox(height: 8.h),
                     ShimmerSkeleton(
+                      isLoading: true,
                       child: Container(
                         width: 150.w,
                         height: 12.h,
@@ -322,7 +323,6 @@ class HomeScreen extends StatelessWidget {
                           color: AppColor.lightGrey,
                         ),
                       ),
-                      isLoading: true,
                     ),
                   ],
                 ),

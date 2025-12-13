@@ -4,10 +4,13 @@ import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
+import 'package:online_chat/features/home/screen/chat_screen.dart';
 import 'package:online_chat/features/home/widgets/exit_group_confirmation_dialog.dart';
 import 'package:online_chat/features/home/widgets/group_details_dialog.dart';
+import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_color.dart';
+import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
@@ -56,58 +59,65 @@ class GroupsTabWidget extends StatelessWidget {
           horizontal: Spacing.md,
           vertical: Spacing.sm,
         ),
-        leading: CircleAvatar(
-          radius: 28.r,
-          backgroundColor: AppColor.secondaryColor,
-          backgroundImage:
-              group.groupImage != null && group.groupImage!.startsWith('http')
-                  ? NetworkImage(group.groupImage!)
-                  : null,
-          child:
-              group.groupImage == null || !group.groupImage!.startsWith('http')
-                  ? Icon(
-                      Icons.group,
-                      size: 28.sp,
-                      color: AppColor.whiteColor,
-                    )
-                  : null,
+        leading: AppProfileImage(
+          width: 56.w,
+          height: 56.h,
+          username: group.name,
+          imageUrl: group.groupImage,
+          fallbackIcon: Icons.group,
+          fontSize: 28.sp,
         ),
-        title: AppText(
-          text: group.name,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          color: AppColor.darkGrey,
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        title: Row(
           children: [
-            if (group.description != null) ...[
-              SizedBox(height: 4.h),
-              AppText(
-                text: group.description!,
-                fontSize: 14.sp,
+            Expanded(
+              child: AppText(
+                text: group.name,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.darkGrey,
+              ),
+            ),
+            Obx(() {
+              final unreadCount = controller.getUnreadCountForGroup(group.id);
+              if (unreadCount > 0) {
+                return Container(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: 6.w,
+                    vertical: 2.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColor.primaryColor,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: AppText(
+                    text: unreadCount > 99 ? '99+' : unreadCount.toString(),
+                    fontSize: 11.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.whiteColor,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+          ],
+        ),
+        subtitle: Padding(
+          padding: EdgeInsets.only(top: 4.h),
+          child: Row(
+            children: [
+              Icon(
+                Icons.people_outline,
+                size: 14.sp,
                 color: AppColor.greyColor,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              ),
+              SizedBox(width: 4.w),
+              AppText(
+                text: '${group.memberCount} ${AppString.members}',
+                fontSize: 12.sp,
+                color: AppColor.greyColor,
               ),
             ],
-            SizedBox(height: 4.h),
-            Row(
-              children: [
-                Icon(
-                  Icons.people_outline,
-                  size: 14.sp,
-                  color: AppColor.greyColor,
-                ),
-                SizedBox(width: 4.w),
-                AppText(
-                  text: '${group.memberCount} ${AppString.members}',
-                  fontSize: 12.sp,
-                  color: AppColor.greyColor,
-                ),
-              ],
-            ),
-          ],
+          ),
         ),
         trailing: Builder(
           builder: (BuildContext itemContext) {
@@ -185,7 +195,13 @@ class GroupsTabWidget extends StatelessWidget {
           },
         ),
         onTap: () {
-          // TODO: Navigate to group chat screen
+          AppNavigation.push(
+            const ChatScreen(),
+            arguments: {
+              'chatType': 'group',
+              'group': group,
+            },
+          );
         },
       ),
     );

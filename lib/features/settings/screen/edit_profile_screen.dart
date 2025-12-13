@@ -5,6 +5,7 @@ import 'package:online_chat/features/settings/controller/edit_profile_controller
 import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_preference.dart';
+import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
@@ -64,7 +65,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
       leadingWidth: 0.sp,
-      leading: SizedBox.shrink(),
+      leading: const SizedBox.shrink(),
       title: Row(
         children: [
           IconButton(
@@ -101,24 +102,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
           // Profile Picture
           Stack(
             children: [
-              Container(
+              Obx(
+                () => Container(
                   width: 120.w,
                   height: 120.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColor.primaryColor,
-                      width: 4,
-                    ),
-                    gradient: const LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        AppColor.primaryColor,
-                        AppColor.secondaryColor,
-                        AppColor.accentColor,
-                      ],
-                    ),
                     boxShadow: [
                       BoxShadow(
                         color: AppColor.primaryColor.withOpacity(0.3),
@@ -128,30 +117,20 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                     ],
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: _buildProfilePlaceholder(controller)
-                  /*controller.profileImage.value != null
-                    ? Image.file(
-                        controller.profileImage.value!,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return _buildProfilePlaceholder(controller);
-                        },
-                      )
-                    : controller.currentProfileImageUrl != null &&
-                            controller.currentProfileImageUrl!.isNotEmpty &&
-                            controller.currentProfileImageUrl!
-                                .startsWith('http')
-                        ? CachedNetworkImage(
-                            imageUrl: controller.currentProfileImageUrl!,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) =>
-                                _buildProfilePlaceholder(controller),
-                            errorWidget: (context, url, error) =>
-                                _buildProfilePlaceholder(controller),
-                          )
-                        : _buildProfilePlaceholder(controller),*/
+                  child: AppProfileImage(
+                    width: 120.w,
+                    height: 120.w,
+                    username: controller.nameController.text.isNotEmpty
+                        ? controller.nameController.text
+                        : 'User',
+                    imageUrl: controller.currentProfileImageUrl,
+                    imageFile: controller.profileImage.value,
+                    borderWidth: 4,
+                    borderColor: AppColor.primaryColor,
+                    fontSize: 48.sp,
                   ),
+                ),
+              ),
               // Edit Icon Button
               // Positioned(
               //   bottom: 0,
@@ -219,32 +198,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget _buildProfilePlaceholder(EditProfileController controller) {
-    return Container(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColor.primaryColor,
-            AppColor.secondaryColor,
-            AppColor.accentColor,
-          ],
-        ),
-      ),
-      child: Center(
-        child: AppText(
-          text: controller.nameController.text.isNotEmpty
-              ? controller.nameController.text[0].toUpperCase()
-              : 'U',
-          fontSize: 48.sp,
-          fontWeight: FontWeight.w700,
-          color: AppColor.whiteColor,
-        ),
-      ),
-    );
-  }
 
   Widget _buildFormFields(EditProfileController controller) {
     return Container(

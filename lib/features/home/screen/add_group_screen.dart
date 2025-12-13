@@ -25,30 +25,46 @@ class AddGroupScreen extends StatelessWidget {
       body: Obx(
         () => controller.isLoading.value
             ? _buildShimmerLoader()
-            : SingleChildScrollView(
-                padding: EdgeInsets.all(Spacing.md),
-                child: Form(
-                  key: controller.formKey,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // SizedBox(height: Spacing.sm),
-                      // Header Section
-                      _buildHeaderSection(),
-                      SizedBox(height: Spacing.md),
-                      // Group Name Input
-                      _buildGroupNameSection(controller),
-                      SizedBox(height: Spacing.md),
-                      // Members Selection Section
-                      _buildMembersSection(controller),
-                      SizedBox(height: Spacing.md),
-                      // Create Group Button
-                      _buildCreateGroupButton(controller),
-                      SizedBox(height: Spacing.md),
-                    ],
+            : Form(
+              key: controller.formKey,
+              child: Column(
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Group Name Input
+                          _buildGroupNameSection(controller),
+                          SizedBox(height: Spacing.sm),
+                          // Members Selection Section
+                          _buildMembersSection(controller),
+                        ],
+                      ).paddingAll(Spacing.md),
+                    ),
                   ),
-                ),
+                  // Create Group Button
+                  Container(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: Spacing.md,
+                      vertical: Spacing.sm,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColor.whiteColor,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColor.greyColor.withOpacity(0.1),
+                          blurRadius: 4,
+                          spreadRadius: 0,
+                          offset: const Offset(0, -2),
+                        ),
+                      ],
+                    ),
+                    child: _buildCreateGroupButton(controller),
+                  ),
+                ],
               ),
+            ),
       ),
     );
   }
@@ -58,7 +74,7 @@ class AddGroupScreen extends StatelessWidget {
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
       leadingWidth: 0.sp,
-      leading: SizedBox.shrink(),
+      leading: const SizedBox.shrink(),
       title: Row(
         children: [
           IconButton(
@@ -110,7 +126,7 @@ class AddGroupScreen extends StatelessWidget {
             height: 80.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
@@ -162,41 +178,38 @@ class AddGroupScreen extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 15,
+            blurRadius: 10,
             spreadRadius: 0,
-            offset: const Offset(0, 4),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
-      padding: EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.all(Spacing.md),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           AppText(
             text: AppString.groupName,
-            fontSize: 14.sp,
+            fontSize: 12.sp,
             fontWeight: FontWeight.w600,
             color: AppColor.darkGrey,
           ),
-          SizedBox(height: Spacing.sm),
+          SizedBox(height: Spacing.xs),
           AppTextField(
             controller: controller.groupNameController,
             hintText: AppString.groupNameHint,
             prefixIcon: Icon(
               Icons.group_outlined,
               color: AppColor.primaryColor,
-              size: 20.sp,
+              size: 18.sp,
             ),
             validator: controller.validateGroupName,
             focusNode: controller.groupNameFocusNode,
             textStyle: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 14.sp,
               color: AppColor.darkGrey,
               fontWeight: FontWeight.w500,
             ),
-            onSubmitted: (_) {
-              // Focus on members section or create button
-            },
           ),
         ],
       ),
@@ -212,50 +225,73 @@ class AddGroupScreen extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: AppColor.primaryColor.withOpacity(0.08),
-              blurRadius: 15,
+              blurRadius: 10,
               spreadRadius: 0,
-              offset: const Offset(0, 4),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
-        padding: EdgeInsets.all(Spacing.lg),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                AppText(
-                  text: AppString.selectMembers,
-                  fontSize: 14.sp,
-                  fontWeight: FontWeight.w600,
+            Padding(
+              padding: EdgeInsets.all(Spacing.md),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  AppText(
+                    text: AppString.selectMembers,
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.darkGrey,
+                  ),
+                  if (controller.selectedMemberIds.isNotEmpty)
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 6.w,
+                        vertical: 2.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.primaryColor.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10.r),
+                      ),
+                      child: AppText(
+                        text:
+                            '${controller.selectedMemberIds.length} ${AppString.selected}',
+                        fontSize: 10.sp,
+                        fontWeight: FontWeight.w600,
+                        color: AppColor.primaryColor,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            // Search field
+            Padding(
+              padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+              child: AppTextField(
+                controller: controller.searchController,
+                hintText: 'Search members...',
+                prefixIcon: Icon(
+                  Icons.search,
+                  color: AppColor.primaryColor,
+                  size: 18.sp,
+                ),
+                textStyle: TextStyle(
+                  fontSize: 13.sp,
                   color: AppColor.darkGrey,
                 ),
-                if (controller.selectedMemberIds.isNotEmpty)
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 8.w,
-                      vertical: 4.h,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.primaryColor.withOpacity(0.1),
-                      borderRadius: BorderRadius.circular(12.r),
-                    ),
-                    child: AppText(
-                      text:
-                          '${controller.selectedMemberIds.length} ${AppString.selected}',
-                      fontSize: 12.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.primaryColor,
-                    ),
-                  ),
-              ],
+              ),
             ),
-            SizedBox(height: Spacing.md),
-            if (controller.availableContacts.isEmpty)
-              _buildEmptyContactsState()
-            else
-              _buildContactsList(controller),
+            SizedBox(height: Spacing.sm),
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: 300.h,
+              ),
+              child: controller.filteredContacts.isEmpty
+                  ? _buildEmptyContactsState()
+                  : _buildContactsList(controller),
+            ),
           ],
         ),
       ),
@@ -264,26 +300,25 @@ class AddGroupScreen extends StatelessWidget {
 
   Widget _buildEmptyContactsState() {
     return Container(
-      padding: EdgeInsets.all(Spacing.xl),
+      width: double.infinity,
+      alignment: Alignment.center,
+      padding: EdgeInsets.symmetric(
+        horizontal: Spacing.md,
+        vertical: Spacing.xl,
+      ),
       child: Column(
+
         children: [
           Icon(
             Icons.person_outline,
-            size: 48.sp,
+            size: 40.sp,
             color: AppColor.greyColor.withOpacity(0.5),
-          ),
-          SizedBox(height: Spacing.md),
-          AppText(
-            text: AppString.noContactsToAdd,
-            fontSize: 14.sp,
-            color: AppColor.greyColor,
-            textAlign: TextAlign.center,
           ),
           SizedBox(height: Spacing.sm),
           AppText(
-            text: AppString.addContactsFirst,
+            text: AppString.noContactsToAdd,
             fontSize: 12.sp,
-            color: AppColor.greyColor.withOpacity(0.7),
+            color: AppColor.greyColor,
             textAlign: TextAlign.center,
           ),
         ],
@@ -294,11 +329,12 @@ class AddGroupScreen extends StatelessWidget {
   Widget _buildContactsList(AddGroupController controller) {
     return ListView.separated(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      itemCount: controller.availableContacts.length,
-      separatorBuilder: (context, index) => SizedBox(height: Spacing.sm),
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+      itemCount: controller.filteredContacts.length,
+      separatorBuilder: (context, index) => SizedBox(height: Spacing.xs),
       itemBuilder: (context, index) {
-        final contact = controller.availableContacts[index];
+        final contact = controller.filteredContacts[index];
         final isSelected = controller.isMemberSelected(contact.id);
 
         return _buildContactItem(controller, contact, isSelected);
@@ -313,27 +349,30 @@ class AddGroupScreen extends StatelessWidget {
   ) {
     return InkWell(
       onTap: () => controller.toggleMemberSelection(contact.id),
-      borderRadius: BorderRadius.circular(8.r),
+      borderRadius: BorderRadius.circular(6.r),
       child: Container(
-        padding: EdgeInsets.all(Spacing.sm),
+        padding: EdgeInsets.symmetric(
+          horizontal: Spacing.sm,
+          vertical: Spacing.xs,
+        ),
         decoration: BoxDecoration(
           color: isSelected
               ? AppColor.primaryColor.withOpacity(0.1)
               : Colors.transparent,
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(6.r),
           border: Border.all(
             color: isSelected
                 ? AppColor.primaryColor
                 : AppColor.lightGrey.withOpacity(0.5),
-            width: isSelected ? 2 : 1,
+            width: isSelected ? 1.5 : 1,
           ),
         ),
         child: Row(
           children: [
             // Checkbox
             Container(
-              width: 24.w,
-              height: 24.h,
+              width: 20.w,
+              height: 20.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: isSelected ? AppColor.primaryColor : Colors.transparent,
@@ -341,37 +380,42 @@ class AddGroupScreen extends StatelessWidget {
                   color: isSelected
                       ? AppColor.primaryColor
                       : AppColor.greyColor.withOpacity(0.5),
-                  width: 2,
+                  width: 1.5,
                 ),
               ),
               child: isSelected
                   ? Icon(
                       Icons.check,
                       color: AppColor.whiteColor,
-                      size: 16.sp,
+                      size: 14.sp,
                     )
                   : null,
             ),
-            SizedBox(width: Spacing.md),
+            SizedBox(width: Spacing.sm),
             // Profile Picture
             _buildContactAvatar(contact),
-            SizedBox(width: Spacing.md),
+            SizedBox(width: Spacing.sm),
             // Contact Info
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   AppText(
                     text: contact.name,
-                    fontSize: 15.sp,
+                    fontSize: 13.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColor.darkGrey,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  SizedBox(height: 2.h),
+                  SizedBox(height: 1.h),
                   AppText(
                     text: contact.email,
-                    fontSize: 13.sp,
+                    fontSize: 11.sp,
                     color: AppColor.greyColor,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -384,11 +428,11 @@ class AddGroupScreen extends StatelessWidget {
 
   Widget _buildContactAvatar(UserModel contact) {
     return Container(
-      width: 48.w,
-      height: 48.h,
-      decoration: BoxDecoration(
+      width: 36.w,
+      height: 36.h,
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        gradient: const LinearGradient(
+        gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
@@ -422,7 +466,7 @@ class AddGroupScreen extends StatelessWidget {
                       text: contact.name.isNotEmpty
                           ? contact.name[0].toUpperCase()
                           : 'U',
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
                     ),
@@ -446,7 +490,7 @@ class AddGroupScreen extends StatelessWidget {
                       text: contact.name.isNotEmpty
                           ? contact.name[0].toUpperCase()
                           : 'U',
-                      fontSize: 18.sp,
+                      fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
                     ),
@@ -472,7 +516,7 @@ class AddGroupScreen extends StatelessWidget {
                   text: contact.name.isNotEmpty
                       ? contact.name[0].toUpperCase()
                       : 'U',
-                  fontSize: 18.sp,
+                  fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColor.whiteColor,
                 ),
@@ -491,7 +535,7 @@ class AddGroupScreen extends StatelessWidget {
         isLoading: controller.isCreating.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,
-        height: 44.h,
+        height: 38.h,
       ),
     );
   }
@@ -505,6 +549,7 @@ class AddGroupScreen extends StatelessWidget {
           SizedBox(height: Spacing.lg),
           // Header Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 200.h,
@@ -513,11 +558,11 @@ class AddGroupScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(12.r),
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.xl),
           // Group Name Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 100.h,
@@ -526,11 +571,11 @@ class AddGroupScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r),
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.xl),
           // Members Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 300.h,
@@ -539,11 +584,11 @@ class AddGroupScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r),
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.xl),
           // Button Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 44.h,
@@ -552,7 +597,6 @@ class AddGroupScreen extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8.r),
               ),
             ),
-            isLoading: true,
           ),
         ],
       ),

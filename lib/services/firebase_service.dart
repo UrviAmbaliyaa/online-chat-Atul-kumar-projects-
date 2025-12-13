@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:online_chat/features/home/models/chat_info_model.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
@@ -278,15 +279,15 @@ class FirebaseService {
   }) async {
     try {
       Query query = _firestore.collection(collection);
-
+      
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-
+      
       if (limit != null) {
         query = query.limit(limit);
       }
-
+      
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -319,15 +320,15 @@ class FirebaseService {
     try {
       Query query =
           _firestore.collection(collection).where(field, isEqualTo: value);
-
+      
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-
+      
       if (limit != null) {
         query = query.limit(limit);
       }
-
+      
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -354,15 +355,15 @@ class FirebaseService {
     int? limit,
   }) {
     Query query = _firestore.collection(collection);
-
+    
     if (orderBy != null) {
       query = query.orderBy(orderBy);
     }
-
+    
     if (limit != null) {
       query = query.limit(limit);
     }
-
+    
     return query.snapshots();
   }
 
@@ -394,7 +395,7 @@ class FirebaseService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
-
+      
       await _firestore
           .collection(FirebaseConstants.userCollection)
           .doc(userId)
@@ -603,7 +604,7 @@ class FirebaseService {
   static Future<bool> batchWrite(List<BatchOperation> operations) async {
     try {
       final batch = _firestore.batch();
-
+      
       for (var operation in operations) {
         switch (operation.type) {
           case BatchOperationType.create:
@@ -625,7 +626,7 @@ class FirebaseService {
             break;
         }
       }
-
+      
       await batch.commit();
       return true;
     } catch (e) {
@@ -1260,6 +1261,468 @@ class FirebaseService {
       }
       AppSnackbar.error(message: errorMessage);
       return false;
+    }
+  }
+
+  // ==================== MESSAGE METHODS ====================
+
+  /// Send a message (one-to-one or group)
+  /// [chatId] - Chat ID (for one-to-one: sorted user IDs, for group: group ID)
+  /// [senderId] - Sender user ID
+  /// [senderName] - Sender name
+  /// [senderImage] - Sender profile image URL (optional)
+  /// [message] - Message text
+  /// [type] - Message type (text, image, file)
+  /// [chatType] - Chat type (oneToOne, group)
+  /// [imageUrl] - Image URL if type is image (optional)
+  /// [fileUrl] - File URL if type is file (optional)
+  /// [fileName] - File name if type is file (optional)
+  /// [fileSize] - File size if type is file (optional)
+  /// [fileExtension] - File extension if type is file (optional)
+  /// [replyToMessageId] - ID of message being replied to (optional)
+  /// [replyToMessage] - Text of message being replied to (optional)
+  /// [replyToSenderName] - Name of sender of message being replied to (optional)
+  /// Returns message ID on success, null on failure
+  static Future<String?> sendMessage({
+    required String chatId,
+    required String senderId,
+    required String senderName,
+    String? senderImage,
+    required String message,
+    required String type,
+    required String chatType,
+    String? imageUrl,
+    String? fileUrl,
+    String? fileName,
+    String? fileSize,
+    String? fileExtension,
+    String? replyToMessageId,
+    String? replyToMessage,
+    String? replyToSenderName,
+  }) async {
+    try {
+      final messageId = DateTime.now().millisecondsSinceEpoch.toString();
+      final now = DateTime.now();
+      final sevenDaysAgo = now.subtract(const Duration(days: 7));
+
+      final messageData = {
+        'id': messageId,
+        'senderId': senderId,
+        'senderName': senderName,
+        'senderImage': senderImage,
+        'message': message,
+        'type': type,
+        'imageUrl': imageUrl,
+        'fileUrl': fileUrl,
+        'fileName': fileName,
+        'fileSize': fileSize,
+        'fileExtension': fileExtension,
+        'replyToMessageId': replyToMessageId,
+        'replyToMessage': replyToMessage,
+        'replyToSenderName': replyToSenderName,
+        'timestamp': Timestamp.fromDate(now),
+        'isRead': false,
+        'readBy': [],
+      };
+
+      // Get chat document reference
+      final chatDocRef = _firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId);
+
+      // Get current chat document
+      final chatDoc = await chatDocRef.get();
+      
+      List<Map<String, dynamic>> messages = [];
+      if (chatDoc.exists && chatDoc.data() != null) {
+        final data = chatDoc.data()!;
+        messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
+        
+        // Remove messages older than 7 days
+        messages = messages.where((msg) {
+          final msgTimestamp = msg['timestamp'] is Timestamp
+              ? (msg['timestamp'] as Timestamp).toDate()
+              : DateTime.parse(msg['timestamp']);
+          return msgTimestamp.isAfter(sevenDaysAgo);
+        }).toList();
+      }
+
+      // Add new message
+      messages.add(messageData);
+
+      // Update or create chat document
+      await chatDocRef.set({
+        'chatId': chatId,
+        'chatType': chatType,
+        'messages': messages,
+        'lastMessage': message,
+        'lastMessageTime': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
+
+      // Update group last message if it's a group chat
+      if (chatType == 'group') {
+        await _firestore
+            .collection(FirebaseConstants.groupCollection)
+            .doc(chatId)
+            .update({
+          'lastMessage': message,
+          'lastMessageTime': FieldValue.serverTimestamp(),
+        });
+      }
+
+      return messageId;
+    } catch (e) {
+      AppSnackbar.error(message: AppString.sendMessageError);
+      return null;
+    }
+  }
+
+  /// Stream messages for a chat (real-time)
+  /// [chatId] - Chat ID
+  /// Returns stream of chat document with messages array
+  static Stream<DocumentSnapshot> streamMessages(String chatId) {
+    return _firestore
+        .collection(FirebaseConstants.chatCollection)
+        .doc(chatId)
+        .snapshots();
+  }
+
+  /// Upload image for chat
+  /// [file] - Image file
+  /// [chatId] - Chat ID
+  /// Returns download URL on success, null on failure
+  static Future<String?> uploadChatImage({
+    required File file,
+    required String chatId,
+  }) async {
+    try {
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final ref = _storage
+          .ref()
+          .child(FirebaseConstants.chatImagesPath)
+          .child(chatId)
+          .child(fileName);
+
+      final uploadTask = ref.putFile(file);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      AppSnackbar.error(message: AppString.uploadFileError);
+      return null;
+    }
+  }
+
+  /// Upload file for chat (PDF, ZIP, etc.)
+  /// [file] - File to upload
+  /// [chatId] - Chat ID
+  /// Returns download URL on success, null on failure
+  static Future<String?> uploadChatFile({
+    required File file,
+    required String chatId,
+  }) async {
+    try {
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final ref = _storage
+          .ref()
+          .child(FirebaseConstants.chatFilesPath)
+          .child(chatId)
+          .child(fileName);
+
+      final uploadTask = ref.putFile(file);
+      final snapshot = await uploadTask;
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      return downloadUrl;
+    } catch (e) {
+      AppSnackbar.error(message: AppString.uploadFileError);
+      return null;
+    }
+  }
+
+  /// Mark message as read
+  /// [chatId] - Chat ID
+  /// [messageId] - Message ID
+  /// [userId] - User ID who read the message
+  /// Returns true on success, false on failure
+  static Future<bool> markMessageAsRead({
+    required String chatId,
+    required String messageId,
+    required String userId,
+  }) async {
+    try {
+      final chatDocRef = _firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId);
+
+      final chatDoc = await chatDocRef.get();
+      if (!chatDoc.exists || chatDoc.data() == null) {
+        return false;
+      }
+
+      final data = chatDoc.data()!;
+      final messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
+
+      // Find and update the message
+      for (int i = 0; i < messages.length; i++) {
+        if (messages[i]['id'] == messageId) {
+          final readBy = List<String>.from(messages[i]['readBy'] ?? []);
+          if (!readBy.contains(userId)) {
+            readBy.add(userId);
+            messages[i]['readBy'] = readBy;
+            messages[i]['isRead'] = readBy.isNotEmpty;
+          }
+          break;
+        }
+      }
+
+      await chatDocRef.update({'messages': messages});
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Delete a message from chat
+  /// [chatId] - Chat ID
+  /// [messageId] - Message ID to delete
+  /// [userId] - User ID who is deleting (must be the sender)
+  /// Returns true on success, false on failure
+  static Future<bool> deleteMessage({
+    required String chatId,
+    required String messageId,
+    required String userId,
+  }) async {
+    try {
+      final chatDocRef = _firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId);
+
+      final chatDoc = await chatDocRef.get();
+      if (!chatDoc.exists || chatDoc.data() == null) {
+        AppSnackbar.error(message: AppString.chatNotFound);
+        return false;
+      }
+
+      final data = chatDoc.data()!;
+      final messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
+
+      // Find the message
+      final messageIndex = messages.indexWhere((msg) => msg['id'] == messageId);
+      if (messageIndex == -1) {
+        AppSnackbar.error(message: AppString.messageNotFound);
+        return false;
+      }
+
+      // Check if user is the sender
+      if (messages[messageIndex]['senderId'] != userId) {
+        AppSnackbar.error(message: AppString.onlySenderCanDeleteMessage);
+        return false;
+      }
+
+      // Remove the message
+      messages.removeAt(messageIndex);
+
+      // Update chat document
+      await chatDocRef.update({
+        'messages': messages,
+        'updatedAt': FieldValue.serverTimestamp(),
+      });
+
+      // Update last message if needed
+      if (messages.isNotEmpty) {
+        final lastMessage = messages.last;
+        await chatDocRef.update({
+          'lastMessage': lastMessage['message'] ?? '',
+          'lastMessageTime': lastMessage['timestamp'],
+        });
+      } else {
+        await chatDocRef.update({
+          'lastMessage': '',
+          'lastMessageTime': null,
+        });
+      }
+
+      // Update group last message if it's a group chat
+      final chatType = data['chatType'] as String?;
+      if (chatType == 'group') {
+        if (messages.isNotEmpty) {
+          final lastMessage = messages.last;
+          await _firestore
+              .collection(FirebaseConstants.groupCollection)
+              .doc(chatId)
+              .update({
+            'lastMessage': lastMessage['message'] ?? '',
+            'lastMessageTime': lastMessage['timestamp'],
+          });
+        } else {
+          await _firestore
+              .collection(FirebaseConstants.groupCollection)
+              .doc(chatId)
+              .update({
+            'lastMessage': '',
+            'lastMessageTime': null,
+          });
+        }
+      }
+
+      return true;
+    } catch (e) {
+      AppSnackbar.error(message: AppString.deleteMessageError);
+      return false;
+    }
+  }
+
+  /// Get chat ID for one-to-one chat
+  /// [userId1] - First user ID
+  /// [userId2] - Second user ID
+  /// Returns sorted chat ID
+  static String getOneToOneChatId(String userId1, String userId2) {
+    final ids = [userId1, userId2]..sort();
+    return '${ids[0]}_${ids[1]}';
+  }
+
+  /// Get last message for a one-to-one chat
+  /// [currentUserId] - Current user ID
+  /// [otherUserId] - Other user ID
+  /// Returns last message text or null if no messages
+  static Future<String?> getLastMessageForUser({
+    required String currentUserId,
+    required String otherUserId,
+  }) async {
+    try {
+      final chatId = getOneToOneChatId(currentUserId, otherUserId);
+      final chatDoc = await _firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId)
+          .get();
+
+      if (chatDoc.exists && chatDoc.data() != null) {
+        final data = chatDoc.data()!;
+        final lastMessage = data['lastMessage'] as String?;
+        return lastMessage?.isNotEmpty == true ? lastMessage : null;
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  /// Get last messages for multiple users
+  /// [currentUserId] - Current user ID
+  /// [userIds] - List of other user IDs
+  /// Returns map of userId -> lastMessage
+  static Future<Map<String, String?>> getLastMessagesForUsers({
+    required String currentUserId,
+    required List<String> userIds,
+  }) async {
+    final Map<String, String?> lastMessages = {};
+    
+    try {
+      // Get all chat IDs
+      final chatIds = userIds.map((userId) => 
+        getOneToOneChatId(currentUserId, userId)
+      ).toList();
+
+      // Batch fetch chat documents
+      for (int i = 0; i < chatIds.length; i += 10) {
+        final batch = chatIds.skip(i).take(10).toList();
+        final futures = batch.map((chatId) async {
+          try {
+            final chatDoc = await _firestore
+                .collection(FirebaseConstants.chatCollection)
+                .doc(chatId)
+                .get();
+            
+            if (chatDoc.exists && chatDoc.data() != null) {
+              final data = chatDoc.data()!;
+              final lastMessage = data['lastMessage'] as String?;
+              return lastMessage?.isNotEmpty == true ? lastMessage : null;
+            }
+            return null;
+          } catch (e) {
+            return null;
+          }
+        }).toList();
+
+        final results = await Future.wait(futures);
+        for (int j = 0; j < batch.length && j < results.length; j++) {
+          final chatId = batch[j];
+          // Extract userId from chatId (chatId format: userId1_userId2)
+          final parts = chatId.split('_');
+          if (parts.length == 2) {
+            final userId = parts[0] == currentUserId ? parts[1] : parts[0];
+            lastMessages[userId] = results[j];
+          }
+        }
+      }
+    } catch (e) {
+      // Return empty map on error
+    }
+
+    return lastMessages;
+  }
+
+  /// Stream chat info for real-time updates (last message, unread count)
+  /// [chatId] - Chat ID
+  /// [currentUserId] - Current user ID
+  /// Returns stream of ChatInfoModel
+  static Stream<ChatInfoModel?> streamChatInfo({
+    required String chatId,
+    required String currentUserId,
+  }) {
+    return _firestore
+        .collection(FirebaseConstants.chatCollection)
+        .doc(chatId)
+        .snapshots()
+        .map((snapshot) {
+      if (!snapshot.exists || snapshot.data() == null) {
+        return null;
+      }
+
+      final data = snapshot.data()!;
+      return ChatInfoModel.fromFirestore(data, chatId, currentUserId);
+    });
+  }
+
+  /// Get unread message count for a chat
+  /// [chatId] - Chat ID
+  /// [currentUserId] - Current user ID
+  /// Returns unread message count
+  static Future<int> getUnreadMessageCount({
+    required String chatId,
+    required String currentUserId,
+  }) async {
+    try {
+      final chatDoc = await _firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId)
+          .get();
+
+      if (!chatDoc.exists || chatDoc.data() == null) {
+        return 0;
+      }
+
+      final data = chatDoc.data()!;
+      final messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
+
+      int unreadCount = 0;
+      for (var message in messages) {
+        final readBy = List<String>.from(message['readBy'] ?? []);
+        final senderId = message['senderId'] as String?;
+
+        // Count as unread if current user didn't send it and hasn't read it
+        if (senderId != currentUserId && !readBy.contains(currentUserId)) {
+          unreadCount++;
+        }
+      }
+
+      return unreadCount;
+    } catch (e) {
+      return 0;
     }
   }
 }

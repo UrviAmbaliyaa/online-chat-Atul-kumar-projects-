@@ -157,7 +157,7 @@ class AppImagePicker {
                 ],
               ),
               SizedBox(height: Spacing.md),
-              Divider(color: AppColor.lightGrey, height: 1),
+              const Divider(color: AppColor.lightGrey, height: 1),
               SizedBox(height: Spacing.sm),
               // Options
               if (allowMultiple && onMultipleSelected != null)
@@ -371,7 +371,7 @@ class AppImagePicker {
                 ],
               ),
               SizedBox(height: Spacing.md),
-              Divider(color: AppColor.lightGrey, height: 1),
+              const Divider(color: AppColor.lightGrey, height: 1),
               SizedBox(height: Spacing.sm),
               // Options
               _buildDialogOption(

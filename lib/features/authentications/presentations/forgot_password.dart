@@ -168,7 +168,7 @@ class ForgotPasswordScreen extends StatelessWidget {
         width: 120.w,
         height: 120.h,
         decoration: BoxDecoration(
-          gradient: LinearGradient(
+          gradient: const LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [

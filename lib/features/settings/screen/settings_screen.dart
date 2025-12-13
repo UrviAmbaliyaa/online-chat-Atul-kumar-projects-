@@ -1,6 +1,3 @@
-import 'dart:io';
-
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -9,6 +6,7 @@ import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_preference.dart';
+import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
@@ -27,50 +25,43 @@ class SettingsScreen extends StatelessWidget {
       body: Obx(
         () => controller.isLoading.value
             ? _buildShimmerLoader()
-            : RefreshIndicator(
-                onRefresh: () async {
-                  controller.loadUserData();
-                  controller.loadSettings();
-                },
-                color: AppColor.primaryColor,
-                child: SingleChildScrollView(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Spacing.md,
-                    vertical: Spacing.md,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Profile Section
-                      _buildProfileSection(controller),
-                      SizedBox(height: Spacing.lg),
-
-                      // Account Section
-                      _buildSectionTitle(AppString.account),
-                      SizedBox(height: Spacing.sm),
-                      _buildAccountSection(controller),
-                      SizedBox(height: Spacing.lg),
-
-                      // // Notifications Section
-                      // _buildSectionTitle(AppString.notifications),
-                      // SizedBox(height: Spacing.sm),
-                      // _buildNotificationsSection(controller),
-                      // SizedBox(height: Spacing.lg),
-                      //
-                      // // About Section
-                      // _buildSectionTitle(AppString.about),
-                      // SizedBox(height: Spacing.sm),
-                      // _buildAboutSection(controller),
-                      // SizedBox(height: Spacing.lg),
-
-                      // Logout Button
-                      _buildLogoutButton(controller),
-                      SizedBox(height: Spacing.xl),
-                    ],
-                  ),
-                ),
+            : SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.md,
               ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Profile Section
+                  _buildProfileSection(controller),
+                  SizedBox(height: Spacing.lg),
+
+                  // Account Section
+                  _buildSectionTitle(AppString.account),
+                  SizedBox(height: Spacing.sm),
+                  _buildAccountSection(controller),
+                  SizedBox(height: Spacing.lg),
+
+                  // // Notifications Section
+                  // _buildSectionTitle(AppString.notifications),
+                  // SizedBox(height: Spacing.sm),
+                  // _buildNotificationsSection(controller),
+                  // SizedBox(height: Spacing.lg),
+                  //
+                  // // About Section
+                  // _buildSectionTitle(AppString.about),
+                  // SizedBox(height: Spacing.sm),
+                  // _buildAboutSection(controller),
+                  // SizedBox(height: Spacing.lg),
+
+                  // Logout Button
+                  _buildLogoutButton(controller),
+                  SizedBox(height: Spacing.xl),
+                ],
+              ),
+            ),
       ),
     );
   }
@@ -81,7 +72,7 @@ class SettingsScreen extends StatelessWidget {
       elevation: 0,
       leadingWidth: 0,
       automaticallyImplyLeading: false,
-      leading: SizedBox.shrink(),
+      leading: const SizedBox.shrink(),
       title: Row(
         children: [
           // Profile Picture
@@ -164,14 +155,14 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ),
               // Edit Button
-              IconButton(
-                onPressed: controller.navigateToEditProfile,
-                icon: Icon(
-                  Icons.edit_outlined,
-                  color: AppColor.primaryColor,
-                  size: 24.sp,
-                ),
-              ),
+              // IconButton(
+              //   onPressed: controller.navigateToEditProfile,
+              //   icon: Icon(
+              //     Icons.edit_outlined,
+              //     color: AppColor.primaryColor,
+              //     size: 24.sp,
+              //   ),
+              // ),
             ],
           ),
         );
@@ -210,74 +201,16 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Container _displaing_profile_image(
+  Widget _displaing_profile_image(
       String? userProfileImage, String userName) {
-    return Container(
+    return AppProfileImage(
       width: 60.w,
       height: 60.h,
-      clipBehavior: Clip.antiAlias,
-      decoration: BoxDecoration(
-        shape: BoxShape.circle,
-        border: Border.all(
-          color: AppColor.primaryColor,
-          width: 3,
-        ),
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColor.primaryColor,
-            AppColor.secondaryColor,
-            AppColor.accentColor,
-          ],
-        ),
-      ),
-      child: userProfileImage != null &&
-              userProfileImage.isNotEmpty &&
-              userProfileImage.startsWith('http')
-          ? CachedNetworkImage(
-              imageUrl: userProfileImage,
-              fit: BoxFit.cover,
-              placeholder: (context, url) => _buildProfilePlaceholder(userName),
-              errorWidget: (context, url, error) =>
-                  _buildProfilePlaceholder(userName),
-            )
-          : userProfileImage != null &&
-                  userProfileImage.isNotEmpty &&
-                  !userProfileImage.startsWith('http')
-              ? Image.file(
-                  File(userProfileImage),
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) {
-                    return _buildProfilePlaceholder(userName);
-                  },
-                )
-              : _buildProfilePlaceholder(userName),
-    );
-  }
-
-  Widget _buildProfilePlaceholder(String userName) {
-    return Container(
-      decoration: const BoxDecoration(
-        shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            AppColor.primaryColor,
-            AppColor.secondaryColor,
-            AppColor.accentColor,
-          ],
-        ),
-      ),
-      child: Center(
-        child: AppText(
-          text: userName.isNotEmpty ? userName[0].toUpperCase() : 'U',
-          fontSize: 32.sp,
-          fontWeight: FontWeight.w600,
-          color: AppColor.whiteColor,
-        ),
-      ),
+      username: userName,
+      imageUrl: userProfileImage,
+      borderWidth: 3,
+      borderColor: AppColor.primaryColor,
+      fontSize: 32.sp,
     );
   }
 
@@ -572,6 +505,7 @@ class SettingsScreen extends StatelessWidget {
         children: [
           // Profile Section Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 100.h,
@@ -580,11 +514,11 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.lg),
           // Account Section Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 120.h,
@@ -593,11 +527,11 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.lg),
           // Notifications Section Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 80.h,
@@ -606,11 +540,11 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.lg),
           // About Section Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 80.h,
@@ -619,11 +553,11 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.lg),
           // Delete Button Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 56.h,
@@ -632,7 +566,6 @@ class SettingsScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
         ],
       ),

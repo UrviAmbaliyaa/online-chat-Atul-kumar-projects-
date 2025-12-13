@@ -237,6 +237,7 @@ class ChangePasswordScreen extends StatelessWidget {
           SizedBox(height: Spacing.lg),
           // Info Card Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 80.h,
@@ -245,11 +246,11 @@ class ChangePasswordScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.xl),
           // Password Fields Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 56.h,
@@ -258,10 +259,10 @@ class ChangePasswordScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.md),
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 56.h,
@@ -270,10 +271,10 @@ class ChangePasswordScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.md),
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 56.h,
@@ -282,11 +283,11 @@ class ChangePasswordScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
           SizedBox(height: Spacing.xl),
           // Button Shimmer
           ShimmerSkeleton(
+            isLoading: true,
             child: Container(
               width: double.infinity,
               height: 44.h,
@@ -295,7 +296,6 @@ class ChangePasswordScreen extends StatelessWidget {
                 color: AppColor.lightGrey,
               ),
             ),
-            isLoading: true,
           ),
         ],
       ),

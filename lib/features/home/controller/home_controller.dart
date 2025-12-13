@@ -1,4 +1,8 @@
+import 'dart:async';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
+import 'package:online_chat/features/home/models/chat_info_model.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
@@ -7,6 +11,7 @@ import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
 import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
+import 'package:online_chat/utils/firebase_constants.dart';
 
 class HomeController extends GetxController {
   // Observables
@@ -14,6 +19,12 @@ class HomeController extends GetxController {
   final RxList<GroupChatModel> createdGroups = <GroupChatModel>[].obs;
   final RxBool isLoading = false.obs;
   final RxInt selectedTab = 0.obs; // 0 = Users, 1 = Groups
+  final RxMap<String, String?> userLastMessages = <String, String?>{}.obs;
+  final RxMap<String, ChatInfoModel> userChatInfo = <String, ChatInfoModel>{}.obs;
+  final RxMap<String, ChatInfoModel> groupChatInfo = <String, ChatInfoModel>{}.obs;
+  
+  // Stream subscriptions
+  final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions = {};
 
   @override
   void onInit() {
@@ -25,17 +36,27 @@ class HomeController extends GetxController {
     }
   }
 
+  @override
+  void onClose() {
+    // Cancel all stream subscriptions
+    for (var subscription in _chatInfoSubscriptions.values) {
+      subscription.cancel();
+    }
+    _chatInfoSubscriptions.clear();
+    super.onClose();
+  }
+
   // Load users and groups
   Future<void> loadData() async {
     isLoading.value = true;
-
+    
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(milliseconds: 500));
-
+      
       // Load added users (from local storage or API)
       await loadAddedUsers();
-
+      
       // Load created groups (from local storage or API)
       await loadCreatedGroups();
     } catch (e) {
@@ -65,22 +86,28 @@ class HomeController extends GetxController {
 
       // Get user models for contacts
       final contacts = await FirebaseService.getUsersByIds(contactIds);
-      addedUsers.value = contacts;
+      
+      // Sort users by last message time (most recent first)
+      final sortedContacts = await _sortUsersByLastMessage(contacts);
+      addedUsers.value = sortedContacts;
+
+      // Setup real-time chat info streams for all contacts
+      _setupChatInfoStreams(contactIds, isGroup: false);
 
       // Save to local storage for offline access
-      final usersJson = contacts.map((user) => user.toJson()).toList();
+      final usersJson = sortedContacts.map((user) => user.toJson()).toList();
       await AppLocalStorage.setList('added_users', usersJson);
     } catch (e) {
       // Fallback to local storage on error
       try {
-        final usersJson = AppLocalStorage.getList('added_users');
-        if (usersJson != null && usersJson.isNotEmpty) {
-          addedUsers.value = usersJson
-              .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
-              .toList();
-        } else {
+      final usersJson = AppLocalStorage.getList('added_users');
+      if (usersJson != null && usersJson.isNotEmpty) {
+        addedUsers.value = usersJson
+            .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
+            .toList();
+      } else {
           addedUsers.value = [];
-        }
+      }
       } catch (e2) {
         addedUsers.value = [];
       }
@@ -98,23 +125,30 @@ class HomeController extends GetxController {
 
       // Get groups from Firebase where user is a member
       final groups = await FirebaseService.getUserGroups(currentUserId);
-      createdGroups.value = groups;
+      
+      // Sort groups by last message time (most recent first)
+      final sortedGroups = _sortGroupsByLastMessage(groups);
+      createdGroups.value = sortedGroups;
+
+      // Setup real-time chat info streams for all groups
+      final groupIds = sortedGroups.map((group) => group.id).toList();
+      _setupChatInfoStreams(groupIds, isGroup: true);
 
       // Save to local storage for offline access
-      final groupsJson = groups.map((group) => group.toJson()).toList();
+      final groupsJson = sortedGroups.map((group) => group.toJson()).toList();
       await AppLocalStorage.setList('created_groups', groupsJson);
     } catch (e) {
       // Fallback to local storage on error
       try {
-        final groupsJson = AppLocalStorage.getList('created_groups');
-        if (groupsJson != null && groupsJson.isNotEmpty) {
-          createdGroups.value = groupsJson
+      final groupsJson = AppLocalStorage.getList('created_groups');
+      if (groupsJson != null && groupsJson.isNotEmpty) {
+        createdGroups.value = groupsJson
               .map((json) =>
                   GroupChatModel.fromJson(json as Map<String, dynamic>))
-              .toList();
-        } else {
+            .toList();
+      } else {
           createdGroups.value = [];
-        }
+      }
       } catch (e2) {
         createdGroups.value = [];
       }
@@ -167,6 +201,7 @@ class HomeController extends GetxController {
   }
 
   // Refresh data
+  @override
   Future<void> refresh() async {
     await loadData();
   }
@@ -174,6 +209,7 @@ class HomeController extends GetxController {
   // Refresh contacts after adding new contact
   Future<void> refreshContacts() async {
     await loadAddedUsers();
+    // Streams are already set up in loadAddedUsers
   }
 
   // Refresh groups after creating new group
@@ -185,19 +221,19 @@ class HomeController extends GetxController {
   Future<void> logout() async {
     try {
       isLoading.value = true;
-
+      
       // Sign out from Firebase
       final success = await FirebaseService.signOut();
-
+      
       if (success) {
         // Clear local storage
         await AppLocalStorage.logout();
-
+        
         // Show success message
         AppSnackbar.success(
           message: 'Logged out successfully',
         );
-
+        
         // Navigate to sign in screen
         AppNavigation.replaceAllNamed(AppRoutes.signIn);
       }
@@ -278,5 +314,230 @@ class HomeController extends GetxController {
   // Navigate to add group
   void navigateToAddGroup() {
     AppNavigation.toNamed(AppRoutes.addGroupScreen);
+  }
+
+  /// Load last messages for users
+  Future<void> _loadLastMessages(List<String> userIds) async {
+    try {
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId == null || userIds.isEmpty) {
+        return;
+      }
+
+      final lastMessages = await FirebaseService.getLastMessagesForUsers(
+        currentUserId: currentUserId,
+        userIds: userIds,
+      );
+
+      userLastMessages.value = lastMessages;
+    } catch (e) {
+      // Silently fail - last messages are optional
+    }
+  }
+
+  /// Get last message for a specific user
+  String? getLastMessageForUser(String userId) {
+    final chatInfo = userChatInfo[userId];
+    return chatInfo?.lastMessage ?? userLastMessages[userId];
+  }
+
+  /// Get unread count for a specific user
+  int getUnreadCountForUser(String userId) {
+    final chatInfo = userChatInfo[userId];
+    return chatInfo?.unreadCount ?? 0;
+  }
+
+  /// Get unread count for a specific group
+  int getUnreadCountForGroup(String groupId) {
+    final chatInfo = groupChatInfo[groupId];
+    return chatInfo?.unreadCount ?? 0;
+  }
+
+  /// Get chat info for a user (with real-time updates)
+  ChatInfoModel? getChatInfoForUser(String userId) {
+    return userChatInfo[userId];
+  }
+
+  /// Get chat info for a group (with real-time updates)
+  ChatInfoModel? getChatInfoForGroup(String groupId) {
+    return groupChatInfo[groupId];
+  }
+
+  /// Setup real-time chat info streams
+  void _setupChatInfoStreams(List<String> chatIds, {required bool isGroup}) {
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (currentUserId == null) return;
+
+    for (var chatId in chatIds) {
+      // Cancel existing subscription if any
+      _chatInfoSubscriptions[chatId]?.cancel();
+
+      // For one-to-one chats, we need to get the chat ID from user IDs
+      String actualChatId = chatId;
+      if (!isGroup) {
+        actualChatId = FirebaseService.getOneToOneChatId(currentUserId, chatId);
+      }
+
+      // Create new stream subscription
+      final subscription = FirebaseService.streamChatInfo(
+        chatId: actualChatId,
+        currentUserId: currentUserId,
+      ).listen((chatInfo) {
+        if (chatInfo != null) {
+          if (isGroup) {
+            groupChatInfo[chatId] = chatInfo;
+            // Sort groups in real-time when chat info updates
+            _sortGroupsList();
+          } else {
+            userChatInfo[chatId] = chatInfo;
+            // Update last message map for backward compatibility
+            userLastMessages[chatId] = chatInfo.lastMessage;
+            // Sort users in real-time when chat info updates
+            _sortUsersList();
+          }
+        }
+      });
+
+      _chatInfoSubscriptions[actualChatId] = subscription;
+    }
+  }
+
+  /// Sort users by last message time
+  Future<List<UserModel>> _sortUsersByLastMessage(
+    List<UserModel> users,
+  ) async {
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (currentUserId == null) return users;
+
+    // Get chat info for all users
+    final List<Map<String, dynamic>> usersWithTime = [];
+    for (var user in users) {
+      final chatId = FirebaseService.getOneToOneChatId(currentUserId, user.id);
+      try {
+        final chatDoc = await FirebaseFirestore.instance
+            .collection(FirebaseConstants.chatCollection)
+            .doc(chatId)
+            .get();
+
+        DateTime? lastMessageTime;
+        if (chatDoc.exists && chatDoc.data() != null) {
+          final data = chatDoc.data()!;
+          final lastMsgTime = data['lastMessageTime'];
+          if (lastMsgTime != null) {
+            if (lastMsgTime is Timestamp) {
+              lastMessageTime = lastMsgTime.toDate();
+            } else if (lastMsgTime is String) {
+              lastMessageTime = DateTime.parse(lastMsgTime);
+            }
+          }
+        }
+
+        usersWithTime.add({
+          'user': user,
+          'lastMessageTime': lastMessageTime,
+        });
+      } catch (e) {
+        usersWithTime.add({
+          'user': user,
+          'lastMessageTime': null,
+        });
+      }
+    }
+
+    // Sort by last message time (most recent first)
+    usersWithTime.sort((a, b) {
+      final timeA = a['lastMessageTime'] as DateTime?;
+      final timeB = b['lastMessageTime'] as DateTime?;
+
+      if (timeA == null && timeB == null) return 0;
+      if (timeA == null) return 1; // Put nulls at the end
+      if (timeB == null) return -1; // Put nulls at the end
+      return timeB.compareTo(timeA); // Most recent first
+    });
+
+    return usersWithTime.map((item) => item['user'] as UserModel).toList();
+  }
+
+  /// Sort groups by last message time
+  List<GroupChatModel> _sortGroupsByLastMessage(
+    List<GroupChatModel> groups,
+  ) {
+    final sortedGroups = List<GroupChatModel>.from(groups);
+    sortedGroups.sort((a, b) {
+      final timeA = a.lastMessageTime;
+      final timeB = b.lastMessageTime;
+
+      if (timeA == null && timeB == null) return 0;
+      if (timeA == null) return 1; // Put nulls at the end
+      if (timeB == null) return -1; // Put nulls at the end
+      return timeB.compareTo(timeA); // Most recent first
+    });
+
+    return sortedGroups;
+  }
+
+  /// Sort users list in real-time based on chat info
+  void _sortUsersList() {
+    if (addedUsers.isEmpty) return;
+
+    final sortedUsers = List<UserModel>.from(addedUsers);
+    sortedUsers.sort((a, b) {
+      final chatInfoA = userChatInfo[a.id];
+      final chatInfoB = userChatInfo[b.id];
+
+      final timeA = chatInfoA?.lastMessageTime;
+      final timeB = chatInfoB?.lastMessageTime;
+
+      if (timeA == null && timeB == null) return 0;
+      if (timeA == null) return 1; // Put nulls at the end
+      if (timeB == null) return -1; // Put nulls at the end
+      return timeB.compareTo(timeA); // Most recent first
+    });
+
+    // Only update if order changed
+    bool orderChanged = false;
+    for (int i = 0; i < sortedUsers.length; i++) {
+      if (sortedUsers[i].id != addedUsers[i].id) {
+        orderChanged = true;
+        break;
+      }
+    }
+
+    if (orderChanged) {
+      addedUsers.value = sortedUsers;
+    }
+  }
+
+  /// Sort groups list in real-time based on chat info
+  void _sortGroupsList() {
+    if (createdGroups.isEmpty) return;
+
+    final sortedGroups = List<GroupChatModel>.from(createdGroups);
+    sortedGroups.sort((a, b) {
+      // First check chat info, then fallback to group's lastMessageTime
+      final chatInfoA = groupChatInfo[a.id];
+      final chatInfoB = groupChatInfo[b.id];
+
+      final timeA = chatInfoA?.lastMessageTime ?? a.lastMessageTime;
+      final timeB = chatInfoB?.lastMessageTime ?? b.lastMessageTime;
+
+      if (timeA == null && timeB == null) return 0;
+      if (timeA == null) return 1; // Put nulls at the end
+      if (timeB == null) return -1; // Put nulls at the end
+      return timeB.compareTo(timeA); // Most recent first
+    });
+
+    // Only update if order changed
+    bool orderChanged = false;
+    for (int i = 0; i < sortedGroups.length; i++) {
+      if (sortedGroups[i].id != createdGroups[i].id) {
+        orderChanged = true;
+        break;
+      }
+    }
+
+    if (orderChanged) {
+      createdGroups.value = sortedGroups;
+    }
   }
 }

@@ -48,7 +48,7 @@ class AddContactScreen extends StatelessWidget {
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
       leadingWidth: 0.sp,
-      leading: SizedBox.shrink(),
+      leading: const SizedBox.shrink(),
       title: Row(
         children: [
           IconButton(
@@ -100,7 +100,7 @@ class AddContactScreen extends StatelessWidget {
             height: 80.h,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [

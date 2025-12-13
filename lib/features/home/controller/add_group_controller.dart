@@ -13,9 +13,11 @@ class AddGroupController extends GetxController {
   final FocusNode groupNameFocusNode = FocusNode();
 
   final RxList<UserModel> availableContacts = <UserModel>[].obs;
+  final RxList<UserModel> filteredContacts = <UserModel>[].obs;
   final RxList<String> selectedMemberIds = <String>[].obs;
   final RxBool isLoading = false.obs;
   final RxBool isCreating = false.obs;
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void onInit() {
@@ -27,6 +29,7 @@ class AddGroupController extends GetxController {
   void onClose() {
     groupNameController.dispose();
     groupNameFocusNode.dispose();
+    searchController.dispose();
     super.onClose();
   }
 
@@ -35,10 +38,28 @@ class AddGroupController extends GetxController {
       isLoading.value = true;
       final homeController = Get.find<HomeController>();
       availableContacts.value = homeController.addedUsers.toList();
+      filteredContacts.value = availableContacts.toList();
+
+      // Listen to search changes
+      searchController.addListener(_filterContacts);
     } catch (e) {
       availableContacts.value = [];
+      filteredContacts.value = [];
     } finally {
       isLoading.value = false;
+    }
+  }
+
+  void _filterContacts() {
+    final query = searchController.text.toLowerCase().trim();
+    if (query.isEmpty) {
+      filteredContacts.value = availableContacts.toList();
+    } else {
+      filteredContacts.value = availableContacts
+          .where((contact) =>
+              contact.name.toLowerCase().contains(query) ||
+              contact.email.toLowerCase().contains(query))
+          .toList();
     }
   }
 

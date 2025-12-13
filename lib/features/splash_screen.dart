@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _inItFunction() {
     Future.delayed(
-        Duration(seconds: 1),
+        const Duration(seconds: 1),
         () => AppNavigation.offNamed(
               FirebaseService.isUserLoggedIn() ||
                       AppLocalStorage.isUserLoggedIn()
@@ -34,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return const Scaffold(
       body: Column(
         children: [
           AppText(

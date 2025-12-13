@@ -306,7 +306,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
               ? Center(
                   child: Padding(
                     padding: EdgeInsets.all(Spacing.xl),
-                    child: CircularProgressIndicator(
+                    child: const CircularProgressIndicator(
                       color: AppColor.primaryColor,
                     ),
                   ),
@@ -363,9 +363,9 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
           Container(
             width: 48.w,
             height: 48.h,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              gradient: const LinearGradient(
+              gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [

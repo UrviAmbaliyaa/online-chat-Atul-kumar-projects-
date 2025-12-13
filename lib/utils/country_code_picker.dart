@@ -128,7 +128,7 @@ class CountryCodePicker extends StatelessWidget {
             // Header
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 8.h),
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 border: Border(
                   bottom: BorderSide(color: AppColor.lightGrey, width: 1),
                 ),
@@ -144,7 +144,7 @@ class CountryCodePicker extends StatelessWidget {
                   ),
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close, color: AppColor.greyColor),
+                    icon: const Icon(Icons.close, color: AppColor.greyColor),
                   ),
                 ],
               ),
