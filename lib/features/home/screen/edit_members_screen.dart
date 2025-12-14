@@ -339,6 +339,7 @@ class EditMembersScreen extends StatelessWidget {
                   ? _buildEmptyContactsState()
                   : _buildContactsList(controller),
             ),
+            SizedBox(height: Spacing.sm),
           ],
         ),
       ),
@@ -383,7 +384,7 @@ class EditMembersScreen extends StatelessWidget {
       separatorBuilder: (context, index) => SizedBox(height: Spacing.xs),
       itemBuilder: (context, index) {
         final contact = controller.filteredContacts[index];
-        final isSelected = controller.isMemberSelected(contact.id);
+        final isSelected = controller.isMemberSelected(contact.id) && controller.isCurrentUserAdmin.value;
 
         return _buildContactItem(controller, contact, isSelected);
       },
@@ -396,7 +397,7 @@ class EditMembersScreen extends StatelessWidget {
     bool isSelected,
   ) {
     return InkWell(
-      onTap: () => controller.toggleMemberSelection(contact.id),
+      onTap: () =>  controller.toggleMemberSelection(contact.id),
       borderRadius: BorderRadius.circular(6.r),
       child: Container(
         padding: EdgeInsets.symmetric(
@@ -418,28 +419,31 @@ class EditMembersScreen extends StatelessWidget {
         child: Row(
           children: [
             // Checkbox
-            Container(
-              width: 20.w,
-              height: 20.h,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: isSelected ? AppColor.primaryColor : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? AppColor.primaryColor
-                      : AppColor.greyColor.withOpacity(0.5),
-                  width: 1.5,
+            if(controller.isCurrentUserAdmin.value)...[
+              Container(
+                width: 20.w,
+                height: 20.h,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isSelected ? AppColor.primaryColor : Colors.transparent,
+                  border: Border.all(
+                    color: isSelected
+                        ? AppColor.primaryColor
+                        : AppColor.greyColor.withOpacity(0.5),
+                    width: 1.5,
+                  ),
                 ),
+                child: isSelected
+                    ? Icon(
+                  Icons.check,
+                  color: AppColor.whiteColor,
+                  size: 14.sp,
+                )
+                    : null,
               ),
-              child: isSelected
-                  ? Icon(
-                      Icons.check,
-                      color: AppColor.whiteColor,
-                      size: 14.sp,
-                    )
-                  : null,
-            ),
-            SizedBox(width: Spacing.sm),
+              SizedBox(width: Spacing.sm),
+            ],
+
             // Profile Picture
             _buildContactAvatar(contact),
             SizedBox(width: Spacing.sm),

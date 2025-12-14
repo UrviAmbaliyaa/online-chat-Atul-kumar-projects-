@@ -102,17 +102,21 @@ class CallingController extends GetxController {
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             _localUid = connection.localUid;
-            callState.value = CallState.connected;
-            isConnected.value = true;
-            callStartTime.value = DateTime.now();
-            _startCallDurationTimer();
+
             developer.log('Call connected successfully. Local UID: ${connection.localUid}');
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             remoteUsers.add(remoteUid);
+            if(remoteUsers.length == 1) {
+              callState.value = CallState.connected;
+              isConnected.value = true;
+              callStartTime.value = DateTime.now();
+            }
+            _startCallDurationTimer();
             developer.log('User joined: $remoteUid');
             if (isVideoCall) {
               _setupRemoteVideo(remoteUid);
+
             }
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
@@ -428,7 +432,7 @@ class CallingController extends GetxController {
       await _engine?.leaveChannel();
       _callDurationTimer?.cancel();
       developer.log('Call ended by user');
-      Get.back();
+      // Get.back();
     } catch (e, stackTrace) {
       developer.log(
         'Error ending call: $e',

@@ -1,5 +1,5 @@
 class AppString {
-  static const String appName = "Apna Chat";
+  static const String appName = "Online Chat";
   
   // Sign In Screen
   static const String signIn = "Sign In";

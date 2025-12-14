@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:agora_token_generator/agora_token_generator.dart';
 
 /// Service for generating Agora tokens dynamically based on channel name
 class AgoraTokenService {
@@ -30,6 +31,7 @@ class AgoraTokenService {
   }) async {
     try {
       // Option 1: Use token server (recommended for production)
+      developer.log("tokenServerUrl ::::::::::::::::: $tokenServerUrl");
       if (tokenServerUrl != null) {
         return await _fetchTokenFromServer(channelName, uid, expireTime);
       }
@@ -39,6 +41,7 @@ class AgoraTokenService {
       // For production, always use a token server
       return await _generateTokenLocally(channelName, uid, expireTime);
     } catch (e, stackTrace) {
+
       developer.log(
         'Error generating token: $e',
         error: e,
@@ -108,21 +111,23 @@ class AgoraTokenService {
     // 1. Add dependency: agora_token_builder: ^1.0.0
     // 2. Import: import 'package:agora_token_builder/agora_token_builder.dart';
     // 3. Generate token:
-    //    final token = RtcTokenBuilder.buildTokenWithUid(
-    //      appId,
-    //      appCertificate,
-    //      channelName,
-    //      uid,
-    //      RtcRole.publisher,
-    //      expireTime,
-    //    );
-    //    return token;
+    const int tokenExpireSeconds = 3600;
+    String token = RtcTokenBuilder.buildTokenWithUid(
+      appId: appId,
+      appCertificate: appCertificate,
+      channelName: channelName,
+      uid: uid,
+      tokenExpireSeconds: tokenExpireSeconds,
+    );
+
+    print('🎯 RTC Token: $token');
+       return token;
     
-    developer.log(
+ /*   developer.log(
       'Local token generation not implemented. Using App ID only mode.',
       name: 'AgoraTokenService',
     );
-    return '';
+    return '';*/
   }
 
   /// Get token with retry logic
@@ -139,7 +144,7 @@ class AgoraTokenService {
           uid: uid,
           expireTime: expireTime,
         );
-        
+        developer.log("token :::::::::::::::::::::::::${token}");
         if (token.isNotEmpty) {
           return token;
         }
