@@ -1,0 +1,2 @@
+E:/Atual jiju's Project/online_chat/android/app/.cxx/RelWithDebInfo/3g1o5m3j/arm64-v8a/CMakeFiles/edit_cache.dir
+E:/Atual jiju's Project/online_chat/android/app/.cxx/RelWithDebInfo/3g1o5m3j/arm64-v8a/CMakeFiles/rebuild_cache.dir

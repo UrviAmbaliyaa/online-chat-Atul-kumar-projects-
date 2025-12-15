@@ -5,8 +5,10 @@ import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/chat_info_model.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
+import 'package:online_chat/features/home/widgets/incoming_call_dialog.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/navigations/routes.dart';
+import 'package:online_chat/services/call_notification_service.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
 import 'package:online_chat/utils/app_preference.dart';
@@ -28,6 +30,7 @@ class HomeController extends GetxController {
   // Stream subscriptions
   final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions =
       {};
+  StreamSubscription<QuerySnapshot>? _callNotificationSubscription;
 
   @override
   void onInit() {
@@ -37,6 +40,8 @@ class HomeController extends GetxController {
     if (AppPreference.currentUser.value == null) {
       AppPreference.loadCurrentUser();
     }
+    // Initialize FCM token and listen for call notifications
+    _initializeCallNotifications();
   }
 
   @override
@@ -46,6 +51,7 @@ class HomeController extends GetxController {
       subscription.cancel();
     }
     _chatInfoSubscriptions.clear();
+    _callNotificationSubscription?.cancel();
     super.onClose();
   }
 
@@ -541,6 +547,122 @@ class HomeController extends GetxController {
 
     if (orderChanged) {
       createdGroups.value = sortedGroups;
+    }
+  }
+
+  /// Initialize call notifications listener
+  Future<void> _initializeCallNotifications() async {
+    try {
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId == null) return;
+
+      // Initialize FCM token
+      await CallNotificationService.initializeFcmToken(currentUserId);
+
+      // Listen for incoming call notifications
+      _callNotificationSubscription = FirebaseFirestore.instance
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId)
+          .collection('callNotifications')
+          .orderBy('timestamp', descending: true)
+          .limit(1)
+          .snapshots()
+          .listen((snapshot) {
+        if (snapshot.docs.isNotEmpty) {
+          final notification = snapshot.docs.first.data();
+          final isRead = notification['isRead'] as bool? ?? false;
+          
+          // Only handle unread notifications
+          if (!isRead) {
+            _handleIncomingCallNotification(notification);
+          }
+        }
+      });
+    } catch (e) {
+      // Silently fail - call notifications are optional
+      print('Error initializing call notifications: $e');
+    }
+  }
+
+  /// Handle incoming call notification
+  Future<void> _handleIncomingCallNotification(
+    Map<String, dynamic> notification,
+  ) async {
+    try {
+      final notificationId = notification['id'] as String?;
+      final callerId = notification['callerId'] as String?;
+      final chatId = notification['chatId'] as String?;
+      final isVideoCall = notification['isVideoCall'] as bool? ?? false;
+      final isGroupCall = notification['isGroupCall'] as bool? ?? false;
+
+      if (notificationId == null || callerId == null || chatId == null) {
+        return;
+      }
+
+      // Get caller information
+      UserModel? caller;
+      GroupChatModel? group;
+
+      if (isGroupCall) {
+        // Get group information
+        final groupDoc = await FirebaseFirestore.instance
+            .collection(FirebaseConstants.groupCollection)
+            .doc(chatId)
+            .get();
+
+        if (groupDoc.exists && groupDoc.data() != null) {
+          final data = groupDoc.data()!;
+          group = GroupChatModel(
+            id: data['id'] ?? chatId,
+            name: data['name'] ?? '',
+            description: data['description'],
+            groupImage: data['groupImage'],
+            createdBy: data['createdBy'] ?? '',
+            createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
+                DateTime.now(),
+            members: List<String>.from(data['members'] ?? []),
+            memberCount: data['memberCount'] ?? 0,
+            lastMessage: data['lastMessage'],
+            lastMessageTime:
+                (data['lastMessageTime'] as Timestamp?)?.toDate(),
+          );
+        }
+      } else {
+        // Get caller user information
+        final callerDoc = await FirebaseFirestore.instance
+            .collection(FirebaseConstants.userCollection)
+            .doc(callerId)
+            .get();
+
+        if (callerDoc.exists && callerDoc.data() != null) {
+          caller = UserModel.fromFirestore(callerDoc.data()!, callerId);
+        }
+      }
+
+      // Show incoming call dialog instead of navigating directly
+      if (isGroupCall && group != null) {
+        Get.dialog(
+          IncomingCallDialog(
+            group: group,
+            chatId: chatId,
+            isVideoCall: isVideoCall,
+            notificationId: notificationId,
+          ),
+          barrierDismissible: false,
+        );
+      } else if (!isGroupCall && caller != null) {
+        Get.dialog(
+          IncomingCallDialog(
+            caller: caller,
+            chatId: chatId,
+            isVideoCall: isVideoCall,
+            notificationId: notificationId,
+          ),
+          barrierDismissible: false,
+        );
+      }
+    } catch (e) {
+      print('Error handling call notification: $e');
     }
   }
 }

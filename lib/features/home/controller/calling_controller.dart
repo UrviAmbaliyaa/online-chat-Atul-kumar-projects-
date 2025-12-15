@@ -2,15 +2,20 @@ import 'dart:async';
 import 'dart:developer' as developer;
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/services/agora_token_service.dart';
+import 'package:online_chat/services/call_notification_service.dart';
+import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_color.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
+import 'package:online_chat/utils/firebase_constants.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 enum CallState {
@@ -51,6 +56,9 @@ class CallingController extends GetxController {
   final callStartTime = Rx<DateTime?>(null);
   final callDuration = Duration.zero.obs;
 
+  // Call rejection listener
+  StreamSubscription<QuerySnapshot>? _rejectionListener;
+
   // Agora App ID
   static const String appId = AgoraTokenService.appId;
 
@@ -74,6 +82,7 @@ class CallingController extends GetxController {
   @override
   void onClose() {
     _callDurationTimer?.cancel();
+    _rejectionListener?.cancel();
     _localVideoViewController?.dispose();
     _engine?.leaveChannel();
     _engine?.release();
@@ -112,10 +121,15 @@ class CallingController extends GetxController {
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             remoteUsers.add(remoteUid);
+
             if (remoteUsers.length == 1) {
               callState.value = CallState.connected;
               isConnected.value = true;
               callStartTime.value = DateTime.now();
+              // Cancel rejection listener once someone joins (call is accepted)
+              _rejectionListener?.cancel();
+              _rejectionListener = null;
+              developer.log('User joined, cancelling rejection listener');
             }
             _startCallDurationTimer();
             developer.log('User joined: $remoteUid');
@@ -125,15 +139,16 @@ class CallingController extends GetxController {
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
               UserOfflineReasonType reason) {
+            developer.log("remoteUsers.length :::::::::::::::::::${remoteUsers}");
             remoteUsers.remove(remoteUid);
             remoteVideoViews.remove(remoteUid);
+            if(remoteUsers.length == 0){
+              _leaveChhanal();
+            }
             developer.log('User offline: $remoteUid, reason: $reason');
           },
           onLeaveChannel: (RtcConnection connection, RtcStats stats) {
-            callState.value = CallState.ended;
-            isConnected.value = false;
-            _callDurationTimer?.cancel();
-            developer.log('Left channel. Duration: ${stats.duration}ms');
+            _leaveChhanal(stats: stats);
           },
           onError: (ErrorCodeType err, String msg) {
             callState.value = CallState.failed;
@@ -155,6 +170,13 @@ class CallingController extends GetxController {
       // The channel name is: group ID for group calls, or "call_${user.id}" for one-to-one calls
       await _generateToken();
 
+      // Send call notifications to all members (only if it's an outgoing call)
+      if (!isIncoming) {
+        _sendCallNotifications();
+        // Listen for call rejections
+        _listenForCallRejections();
+      }
+
       // Join channel with the dynamically generated token
       await _joinChannel();
     } catch (e, stackTrace) {
@@ -168,6 +190,16 @@ class CallingController extends GetxController {
         developerMessage: 'Agora initialization error: $e',
       );
     }
+  }
+
+  void _leaveChhanal({RtcStats? stats}) {
+    callState.value = CallState.ended;
+    isConnected.value = false;
+    _callDurationTimer?.cancel();
+    // Cancel rejection listener when call ends
+    _rejectionListener?.cancel();
+    _rejectionListener = null;
+    developer.log('Left channel. Duration: ${stats?.duration}ms');
   }
 
   Future<bool> _requestPermissions() async {
@@ -436,6 +468,9 @@ class CallingController extends GetxController {
   Future<void> endCall() async {
     try {
       callState.value = CallState.ended;
+      // Cancel rejection listener before ending call
+      _rejectionListener?.cancel();
+      _rejectionListener = null;
       await _engine?.leaveChannel();
       _callDurationTimer?.cancel();
       developer.log('Call ended by user');
@@ -448,6 +483,8 @@ class CallingController extends GetxController {
       );
       // Still close the screen even if there's an error
       _callDurationTimer?.cancel();
+      _rejectionListener?.cancel();
+      _rejectionListener = null;
       Get.back();
     }
   }
@@ -537,5 +574,112 @@ class CallingController extends GetxController {
     // Update call state
     callState.value = CallState.failed;
     isConnected.value = false;
+  }
+
+  /// Send call notifications to all members
+  /// For group calls: sends to all members except the caller
+  /// For one-to-one calls: sends to the other user
+  Future<void> _sendCallNotifications() async {
+    try {
+      final currentUser = AppPreference.getCurrentUser();
+      if (currentUser == null) {
+        developer.log('Cannot send call notifications: current user is null');
+        return;
+      }
+
+      final callerId = currentUser.id;
+      final callerName = currentUser.name;
+      final callerImage = currentUser.profileImage;
+
+      if (group != null) {
+        // Group call: send notifications to all members except the caller
+        final memberIds = group!.members
+            .where((memberId) => memberId != callerId)
+            .toList();
+
+        if (memberIds.isNotEmpty) {
+          await CallNotificationService.sendGroupCallNotifications(
+            userIds: memberIds,
+            callerName: callerName,
+            callerId: callerId,
+            callerImage: callerImage,
+            chatId: chatId,
+            isVideoCall: isVideoCall,
+            groupName: group!.name,
+          );
+          developer.log(
+            'Call notifications sent to ${memberIds.length} group members',
+          );
+        }
+      } else if (user != null) {
+        // One-to-one call: send notification to the other user
+        await CallNotificationService.sendCallNotification(
+          userId: user!.id,
+          callerName: callerName,
+          callerId: callerId,
+          callerImage: callerImage,
+          chatId: chatId,
+          isVideoCall: isVideoCall,
+          isGroupCall: false,
+        );
+        developer.log('Call notification sent to user: ${user!.id}');
+      }
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error sending call notifications: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
+      // Don't show error to user as this is a background operation
+    }
+  }
+
+  /// Listen for call rejections and end call if rejected
+  void _listenForCallRejections() {
+    try {
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId == null) return;
+
+      final firestore = FirebaseFirestore.instance;
+      final callStartTime = DateTime.now();
+      Query query;
+
+      if (group != null) {
+        // For group calls, listen to group call rejections
+        query = firestore
+            .collection(FirebaseConstants.groupCollection)
+            .doc(chatId)
+            .collection('callRejections')
+            .where('rejectedBy', isNotEqualTo: currentUserId)
+            .where('timestamp', isGreaterThan: Timestamp.fromDate(callStartTime));
+      } else {
+        // For one-to-one calls, listen to chat call rejections
+        query = firestore
+            .collection(FirebaseConstants.chatCollection)
+            .doc(chatId)
+            .collection('callRejections')
+            .where('rejectedBy', isNotEqualTo: currentUserId)
+            .where('timestamp', isGreaterThan: Timestamp.fromDate(callStartTime));
+      }
+
+      _rejectionListener = query.snapshots().listen((snapshot) {
+        // Only process rejections if call is still active and not connected yet
+        if (snapshot.docs.isNotEmpty && 
+            callState.value != CallState.ended && 
+            !isConnected.value && 
+            remoteUsers.isEmpty) {
+          // Call was rejected, end the call
+          developer.log('Call rejected by user, ending call');
+          AppSnackbar.error(message: 'Call was rejected');
+          endCall();
+        }
+      });
+    } catch (e, stackTrace) {
+      developer.log(
+        'Error listening for call rejections: $e',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    }
   }
 }
