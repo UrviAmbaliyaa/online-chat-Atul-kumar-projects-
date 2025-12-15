@@ -746,7 +746,8 @@ class ChatScreen extends StatelessWidget {
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    final timeString = '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    final timeString =
+        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
 
     if (messageDate == today) {
       return 'today at $timeString';
@@ -816,6 +817,7 @@ class ChatScreen extends StatelessWidget {
         Get.to(
           () => CallingScreen(
             group: group,
+            chatId: controller.chatId.value,
             isIncoming: false,
             isVideoCall: isVideoCall,
           ),
@@ -827,6 +829,7 @@ class ChatScreen extends StatelessWidget {
         Get.to(
           () => CallingScreen(
             user: otherUser,
+            chatId: controller.chatId.value,
             isIncoming: false,
             isVideoCall: isVideoCall,
           ),

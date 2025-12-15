@@ -72,7 +72,7 @@ class AppProfileImage extends StatelessWidget {
       );
     }
 
-    if (imageUrl != null && imageUrl!.isNotEmpty ) {
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
       if (imageUrl!.startsWith('http')) {
         // Network image
         return CachedNetworkImage(
@@ -123,9 +123,7 @@ class AppProfileImage extends StatelessWidget {
                 color: AppColor.whiteColor,
               )
             : AppText(
-                text: username.isNotEmpty
-                    ? username[0].toUpperCase()
-                    : 'U',
+                text: username.isNotEmpty ? username[0].toUpperCase() : 'U',
                 fontSize: fontSize ?? (width * 0.35).sp,
                 fontWeight: FontWeight.w600,
                 color: AppColor.whiteColor,
@@ -134,4 +132,3 @@ class AppProfileImage extends StatelessWidget {
     );
   }
 }
-

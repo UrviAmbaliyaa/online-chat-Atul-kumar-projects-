@@ -1,28 +1,30 @@
-import 'dart:developer' as developer;
-import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'dart:developer' as developer;
+
 import 'package:agora_token_generator/agora_token_generator.dart';
+import 'package:http/http.dart' as http;
 
 /// Service for generating Agora tokens dynamically based on channel name
 class AgoraTokenService {
   // Agora App ID
   static const String appId = 'b34885418c364475beccdac659ee63c5';
-  
+
   // App Certificate (for token generation - keep this secure!)
   // In production, this should be stored securely and never exposed in client code
   // For now, you'll need to get this from Agora Console
   static const String appCertificate = '43ee893b06304601a02b383970a7fe68';
-  
+
   // Token server URL (for production - optional)
   // If you have a token server, set this URL
-  static const String? tokenServerUrl = null; // e.g., 'https://your-token-server.com/token'
+  static const String? tokenServerUrl =
+      null; // e.g., 'https://your-token-server.com/token'
 
   /// Generate or fetch token for a specific channel
-  /// 
+  ///
   /// [channelName] - The dynamic channel name
   /// [uid] - User ID (0 for auto-assign)
   /// [expireTime] - Token expiration time in seconds (default: 24 hours)
-  /// 
+  ///
   /// Returns the token string, or empty string if generation fails
   static Future<String> getToken({
     required String channelName,
@@ -41,7 +43,6 @@ class AgoraTokenService {
       // For production, always use a token server
       return await _generateTokenLocally(channelName, uid, expireTime);
     } catch (e, stackTrace) {
-
       developer.log(
         'Error generating token: $e',
         error: e,
@@ -60,7 +61,8 @@ class AgoraTokenService {
     int expireTime,
   ) async {
     try {
-      final url = Uri.parse('$tokenServerUrl?channel=$channelName&uid=$uid&expire=$expireTime');
+      final url = Uri.parse(
+          '$tokenServerUrl?channel=$channelName&uid=$uid&expire=$expireTime');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -85,7 +87,7 @@ class AgoraTokenService {
   }
 
   /// Generate token locally (for development only)
-  /// 
+  ///
   /// WARNING: This requires the app certificate which should NOT be exposed
   /// in client-side code. Use only for development/testing.
   /// For production, always use a token server.
@@ -106,7 +108,7 @@ class AgoraTokenService {
 
     // TODO: Implement local token generation using agora_token_builder package
     // For now, return empty string to use App ID only mode
-    // 
+    //
     // To implement:
     // 1. Add dependency: agora_token_builder: ^1.0.0
     // 2. Import: import 'package:agora_token_builder/agora_token_builder.dart';
@@ -121,9 +123,9 @@ class AgoraTokenService {
     );
 
     print('🎯 RTC Token: $token');
-       return token;
-    
- /*   developer.log(
+    return token;
+
+    /*   developer.log(
       'Local token generation not implemented. Using App ID only mode.',
       name: 'AgoraTokenService',
     );
@@ -148,7 +150,7 @@ class AgoraTokenService {
         if (token.isNotEmpty) {
           return token;
         }
-        
+
         // Wait before retry (exponential backoff)
         if (i < maxRetries - 1) {
           await Future.delayed(Duration(seconds: (i + 1) * 2));
@@ -160,9 +162,8 @@ class AgoraTokenService {
         );
       }
     }
-    
+
     // Return empty string after all retries failed
     return '';
   }
 }
-

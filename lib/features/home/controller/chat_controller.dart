@@ -247,7 +247,7 @@ class ChatController extends GetxController {
       final padding = 16.0; // ListView padding
       final estimatedMessageHeight = 90.0; // Average message height
       final dateSeparatorHeight = 40.0; // Date separator height
-      
+
       // Count date separators before this message
       int dateSeparatorCount = 0;
       for (int i = 0; i < messageIndex; i++) {
@@ -265,10 +265,10 @@ class ChatController extends GetxController {
       }
 
       // Calculate offset: padding + (message index * message height) + (date separators * separator height)
-      final estimatedOffset = padding + 
-          (messageIndex * estimatedMessageHeight) + 
+      final estimatedOffset = padding +
+          (messageIndex * estimatedMessageHeight) +
           (dateSeparatorCount * dateSeparatorHeight);
-      
+
       final maxScroll = scrollController.position.maxScrollExtent;
       final targetOffset = estimatedOffset.clamp(0.0, maxScroll);
 
@@ -280,7 +280,6 @@ class ChatController extends GetxController {
       );
     });
   }
-
 
   void updateMessageText(String text) {
     messageText.value = text;
@@ -343,7 +342,7 @@ class ChatController extends GetxController {
   }
 
   Future<void> sendImageMessage(File imageFile) async {
-    if(isUploadingImage.value) return;
+    if (isUploadingImage.value) return;
     isUploadingImage.value = true;
 
     try {
@@ -531,7 +530,6 @@ class ChatController extends GetxController {
     }
   }
 
-
   bool isCurrentUser(String userId) {
     return FirebaseService.getCurrentUserId() == userId;
   }
@@ -573,7 +571,8 @@ class ChatController extends GetxController {
     try {
       // Get all unread messages (messages not sent by current user and not read by current user)
       final unreadMessages = messagesList.where((msg) {
-        return msg.senderId != currentUserId && !msg.readBy.contains(currentUserId);
+        return msg.senderId != currentUserId &&
+            !msg.readBy.contains(currentUserId);
       }).toList();
 
       if (unreadMessages.isEmpty) return;

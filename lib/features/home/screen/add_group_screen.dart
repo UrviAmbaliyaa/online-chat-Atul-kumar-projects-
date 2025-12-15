@@ -26,45 +26,45 @@ class AddGroupScreen extends StatelessWidget {
         () => controller.isLoading.value
             ? _buildShimmerLoader()
             : Form(
-              key: controller.formKey,
-              child: Column(
-                children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Group Name Input
-                          _buildGroupNameSection(controller),
-                          SizedBox(height: Spacing.sm),
-                          // Members Selection Section
-                          _buildMembersSection(controller),
+                key: controller.formKey,
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Group Name Input
+                            _buildGroupNameSection(controller),
+                            SizedBox(height: Spacing.sm),
+                            // Members Selection Section
+                            _buildMembersSection(controller),
+                          ],
+                        ).paddingAll(Spacing.md),
+                      ),
+                    ),
+                    // Create Group Button
+                    Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: Spacing.md,
+                        vertical: Spacing.sm,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColor.whiteColor,
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColor.greyColor.withOpacity(0.1),
+                            blurRadius: 4,
+                            spreadRadius: 0,
+                            offset: const Offset(0, -2),
+                          ),
                         ],
-                      ).paddingAll(Spacing.md),
+                      ),
+                      child: _buildCreateGroupButton(controller),
                     ),
-                  ),
-                  // Create Group Button
-                  Container(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: Spacing.md,
-                      vertical: Spacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColor.whiteColor,
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColor.greyColor.withOpacity(0.1),
-                          blurRadius: 4,
-                          spreadRadius: 0,
-                          offset: const Offset(0, -2),
-                        ),
-                      ],
-                    ),
-                    child: _buildCreateGroupButton(controller),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
       ),
     );
   }
@@ -307,7 +307,6 @@ class AddGroupScreen extends StatelessWidget {
         vertical: Spacing.xl,
       ),
       child: Column(
-
         children: [
           Icon(
             Icons.person_outline,

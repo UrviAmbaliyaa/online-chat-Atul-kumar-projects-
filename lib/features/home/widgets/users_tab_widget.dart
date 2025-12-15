@@ -71,7 +71,7 @@ class UsersTabWidget extends StatelessWidget {
               height: 56.h,
               username: user.name,
               imageUrl: user.profileImage,
-                      fontSize: 18.sp,
+              fontSize: 18.sp,
             ),
             if (user.isOnline)
               Positioned(
@@ -96,11 +96,11 @@ class UsersTabWidget extends StatelessWidget {
           children: [
             Expanded(
               child: AppText(
-          text: user.name,
-          fontSize: 16.sp,
-          fontWeight: FontWeight.w600,
-          color: AppColor.darkGrey,
-        ),
+                text: user.name,
+                fontSize: 16.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.darkGrey,
+              ),
             ),
             Obx(() {
               final unreadCount = controller.getUnreadCountForUser(user.id);
@@ -119,7 +119,7 @@ class UsersTabWidget extends StatelessWidget {
                     fontSize: 11.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColor.whiteColor,
-            ),
+                  ),
                 );
               }
               return const SizedBox.shrink();
@@ -128,9 +128,9 @@ class UsersTabWidget extends StatelessWidget {
         ),
         subtitle: Obx(() {
           final chatInfo = controller.getChatInfoForUser(user.id);
-          final lastMessage = chatInfo?.lastMessage ?? 
+          final lastMessage = chatInfo?.lastMessage ??
               controller.getLastMessageForUser(user.id);
-          
+
           if (lastMessage != null && lastMessage.isNotEmpty) {
             return Padding(
               padding: EdgeInsets.only(top: 4.h),
@@ -139,10 +139,10 @@ class UsersTabWidget extends StatelessWidget {
                     ? '${lastMessage.substring(0, 50)}...'
                     : lastMessage,
                 fontSize: 13.sp,
-            color: AppColor.greyColor,
+                color: AppColor.greyColor,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-          ),
+              ),
             );
           } else {
             return Padding(

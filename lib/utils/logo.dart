@@ -44,20 +44,20 @@ class _AppLogoState extends State<AppLogo> {
       )
           .animate(onPlay: (controller) => controller.repeat())
           .shimmer(
-          duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
+              duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
           .then()
           .scale(
-          duration: 1000.ms,
-          begin: const Offset(1, 1),
-          end: const Offset(1.05, 1.05))
+              duration: 1000.ms,
+              begin: const Offset(1, 1),
+              end: const Offset(1.05, 1.05))
           .then()
           .scale(
-          duration: 1000.ms,
-          begin: const Offset(1.05, 1.05),
-          end: const Offset(1, 1)),
-    ).animate()
+              duration: 1000.ms,
+              begin: const Offset(1.05, 1.05),
+              end: const Offset(1, 1)),
+    )
+        .animate()
         .fadeIn(duration: 600.ms, delay: 100.ms)
-        .slideY(
-        begin: -0.2, end: 0, duration: 600.ms, delay: 100.ms);
+        .slideY(begin: -0.2, end: 0, duration: 600.ms, delay: 100.ms);
   }
 }

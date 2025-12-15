@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:developer' as developer;
+
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -10,7 +12,6 @@ import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'dart:developer' as developer;
 
 enum CallState {
   calling,
@@ -25,12 +26,14 @@ enum CallState {
 class CallingController extends GetxController {
   final UserModel? user;
   final GroupChatModel? group;
+  final String chatId;
   final bool isIncoming;
   final bool isVideoCall;
 
   // Agora SDK
   RtcEngine? _engine;
   int? _localUid;
+
   int? get localUid => _localUid;
   final remoteUsers = <int>[].obs;
   final remoteVideoViews = <int, Widget>{};
@@ -50,13 +53,14 @@ class CallingController extends GetxController {
 
   // Agora App ID
   static const String appId = AgoraTokenService.appId;
-  
+
   // Token will be generated dynamically based on channel name
   String _token = '';
 
   CallingController({
     this.user,
     this.group,
+    required this.chatId,
     this.isIncoming = false,
     this.isVideoCall = false,
   });
@@ -85,7 +89,8 @@ class CallingController extends GetxController {
           userMessage: isVideoCall
               ? AppString.cameraPermissionDenied
               : AppString.callPermissionDenied,
-          developerMessage: 'Permissions not granted for ${isVideoCall ? 'video' : 'audio'} call',
+          developerMessage:
+              'Permissions not granted for ${isVideoCall ? 'video' : 'audio'} call',
         );
         return;
       }
@@ -102,12 +107,12 @@ class CallingController extends GetxController {
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             _localUid = connection.localUid;
-
-            developer.log('Call connected successfully. Local UID: ${connection.localUid}');
+            developer.log(
+                'Call connected successfully. Local UID: ${connection.localUid}');
           },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             remoteUsers.add(remoteUid);
-            if(remoteUsers.length == 1) {
+            if (remoteUsers.length == 1) {
               callState.value = CallState.connected;
               isConnected.value = true;
               callStartTime.value = DateTime.now();
@@ -116,7 +121,6 @@ class CallingController extends GetxController {
             developer.log('User joined: $remoteUid');
             if (isVideoCall) {
               _setupRemoteVideo(remoteUid);
-
             }
           },
           onUserOffline: (RtcConnection connection, int remoteUid,
@@ -171,9 +175,10 @@ class CallingController extends GetxController {
       if (isVideoCall) {
         final cameraStatus = await Permission.camera.request();
         final microphoneStatus = await Permission.microphone.request();
-        
+
         if (cameraStatus.isDenied || microphoneStatus.isDenied) {
-          developer.log('Permissions denied - Camera: $cameraStatus, Microphone: $microphoneStatus');
+          developer.log(
+              'Permissions denied - Camera: $cameraStatus, Microphone: $microphoneStatus');
           return false;
         }
         return cameraStatus.isGranted && microphoneStatus.isGranted;
@@ -196,7 +201,7 @@ class CallingController extends GetxController {
   }
 
   /// Generate token dynamically based on channel name
-  /// 
+  ///
   /// The channel name is determined dynamically:
   /// - For group calls: Uses the group ID
   /// - For one-to-one calls: Uses "call_${user.id}"
@@ -208,13 +213,13 @@ class CallingController extends GetxController {
         'Generating token for channel: $channelName (${group != null ? "Group" : "One-to-One"})',
         name: 'CallingController',
       );
-      
+
       _token = await AgoraTokenService.getTokenWithRetry(
         channelName: channelName,
         uid: 0, // 0 means Agora will assign a UID
         expireTime: 86400, // 24 hours
       );
-      
+
       if (_token.isEmpty) {
         developer.log(
           'Token generation returned empty. Using App ID only mode (development). Channel: $channelName',
@@ -260,18 +265,19 @@ class CallingController extends GetxController {
         stackTrace: stackTrace,
       );
       _handleError(
-        userMessage: 'Failed to connect to call. Please check your internet connection.',
+        userMessage:
+            'Failed to connect to call. Please check your internet connection.',
         developerMessage: 'Channel join error: $e',
       );
     }
   }
-  
+
   String getChannelName() {
     if (group != null) {
       return group!.id;
     }
     if (user != null && user!.id.isNotEmpty) {
-      return 'call_${user!.id}';
+      return chatId;
     }
     return 'call_unknown';
   }
@@ -421,7 +427,8 @@ class CallingController extends GetxController {
       );
       isVideoEnabled.value = !isVideoEnabled.value; // Revert on error
       AppSnackbar.error(
-        message: 'Failed to ${isVideoEnabled.value ? "enable" : "disable"} video.',
+        message:
+            'Failed to ${isVideoEnabled.value ? "enable" : "disable"} video.',
       );
     }
   }
@@ -470,7 +477,7 @@ class CallingController extends GetxController {
   /// Handle Agora-specific errors with user-friendly messages
   void _handleAgoraError(ErrorCodeType err, String msg) {
     String userMessage;
-    
+
     switch (err) {
       case ErrorCodeType.errInvalidAppId:
         userMessage = 'Invalid call configuration. Please contact support.';
@@ -532,4 +539,3 @@ class CallingController extends GetxController {
     isConnected.value = false;
   }
 }
-

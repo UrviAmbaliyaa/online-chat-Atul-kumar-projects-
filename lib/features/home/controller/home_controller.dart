@@ -20,11 +20,14 @@ class HomeController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxInt selectedTab = 0.obs; // 0 = Users, 1 = Groups
   final RxMap<String, String?> userLastMessages = <String, String?>{}.obs;
-  final RxMap<String, ChatInfoModel> userChatInfo = <String, ChatInfoModel>{}.obs;
-  final RxMap<String, ChatInfoModel> groupChatInfo = <String, ChatInfoModel>{}.obs;
-  
+  final RxMap<String, ChatInfoModel> userChatInfo =
+      <String, ChatInfoModel>{}.obs;
+  final RxMap<String, ChatInfoModel> groupChatInfo =
+      <String, ChatInfoModel>{}.obs;
+
   // Stream subscriptions
-  final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions = {};
+  final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions =
+      {};
 
   @override
   void onInit() {
@@ -49,14 +52,14 @@ class HomeController extends GetxController {
   // Load users and groups
   Future<void> loadData() async {
     isLoading.value = true;
-    
+
     try {
       // Simulate API call delay
       await Future.delayed(const Duration(milliseconds: 500));
-      
+
       // Load added users (from local storage or API)
       await loadAddedUsers();
-      
+
       // Load created groups (from local storage or API)
       await loadCreatedGroups();
     } catch (e) {
@@ -86,7 +89,7 @@ class HomeController extends GetxController {
 
       // Get user models for contacts
       final contacts = await FirebaseService.getUsersByIds(contactIds);
-      
+
       // Sort users by last message time (most recent first)
       final sortedContacts = await _sortUsersByLastMessage(contacts);
       addedUsers.value = sortedContacts;
@@ -100,14 +103,14 @@ class HomeController extends GetxController {
     } catch (e) {
       // Fallback to local storage on error
       try {
-      final usersJson = AppLocalStorage.getList('added_users');
-      if (usersJson != null && usersJson.isNotEmpty) {
-        addedUsers.value = usersJson
-            .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-      } else {
+        final usersJson = AppLocalStorage.getList('added_users');
+        if (usersJson != null && usersJson.isNotEmpty) {
+          addedUsers.value = usersJson
+              .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
+              .toList();
+        } else {
           addedUsers.value = [];
-      }
+        }
       } catch (e2) {
         addedUsers.value = [];
       }
@@ -125,7 +128,7 @@ class HomeController extends GetxController {
 
       // Get groups from Firebase where user is a member
       final groups = await FirebaseService.getUserGroups(currentUserId);
-      
+
       // Sort groups by last message time (most recent first)
       final sortedGroups = _sortGroupsByLastMessage(groups);
       createdGroups.value = sortedGroups;
@@ -140,15 +143,15 @@ class HomeController extends GetxController {
     } catch (e) {
       // Fallback to local storage on error
       try {
-      final groupsJson = AppLocalStorage.getList('created_groups');
-      if (groupsJson != null && groupsJson.isNotEmpty) {
-        createdGroups.value = groupsJson
+        final groupsJson = AppLocalStorage.getList('created_groups');
+        if (groupsJson != null && groupsJson.isNotEmpty) {
+          createdGroups.value = groupsJson
               .map((json) =>
                   GroupChatModel.fromJson(json as Map<String, dynamic>))
-            .toList();
-      } else {
+              .toList();
+        } else {
           createdGroups.value = [];
-      }
+        }
       } catch (e2) {
         createdGroups.value = [];
       }
@@ -221,19 +224,19 @@ class HomeController extends GetxController {
   Future<void> logout() async {
     try {
       isLoading.value = true;
-      
+
       // Sign out from Firebase
       final success = await FirebaseService.signOut();
-      
+
       if (success) {
         // Clear local storage
         await AppLocalStorage.logout();
-        
+
         // Show success message
         AppSnackbar.success(
           message: 'Logged out successfully',
         );
-        
+
         // Navigate to sign in screen
         AppNavigation.replaceAllNamed(AppRoutes.signIn);
       }

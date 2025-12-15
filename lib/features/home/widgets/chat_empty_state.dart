@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_spacing.dart';
-import 'package:online_chat/utils/app_text.dart';
 import 'package:online_chat/utils/app_string.dart';
+import 'package:online_chat/utils/app_text.dart';
 
 class ChatEmptyState extends StatelessWidget {
   const ChatEmptyState({super.key});
@@ -120,10 +120,7 @@ class ChatEmptyState extends StatelessWidget {
                   color: AppColor.darkGrey,
                   textAlign: TextAlign.center,
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 600.ms, delay: 600.ms)
-                  .slideY(
+              ).animate().fadeIn(duration: 600.ms, delay: 600.ms).slideY(
                     begin: 0.2,
                     end: 0,
                     duration: 600.ms,
@@ -139,10 +136,7 @@ class ChatEmptyState extends StatelessWidget {
                   color: AppColor.greyColor,
                   textAlign: TextAlign.center,
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 600.ms, delay: 800.ms)
-                  .slideY(
+              ).animate().fadeIn(duration: 600.ms, delay: 800.ms).slideY(
                     begin: 0.2,
                     end: 0,
                     duration: 600.ms,
@@ -200,4 +194,3 @@ class ChatEmptyState extends StatelessWidget {
     );
   }
 }
-

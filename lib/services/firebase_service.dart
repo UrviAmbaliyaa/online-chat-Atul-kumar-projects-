@@ -279,15 +279,15 @@ class FirebaseService {
   }) async {
     try {
       Query query = _firestore.collection(collection);
-      
+
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-      
+
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -320,15 +320,15 @@ class FirebaseService {
     try {
       Query query =
           _firestore.collection(collection).where(field, isEqualTo: value);
-      
+
       if (orderBy != null) {
         query = query.orderBy(orderBy);
       }
-      
+
       if (limit != null) {
         query = query.limit(limit);
       }
-      
+
       final querySnapshot = await query.get();
       return querySnapshot.docs
           .map((doc) => {
@@ -355,15 +355,15 @@ class FirebaseService {
     int? limit,
   }) {
     Query query = _firestore.collection(collection);
-    
+
     if (orderBy != null) {
       query = query.orderBy(orderBy);
     }
-    
+
     if (limit != null) {
       query = query.limit(limit);
     }
-    
+
     return query.snapshots();
   }
 
@@ -395,7 +395,7 @@ class FirebaseService {
         'createdAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
       };
-      
+
       await _firestore
           .collection(FirebaseConstants.userCollection)
           .doc(userId)
@@ -604,7 +604,7 @@ class FirebaseService {
   static Future<bool> batchWrite(List<BatchOperation> operations) async {
     try {
       final batch = _firestore.batch();
-      
+
       for (var operation in operations) {
         switch (operation.type) {
           case BatchOperationType.create:
@@ -626,7 +626,7 @@ class FirebaseService {
             break;
         }
       }
-      
+
       await batch.commit();
       return true;
     } catch (e) {
@@ -1326,18 +1326,17 @@ class FirebaseService {
       };
 
       // Get chat document reference
-      final chatDocRef = _firestore
-          .collection(FirebaseConstants.chatCollection)
-          .doc(chatId);
+      final chatDocRef =
+          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       // Get current chat document
       final chatDoc = await chatDocRef.get();
-      
+
       List<Map<String, dynamic>> messages = [];
       if (chatDoc.exists && chatDoc.data() != null) {
         final data = chatDoc.data()!;
         messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
-        
+
         // Remove messages older than 7 days
         messages = messages.where((msg) {
           final msgTimestamp = msg['timestamp'] is Timestamp
@@ -1397,7 +1396,8 @@ class FirebaseService {
     required String chatId,
   }) async {
     try {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       final ref = _storage
           .ref()
           .child(FirebaseConstants.chatImagesPath)
@@ -1424,7 +1424,8 @@ class FirebaseService {
     required String chatId,
   }) async {
     try {
-      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final fileName =
+          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
       final ref = _storage
           .ref()
           .child(FirebaseConstants.chatFilesPath)
@@ -1453,9 +1454,8 @@ class FirebaseService {
     required String userId,
   }) async {
     try {
-      final chatDocRef = _firestore
-          .collection(FirebaseConstants.chatCollection)
-          .doc(chatId);
+      final chatDocRef =
+          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       final chatDoc = await chatDocRef.get();
       if (!chatDoc.exists || chatDoc.data() == null) {
@@ -1497,9 +1497,8 @@ class FirebaseService {
     required String userId,
   }) async {
     try {
-      final chatDocRef = _firestore
-          .collection(FirebaseConstants.chatCollection)
-          .doc(chatId);
+      final chatDocRef =
+          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       final chatDoc = await chatDocRef.get();
       if (!chatDoc.exists || chatDoc.data() == null) {
@@ -1620,12 +1619,12 @@ class FirebaseService {
     required List<String> userIds,
   }) async {
     final Map<String, String?> lastMessages = {};
-    
+
     try {
       // Get all chat IDs
-      final chatIds = userIds.map((userId) => 
-        getOneToOneChatId(currentUserId, userId)
-      ).toList();
+      final chatIds = userIds
+          .map((userId) => getOneToOneChatId(currentUserId, userId))
+          .toList();
 
       // Batch fetch chat documents
       for (int i = 0; i < chatIds.length; i += 10) {
@@ -1636,7 +1635,7 @@ class FirebaseService {
                 .collection(FirebaseConstants.chatCollection)
                 .doc(chatId)
                 .get();
-            
+
             if (chatDoc.exists && chatDoc.data() != null) {
               final data = chatDoc.data()!;
               final lastMessage = data['lastMessage'] as String?;

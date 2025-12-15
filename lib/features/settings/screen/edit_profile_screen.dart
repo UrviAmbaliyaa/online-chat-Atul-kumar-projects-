@@ -198,7 +198,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-
   Widget _buildFormFields(EditProfileController controller) {
     return Container(
       decoration: BoxDecoration(

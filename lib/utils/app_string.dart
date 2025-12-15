@@ -1,6 +1,6 @@
 class AppString {
   static const String appName = "Online Chat";
-  
+
   // Sign In Screen
   static const String signIn = "Sign In";
   static const String welcomeBack = "Welcome Back!";
@@ -13,7 +13,7 @@ class AppString {
   static const String dontHaveAccount = "Don't have an account? ";
   static const String signUp = "Sign Up";
   static const String orContinueWith = "Or continue with";
-  
+
   // Sign Up Screen
   static const String createAccount = "Create Account";
   static const String joinUs = "Join Us!";
@@ -35,7 +35,7 @@ class AppString {
   static const String termsAndConditions = "Terms & Conditions";
   static const String and = " and ";
   static const String privacyPolicy = "Privacy Policy";
-  
+
   // Validation Messages
   static const String emailRequired = "Email is required";
   static const String emailInvalid = "Please enter a valid email";
@@ -50,20 +50,20 @@ class AppString {
   static const String phoneRequired = "Phone number is required";
   static const String phoneInvalid = "Please enter a valid phone number";
   static const String phone = "Phone";
-  
+
   // Success/Error Messages
   static const String signInSuccess = "Signed in successfully";
   static const String signInError = "Failed to sign in. Please try again.";
   static const String signUpSuccess = "Account created successfully";
   static const String signUpError =
       "Failed to create account. Please try again.";
-  
+
   // Snackbar Titles
   static const String successTitle = "Success";
   static const String errorTitle = "Error";
   static const String infoTitle = "Info";
   static const String warningTitle = "Warning";
-  
+
   // Image Picker Messages
   static const String imagePickGalleryError =
       "Failed to pick image from gallery. Please try again.";
@@ -80,7 +80,7 @@ class AppString {
   static const String selectMultipleImages = "Select Multiple Images";
   static const String gallery = "Gallery";
   static const String camera = "Camera";
-  
+
   // File Picker Messages
   static const String filePickPDFError =
       "Failed to pick PDF file. Please try again.";
@@ -89,7 +89,7 @@ class AppString {
   static const String filePickError = "Failed to pick file. Please try again.";
   static const String filePickMultipleError =
       "Failed to pick files. Please try again.";
-  
+
   // Forgot Password Screen
   static const String forgotPasswordTitle = "Forgot Password?";
   static const String forgotPasswordSubtitle =
@@ -101,20 +101,20 @@ class AppString {
   static String emailSentDescription(String email) =>
       "We've sent a password reset link to $email. Please check your inbox and follow the instructions.";
   static const String resendEmail = "Resend Email";
-  
+
   // Feature Coming Soon Messages
   static const String forgotPasswordComingSoon =
       "Forgot password screen coming soon";
   static const String signUpComingSoon = "Sign up screen coming soon";
   static const String featureComingSoon = "Feature coming soon";
-  
+
   // General Messages
   static const String somethingWentWrong =
       "Something went wrong. Please try again.";
   static const String operationSuccess = "Operation completed successfully";
   static const String operationFailed = "Operation failed. Please try again.";
   static const String pleaseTryAgain = "Please try again";
-  
+
   // Home Screen
   static const String home = "Home";
   static const String myContacts = "My Contacts";
@@ -211,7 +211,7 @@ class AppString {
   static const String members = "Members";
   static const String created = "Created";
   static const String pullToRefresh = "Pull to refresh";
-  
+
   // Settings Screen
   static const String settings = "Settings";
   static const String profile = "Profile";
@@ -347,8 +347,10 @@ class AppString {
   static const String startConversation = "Start a conversation";
   static const String sending = "Sending...";
   static const String sendingDots = "Sending";
-  static const String sendMessageError = "Failed to send message. Please try again.";
-  static const String uploadImageError = "Failed to upload image. Please try again.";
+  static const String sendMessageError =
+      "Failed to send message. Please try again.";
+  static const String uploadImageError =
+      "Failed to upload image. Please try again.";
   static const String selectImage = "Select Image";
   static const String selectAttachment = "Select Attachment";
   static const String attachFile = "Attach File";
@@ -376,7 +378,8 @@ class AppString {
   static const String onlySenderCanDeleteMessage =
       "You can only delete your own messages";
   static const String deleteMessageError = "Failed to delete message";
-  static const String messageDeletedSuccessfully = "Message deleted successfully";
+  static const String messageDeletedSuccessfully =
+      "Message deleted successfully";
   static const String imageMessage = "[Image]";
   static const String fileMessage = "[File]";
   static const String forward = "Forward";
@@ -406,11 +409,17 @@ class AppString {
   static const String speaker = "Speaker";
   static const String video = "Video";
   static const String audio = "Audio";
-  static const String callPermissionDenied = "Microphone permission is required for calls";
-  static const String cameraPermissionDenied = "Camera permission is required for video calls";
+  static const String callPermissionDenied =
+      "Microphone permission is required for calls";
+  static const String cameraPermissionDenied =
+      "Camera permission is required for video calls";
   static const String you = "You";
-  static const String callConnectionError = "Failed to connect to call. Please check your internet connection.";
-  static const String callInitializationError = "Failed to start call. Please try again.";
-  static const String callNetworkError = "Network error. Please check your internet connection.";
-  static const String callServiceError = "Call service error. Please try again.";
+  static const String callConnectionError =
+      "Failed to connect to call. Please check your internet connection.";
+  static const String callInitializationError =
+      "Failed to start call. Please try again.";
+  static const String callNetworkError =
+      "Network error. Please check your internet connection.";
+  static const String callServiceError =
+      "Call service error. Please try again.";
 }

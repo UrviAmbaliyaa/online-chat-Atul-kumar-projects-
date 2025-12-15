@@ -143,7 +143,8 @@ class MessageBubble extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.r),
           border: Border(
             left: BorderSide(
-              color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
+              color:
+                  isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
               width: 3.w,
             ),
           ),
@@ -155,7 +156,8 @@ class MessageBubble extends StatelessWidget {
               text: message.replyToSenderName ?? "User",
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
+              color:
+                  isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
             ),
             SizedBox(height: 2.h),
             AppText(

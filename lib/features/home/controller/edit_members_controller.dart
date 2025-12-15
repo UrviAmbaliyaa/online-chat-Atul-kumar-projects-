@@ -114,7 +114,7 @@ class EditMembersController extends GetxController {
   }
 
   void toggleMemberSelection(String userId) {
-    if(!isCurrentUserAdmin.value) return;
+    if (!isCurrentUserAdmin.value) return;
     if (selectedMemberIds.contains(userId)) {
       selectedMemberIds.remove(userId);
     } else {

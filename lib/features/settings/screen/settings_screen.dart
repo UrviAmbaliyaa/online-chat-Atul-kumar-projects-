@@ -26,42 +26,42 @@ class SettingsScreen extends StatelessWidget {
         () => controller.isLoading.value
             ? _buildShimmerLoader()
             : SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(
-                horizontal: Spacing.md,
-                vertical: Spacing.md,
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: Spacing.md,
+                  vertical: Spacing.md,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Profile Section
+                    _buildProfileSection(controller),
+                    SizedBox(height: Spacing.lg),
+
+                    // Account Section
+                    _buildSectionTitle(AppString.account),
+                    SizedBox(height: Spacing.sm),
+                    _buildAccountSection(controller),
+                    SizedBox(height: Spacing.lg),
+
+                    // // Notifications Section
+                    // _buildSectionTitle(AppString.notifications),
+                    // SizedBox(height: Spacing.sm),
+                    // _buildNotificationsSection(controller),
+                    // SizedBox(height: Spacing.lg),
+                    //
+                    // // About Section
+                    // _buildSectionTitle(AppString.about),
+                    // SizedBox(height: Spacing.sm),
+                    // _buildAboutSection(controller),
+                    // SizedBox(height: Spacing.lg),
+
+                    // Logout Button
+                    _buildLogoutButton(controller),
+                    SizedBox(height: Spacing.xl),
+                  ],
+                ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Profile Section
-                  _buildProfileSection(controller),
-                  SizedBox(height: Spacing.lg),
-
-                  // Account Section
-                  _buildSectionTitle(AppString.account),
-                  SizedBox(height: Spacing.sm),
-                  _buildAccountSection(controller),
-                  SizedBox(height: Spacing.lg),
-
-                  // // Notifications Section
-                  // _buildSectionTitle(AppString.notifications),
-                  // SizedBox(height: Spacing.sm),
-                  // _buildNotificationsSection(controller),
-                  // SizedBox(height: Spacing.lg),
-                  //
-                  // // About Section
-                  // _buildSectionTitle(AppString.about),
-                  // SizedBox(height: Spacing.sm),
-                  // _buildAboutSection(controller),
-                  // SizedBox(height: Spacing.lg),
-
-                  // Logout Button
-                  _buildLogoutButton(controller),
-                  SizedBox(height: Spacing.xl),
-                ],
-              ),
-            ),
       ),
     );
   }
@@ -201,8 +201,7 @@ class SettingsScreen extends StatelessWidget {
     );
   }
 
-  Widget _displaing_profile_image(
-      String? userProfileImage, String userName) {
+  Widget _displaing_profile_image(String? userProfileImage, String userName) {
     return AppProfileImage(
       width: 60.w,
       height: 60.h,

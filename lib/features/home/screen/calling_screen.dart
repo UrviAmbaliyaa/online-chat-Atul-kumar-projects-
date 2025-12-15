@@ -1,3 +1,5 @@
+import 'dart:developer' as developer;
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -11,28 +13,29 @@ import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
-import 'dart:developer' as developer;
 
 class CallingScreen extends StatelessWidget {
   final UserModel? user; // For one-to-one call
   final GroupChatModel? group; // For group call
   final bool isIncoming; // Whether it's an incoming call
+  final String chatId; // Whether it's an incoming call
   final bool isVideoCall; // Whether it's a video call
 
   const CallingScreen({
     super.key,
     this.user,
     this.group,
+    required this.chatId,
     this.isIncoming = false,
     this.isVideoCall = false,
   });
 
   @override
   Widget build(BuildContext context) {
-
     try {
       final controller = Get.put(CallingController(
         user: user,
+        chatId: chatId,
         group: group,
         isIncoming: isIncoming,
         isVideoCall: isVideoCall,
@@ -70,7 +73,7 @@ class CallingScreen extends StatelessWidget {
         error: e,
         stackTrace: stackTrace,
       );
-      
+
       // Show error and return error widget
       WidgetsBinding.instance.addPostFrameCallback((_) {
         AppSnackbar.error(
@@ -163,8 +166,12 @@ class CallingScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: AppColor.whiteColor.withOpacity(0.05),
               ),
-            ).animate(onPlay: (controller) => controller.repeat())
-                .scale(duration: 3000.ms, begin: const Offset(1, 1), end: const Offset(1.5, 1.5))
+            )
+                .animate(onPlay: (controller) => controller.repeat())
+                .scale(
+                    duration: 3000.ms,
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.5, 1.5))
                 .fade(duration: 3000.ms, begin: 0.1, end: 0.0),
           ),
           Positioned(
@@ -177,8 +184,12 @@ class CallingScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: AppColor.accentColor.withOpacity(0.05),
               ),
-            ).animate(onPlay: (controller) => controller.repeat())
-                .scale(duration: 4000.ms, begin: const Offset(1, 1), end: const Offset(1.3, 1.3))
+            )
+                .animate(onPlay: (controller) => controller.repeat())
+                .scale(
+                    duration: 4000.ms,
+                    begin: const Offset(1, 1),
+                    end: const Offset(1.3, 1.3))
                 .fade(duration: 4000.ms, begin: 0.1, end: 0.0),
           ),
         ],
@@ -194,17 +205,19 @@ class CallingScreen extends StatelessWidget {
           if (controller.remoteUsers.isEmpty && !controller.isConnected.value) {
             return const SizedBox.shrink();
           }
-          
+
           final allUsers = [
-            if (controller.isVideoCall && controller.isVideoEnabled.value && controller.localUid != null) 
+            if (controller.isVideoCall &&
+                controller.isVideoEnabled.value &&
+                controller.localUid != null)
               controller.localUid!,
             ...controller.remoteUsers,
           ];
-          
+
           if (allUsers.isEmpty) {
             return const SizedBox.shrink();
           }
-          
+
           return GridView.builder(
             padding: EdgeInsets.all(Spacing.md),
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -216,8 +229,9 @@ class CallingScreen extends StatelessWidget {
             itemCount: allUsers.length,
             itemBuilder: (context, index) {
               final uid = allUsers[index];
-              final isLocal = controller.localUid != null && uid == controller.localUid;
-              
+              final isLocal =
+                  controller.localUid != null && uid == controller.localUid;
+
               return Container(
                 decoration: BoxDecoration(
                   color: AppColor.darkGrey,
@@ -273,7 +287,7 @@ class CallingScreen extends StatelessWidget {
           if (!controller.isVideoCall || !controller.isConnected.value) {
             return const SizedBox.shrink();
           }
-          
+
           return Stack(
             children: [
               // Remote video (full screen)
@@ -294,7 +308,8 @@ class CallingScreen extends StatelessWidget {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16.r),
                     child: controller.remoteUsers.isNotEmpty
-                        ? controller.getRemoteVideoView(controller.remoteUsers.first)
+                        ? controller
+                            .getRemoteVideoView(controller.remoteUsers.first)
                         : Container(
                             color: AppColor.darkGrey,
                             child: Center(
@@ -349,19 +364,18 @@ class CallingScreen extends StatelessWidget {
     final title = isGroup
         ? controller.group?.name ?? AppString.groupCall
         : controller.user?.name ?? AppString.calling;
-    final image = isGroup
-        ? controller.group?.groupImage
-        : controller.user?.profileImage;
+    final image =
+        isGroup ? controller.group?.groupImage : controller.user?.profileImage;
 
     return Obx(
       () {
         // Hide main content when video call is active and connected
-        if (controller.isVideoCall && 
-            controller.isConnected.value && 
+        if (controller.isVideoCall &&
+            controller.isConnected.value &&
             controller.remoteUsers.isNotEmpty) {
           return const SizedBox.shrink();
         }
-        
+
         return SafeArea(
           child: SizedBox(
             width: double.infinity,
@@ -391,7 +405,10 @@ class CallingScreen extends StatelessWidget {
                 )
                     .animate(onPlay: (controller) => controller.repeat())
                     .fade(duration: 1500.ms, begin: 0.7, end: 1.0)
-                    .scale(duration: 1500.ms, begin: const Offset(0.98, 0.98), end: const Offset(1, 1)),
+                    .scale(
+                        duration: 1500.ms,
+                        begin: const Offset(0.98, 0.98),
+                        end: const Offset(1, 1)),
                 SizedBox(height: Spacing.xl * 2),
                 // Profile image with pulsing animation
                 _buildProfileImage(controller, title, image, isGroup)
@@ -417,16 +434,15 @@ class CallingScreen extends StatelessWidget {
                   color: AppColor.whiteColor,
                   fontWeight: FontWeight.w700,
                   textAlign: TextAlign.center,
-                )
-                    .animate()
-                    .fadeIn(duration: 500.ms, delay: 200.ms)
-                    .slideY(begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
+                ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(
+                    begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
                 SizedBox(height: Spacing.sm),
                 // Additional info
                 if (isGroup)
                   Obx(
                     () => AppText(
-                      text: '${controller.remoteUsers.length + (controller.isVideoCall && controller.isVideoEnabled.value ? 1 : 0)} ${AppString.participants}',
+                      text:
+                          '${controller.remoteUsers.length + (controller.isVideoCall && controller.isVideoEnabled.value ? 1 : 0)} ${AppString.participants}',
                       fontSize: 16.sp,
                       color: AppColor.whiteColor.withOpacity(0.8),
                       fontWeight: FontWeight.w500,
@@ -446,7 +462,8 @@ class CallingScreen extends StatelessWidget {
                       ? _buildCallDuration(controller)
                           .animate()
                           .fadeIn(duration: 300.ms)
-                          .scale(begin: const Offset(0.9, 0.9), duration: 300.ms)
+                          .scale(
+                              begin: const Offset(0.9, 0.9), duration: 300.ms)
                       : const SizedBox.shrink(),
                 ),
               ],
@@ -479,7 +496,10 @@ class CallingScreen extends StatelessWidget {
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.15, 1.15))
+            .scale(
+                duration: 2000.ms,
+                begin: const Offset(1, 1),
+                end: const Offset(1.15, 1.15))
             .fade(duration: 2000.ms, begin: 0.3, end: 0.0),
         // Middle ring
         Container(
@@ -494,7 +514,11 @@ class CallingScreen extends StatelessWidget {
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.1, 1.1), delay: 300.ms)
+            .scale(
+                duration: 2000.ms,
+                begin: const Offset(1, 1),
+                end: const Offset(1.1, 1.1),
+                delay: 300.ms)
             .fade(duration: 2000.ms, begin: 0.4, end: 0.0, delay: 300.ms),
         // Profile image
         Container(
@@ -595,9 +619,7 @@ class CallingScreen extends StatelessWidget {
               // Mute button
               Obx(
                 () => _buildControlButton(
-                  icon: controller.isMuted.value
-                      ? Icons.mic_off
-                      : Icons.mic,
+                  icon: controller.isMuted.value ? Icons.mic_off : Icons.mic,
                   onPressed: controller.toggleMute,
                   backgroundColor: controller.isMuted.value
                       ? AppColor.redColor.withOpacity(0.8)
@@ -691,12 +713,10 @@ class CallingScreen extends StatelessWidget {
           color: iconColor,
           size: (buttonSize * 0.45).sp,
         ),
-      )
-          .animate()
-          .scale(duration: 100.ms)
-          .then()
-          .scale(duration: 100.ms, begin: const Offset(1.1, 1.1), end: const Offset(1, 1)),
+      ).animate().scale(duration: 100.ms).then().scale(
+          duration: 100.ms,
+          begin: const Offset(1.1, 1.1),
+          end: const Offset(1, 1)),
     );
   }
 }
-

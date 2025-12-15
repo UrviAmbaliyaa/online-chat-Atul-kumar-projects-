@@ -138,4 +138,3 @@ class DeleteMessageConfirmationDialog extends StatelessWidget {
     );
   }
 }
-

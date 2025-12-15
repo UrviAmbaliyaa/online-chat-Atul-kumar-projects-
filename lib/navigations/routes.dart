@@ -70,6 +70,7 @@ class AppRoutes {
         return CallingScreen(
           user: args['user'] as UserModel?,
           group: args['group'] as GroupChatModel?,
+          chatId: args['chatId'] as String ?? "",
           isIncoming: args['isIncoming'] as bool? ?? false,
           isVideoCall: args['isVideoCall'] as bool? ?? false,
         );

@@ -39,13 +39,13 @@ class ChatInfoModel {
     String currentUserId,
   ) {
     final messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
-    
+
     // Count unread messages (messages not read by current user)
     int unreadCount = 0;
     for (var message in messages) {
       final readBy = List<String>.from(message['readBy'] ?? []);
       final senderId = message['senderId'] as String?;
-      
+
       // Count as unread if:
       // 1. Current user didn't send it
       // 2. Current user hasn't read it
@@ -72,4 +72,3 @@ class ChatInfoModel {
     );
   }
 }
-
