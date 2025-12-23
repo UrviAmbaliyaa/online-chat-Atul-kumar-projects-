@@ -56,10 +56,10 @@ android {
 
 //    signingConfigs {
 //        release {
-//            storeFile file('../key/perfusionmind.jks')
-//            storePassword "perfusion@123"
+//            storeFile file('../key/key.jks')
+//            storePassword "upload@123"
 //            keyAlias "key0"
-//            keyPassword "perfusion@123"
+//            keyPassword "upload@123"
 //        }
 //    }
 
@@ -67,7 +67,9 @@ android {
         release {
             // TODO: Add your own signing config for the release build.
             // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
         }
     }
 }
