@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
+import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_spacing.dart';
@@ -208,7 +210,7 @@ class UserDetailScreen extends StatelessWidget {
             ),
           ),
           _buildDivider(),
-          _buildEmptyCallList(),
+          _buildDummyCallHistory(),
         ],
       ),
     );
@@ -234,6 +236,112 @@ class UserDetailScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildDummyCallHistory() {
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (currentUserId == null) {
+      return _buildEmptyCallList();
+    }
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseService.streamUserCallHistory(
+        userId: currentUserId,
+        peerId: user.id,
+        limit: 25,
+      ),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Center(child: CircularProgressIndicator(color: AppColor.primaryColor)),
+          );
+        }
+        final docs = snapshot.data!.docs;
+        if (docs.isEmpty) {
+          return _buildEmptyCallList();
+        }
+        return ListView.separated(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          itemCount: docs.length,
+          separatorBuilder: (_, __) => Divider(
+            height: 1,
+            thickness: 1,
+            color: AppColor.lightGrey.withOpacity(0.3),
+          ),
+          itemBuilder: (context, index) {
+            final data = docs[index].data() as Map<String, dynamic>;
+            final isVideo = (data['type'] ?? 'audio') == 'video';
+            final direction = (data['direction'] ?? 'out') as String;
+            DateTime dt;
+            final startedAt = data['startedAt'];
+            if (startedAt is Timestamp) {
+              dt = startedAt.toDate();
+            } else if (startedAt is String) {
+              dt = DateTime.tryParse(startedAt) ?? DateTime.now();
+            } else {
+              dt = DateTime.now();
+            }
+            final durationSec = data['durationSec'] as int?;
+            final duration =
+                durationSec != null ? _formatDuration(Duration(seconds: durationSec)) : null;
+            IconData leadingIcon;
+            Color iconColor;
+            if (direction == 'missed') {
+              leadingIcon = Icons.call_missed_outgoing;
+              iconColor = AppColor.lightRedColor;
+            } else if (direction == 'in') {
+              leadingIcon = Icons.call_received_rounded;
+              iconColor = AppColor.accentColor;
+            } else {
+              leadingIcon = Icons.call_made_rounded;
+              iconColor = AppColor.primaryColor;
+            }
+            return ListTile(
+              dense: true,
+              contentPadding:
+                  EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+              leading: Container(
+                width: 36.w,
+                height: 36.h,
+                decoration: BoxDecoration(
+                  color: iconColor.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(8.r),
+                ),
+                child: Icon(
+                  isVideo ? Icons.videocam_rounded : Icons.call_rounded,
+                  color: iconColor,
+                  size: 18.sp,
+                ),
+              ),
+              title: AppText(
+                text: isVideo ? 'Video call' : 'Audio call',
+                fontSize: 13.sp,
+                fontWeight: FontWeight.w600,
+                color: AppColor.darkGrey,
+              ),
+              subtitle: AppText(
+                text:
+                    '${_formatLastSeen(dt)}${duration != null ? ' • $duration' : ''}',
+                fontSize: 11.sp,
+                color: AppColor.greyColor,
+              ),
+              trailing: Icon(
+                leadingIcon,
+                size: 18.sp,
+                color: iconColor,
+              ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes;
+    final seconds = d.inSeconds % 60;
+    return '${minutes.toString()}:${seconds.toString().padLeft(2, '0')}';
   }
 
   String _formatLastSeen(DateTime dateTime) {

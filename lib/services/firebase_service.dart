@@ -864,6 +864,152 @@ class FirebaseService {
     } catch (_) {}
   }
 
+  // ==================== CALL HISTORY METHODS ====================
+
+  /// Record a one-to-one call for both users under user/{uid}/callHistory
+  static Future<void> recordOneToOneCall({
+    required String otherUserId,
+    required bool isVideo,
+    required bool missed,
+    required DateTime startedAt,
+    DateTime? endedAt,
+    Duration? duration,
+  }) async {
+    try {
+      final currentUserId = getCurrentUserId();
+      if (currentUserId == null) return;
+
+      final String type = isVideo ? 'video' : 'audio';
+      final String callerDirection = missed ? 'missed' : 'out';
+      final String calleeDirection = missed ? 'missed' : 'in';
+
+      final Map<String, dynamic> base = {
+        'type': type,
+        'startedAt': Timestamp.fromDate(startedAt),
+        if (endedAt != null) 'endedAt': Timestamp.fromDate(endedAt),
+        if (duration != null) 'durationSec': duration.inSeconds,
+        'createdAt': FieldValue.serverTimestamp(),
+      };
+
+      // For current user
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId)
+          .collection('callHistory')
+          .add({
+        ...base,
+        'peerId': otherUserId,
+        'direction': callerDirection,
+      });
+
+      // For other user
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(otherUserId)
+          .collection('callHistory')
+          .add({
+        ...base,
+        'peerId': currentUserId,
+        'direction': calleeDirection,
+      });
+    } catch (_) {}
+  }
+
+  /// Record a group call under group/{groupId}/callHistory
+  static Future<void> recordGroupCall({
+    required String groupId,
+    required bool isVideo,
+    required DateTime startedAt,
+    DateTime? endedAt,
+    Duration? duration,
+    bool missed = false,
+  }) async {
+    try {
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .collection('callHistory')
+          .add({
+        'type': isVideo ? 'video' : 'audio',
+        'startedAt': Timestamp.fromDate(startedAt),
+        if (endedAt != null) 'endedAt': Timestamp.fromDate(endedAt),
+        if (duration != null) 'durationSec': duration.inSeconds,
+        'missed': missed,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+  }
+
+  /// Stream call history for a user, optionally filtered by peerId
+  static Stream<QuerySnapshot> streamUserCallHistory({
+    required String userId,
+    String? peerId,
+    int limit = 20,
+  }) {
+    Query q = _firestore
+        .collection(FirebaseConstants.userCollection)
+        .doc(userId)
+        .collection('callHistory')
+        .orderBy('startedAt', descending: true)
+        .limit(limit);
+    if (peerId != null) {
+      q = q.where('peerId', isEqualTo: peerId);
+    }
+    return q.snapshots();
+  }
+
+  /// Stream call history for a group
+  static Stream<QuerySnapshot> streamGroupCallHistory({
+    required String groupId,
+    int limit = 20,
+  }) {
+    return _firestore
+        .collection(FirebaseConstants.groupCollection)
+        .doc(groupId)
+        .collection('callHistory')
+        .orderBy('startedAt', descending: true)
+        .limit(limit)
+        .snapshots();
+  }
+
+  /// Delete a single group call history entry
+  static Future<bool> deleteGroupCallHistoryEntry({
+    required String groupId,
+    required String entryId,
+  }) async {
+    try {
+      await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .collection('callHistory')
+          .doc(entryId)
+          .delete();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Clear all call history for a group
+  static Future<bool> clearGroupCallHistory({
+    required String groupId,
+  }) async {
+    try {
+      final snap = await _firestore
+          .collection(FirebaseConstants.groupCollection)
+          .doc(groupId)
+          .collection('callHistory')
+          .get();
+      final batch = _firestore.batch();
+      for (final doc in snap.docs) {
+        batch.delete(doc.reference);
+      }
+      await batch.commit();
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
   /// Mark current user offline and update lastSeen
   static Future<void> setUserOffline() async {
     try {

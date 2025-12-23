@@ -34,7 +34,7 @@ class AgoraTokenService {
     try {
       // Option 1: Use token server (recommended for production)
       developer.log("tokenServerUrl ::::::::::::::::: $tokenServerUrl");
-      if (tokenServerUrl != null) {
+      if (tokenServerUrl != null && tokenServerUrl!.isNotEmpty) {
         return await _fetchTokenFromServer(channelName, uid, expireTime);
       }
 
@@ -67,7 +67,14 @@ class AgoraTokenService {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        return data['token'] as String? ?? '';
+        final token = data['token'] as String? ?? '';
+        if (token.isEmpty) {
+          developer.log(
+            'Token server responded without token',
+            name: 'AgoraTokenService',
+          );
+        }
+        return token;
       } else {
         developer.log(
           'Token server error: ${response.statusCode} - ${response.body}',
@@ -97,32 +104,29 @@ class AgoraTokenService {
     int expireTime,
   ) async {
     // If app certificate is not set, return empty string
-    // Agora allows using App ID only for development (limited to 100 users)
-    if (appCertificate.isEmpty || appCertificate == 'YOUR_APP_CERTIFICATE') {
+    // Agora allows using App ID only for development (limited)
+    if (appCertificate.isEmpty ||
+        appCertificate == 'YOUR_APP_CERTIFICATE' ||
+        appId.isEmpty) {
       developer.log(
-        'App certificate not set. Using App ID only (development mode).',
+        'App certificate/App ID not set. Using App ID only (development mode).',
         name: 'AgoraTokenService',
       );
       return '';
     }
 
-    // TODO: Implement local token generation using agora_token_builder package
-    // For now, return empty string to use App ID only mode
-    //
-    // To implement:
-    // 1. Add dependency: agora_token_builder: ^1.0.0
-    // 2. Import: import 'package:agora_token_builder/agora_token_builder.dart';
-    // 3. Generate token:
-    const int tokenExpireSeconds = 3600;
-    String token = RtcTokenBuilder.buildTokenWithUid(
+    // Ensure non-zero uid for token generation
+    final int safeUid = uid == 0 ? 1 : uid;
+    final int tokenExpireSeconds = expireTime;
+    final String token = RtcTokenBuilder.buildTokenWithUid(
       appId: appId,
       appCertificate: appCertificate,
       channelName: channelName,
-      uid: uid,
+      uid: safeUid,
       tokenExpireSeconds: tokenExpireSeconds,
     );
 
-    print('🎯 RTC Token: $token');
+    developer.log('🎯 RTC Token: $token');
     return token;
 
     /*   developer.log(

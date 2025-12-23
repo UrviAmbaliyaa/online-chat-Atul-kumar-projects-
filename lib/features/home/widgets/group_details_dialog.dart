@@ -16,6 +16,7 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 import 'package:online_chat/utils/app_textfield.dart';
+import 'package:intl/intl.dart';
 
 class GroupDetailsDialog extends StatefulWidget {
   final GroupChatModel group;
@@ -213,6 +214,9 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                     SizedBox(height: Spacing.sm),
                     // Members Section
                     _buildMembersSection(),
+                    SizedBox(height: Spacing.sm),
+                    // Call History
+                    _buildCallHistorySection(),
                   ],
                 ),
               ),
@@ -265,6 +269,140 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
         ),
       ],
     );
+  }
+
+  Widget _buildCallHistorySection() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        AppText(
+          text: AppString.callHistory,
+          fontSize: 14.sp,
+          fontWeight: FontWeight.w700,
+          color: AppColor.darkGrey,
+        ),
+        SizedBox(height: Spacing.xs),
+        StreamBuilder<QuerySnapshot>(
+          stream: FirebaseService.streamGroupCallHistory(
+            groupId: widget.group.id,
+            limit: 25,
+          ),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData) {
+              return const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: CircularProgressIndicator(color: AppColor.primaryColor),
+                ),
+              );
+            }
+            final docs = snapshot.data!.docs;
+            if (docs.isEmpty) {
+              return Padding(
+                padding: EdgeInsets.all(Spacing.md),
+                child: AppText(
+                  text: AppString.noCallHistory,
+                  fontSize: 12.sp,
+                  color: AppColor.greyColor,
+                ),
+              );
+            }
+            return Container(
+              decoration: BoxDecoration(
+                color: AppColor.whiteColor,
+                borderRadius: BorderRadius.circular(8.r),
+                border: Border.all(color: AppColor.lightGrey.withOpacity(0.5), width: 1),
+              ),
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: docs.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColor.lightGrey.withOpacity(0.3),
+                ),
+                itemBuilder: (context, index) {
+                  final data = docs[index].data() as Map<String, dynamic>;
+                  final isVideo = (data['type'] ?? 'audio') == 'video';
+                  final missed = (data['missed'] ?? false) as bool;
+                  DateTime dt;
+                  final startedAt = data['startedAt'];
+                  if (startedAt is Timestamp) {
+                    dt = startedAt.toDate();
+                  } else if (startedAt is String) {
+                    dt = DateTime.tryParse(startedAt) ?? DateTime.now();
+                  } else {
+                    dt = DateTime.now();
+                  }
+                  final durationSec = data['durationSec'] as int?;
+                  final duration = durationSec != null
+                      ? _formatTimeLength(Duration(seconds: durationSec))
+                      : null;
+                  final iconColor = missed ? AppColor.lightRedColor : AppColor.primaryColor;
+                  return ListTile(
+                    dense: true,
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+                    leading: Container(
+                      width: 32.w,
+                      height: 32.h,
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        isVideo ? Icons.videocam_rounded : Icons.call_rounded,
+                        color: iconColor,
+                        size: 16.sp,
+                      ),
+                    ),
+                    title: AppText(
+                      text: isVideo ? 'Group video call' : 'Group call',
+                      fontSize: 13.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.darkGrey,
+                    ),
+                    subtitle: AppText(
+                      text:
+                          '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
+                      fontSize: 11.sp,
+                      color: AppColor.greyColor,
+                    ),
+                  );
+                },
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dateOnly = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final hour = dateTime.hour;
+    final minute = dateTime.minute;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    final timeString =
+        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    if (dateOnly == today) {
+      return 'today at $timeString';
+    } else if (dateOnly == today.subtract(const Duration(days: 1))) {
+      return 'yesterday at $timeString';
+    } else {
+      final dateString = DateFormat('MMM d').format(dateTime);
+      return '$dateString at $timeString';
+    }
+  }
+
+  String _formatTimeLength(Duration d) {
+    final minutes = d.inMinutes;
+    final seconds = d.inSeconds % 60;
+    return '${minutes.toString()}:${seconds.toString().padLeft(2, '0')}';
   }
 
   Widget _buildMembersSection() {

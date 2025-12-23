@@ -4,6 +4,7 @@ import 'dart:developer' as developer;
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dart:math';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
@@ -55,6 +56,7 @@ class CallingController extends GetxController {
   Timer? _callDurationTimer;
   final callStartTime = Rx<DateTime?>(null);
   final callDuration = Duration.zero.obs;
+  Timer? _remoteEmptyTimer;
 
   // Call rejection listener
   StreamSubscription<QuerySnapshot>? _rejectionListener;
@@ -64,6 +66,7 @@ class CallingController extends GetxController {
 
   // Token will be generated dynamically based on channel name
   String _token = '';
+  int _desiredUid = 0;
 
   CallingController({
     this.user,
@@ -119,6 +122,22 @@ class CallingController extends GetxController {
             developer.log(
                 'Call connected successfully. Local UID: ${connection.localUid}');
           },
+          onTokenPrivilegeWillExpire: (RtcConnection connection, String token) async {
+            try {
+              final channelName = getChannelName();
+              final newToken = await AgoraTokenService.getTokenWithRetry(
+                channelName: channelName,
+                uid: _desiredUid == 0 ? 1 : _desiredUid,
+                expireTime: 86400,
+              );
+              if (newToken.isNotEmpty) {
+                await _engine?.renewToken(newToken);
+                developer.log('Token renewed for channel: $channelName');
+              }
+            } catch (e) {
+              developer.log('Token renewal failed: $e');
+            }
+          },
           onUserJoined: (RtcConnection connection, int remoteUid, int elapsed) {
             remoteUsers.add(remoteUid);
 
@@ -126,6 +145,9 @@ class CallingController extends GetxController {
               callState.value = CallState.connected;
               isConnected.value = true;
               callStartTime.value = DateTime.now();
+              // Cancel any pending auto-end due to empty channel
+              _remoteEmptyTimer?.cancel();
+              _remoteEmptyTimer = null;
               // Cancel rejection listener once someone joins (call is accepted)
               _rejectionListener?.cancel();
               _rejectionListener = null;
@@ -143,7 +165,14 @@ class CallingController extends GetxController {
             remoteUsers.remove(remoteUid);
             remoteVideoViews.remove(remoteUid);
             if(remoteUsers.length == 0){
-              _leaveChhanal();
+              // If no remotes in the channel, wait a short grace period to avoid
+              // immediate call end on transient disconnects.
+              _remoteEmptyTimer?.cancel();
+              _remoteEmptyTimer = Timer(const Duration(seconds: 5), () {
+                if (remoteUsers.isEmpty) {
+                  _leaveChhanal();
+                }
+              });
             }
             developer.log('User offline: $remoteUid, reason: $reason');
           },
@@ -156,6 +185,9 @@ class CallingController extends GetxController {
           },
         ),
       );
+
+      // Choose a deterministic local UID (non-zero) for token and join
+      _desiredUid = Random().nextInt(0x7FFFFFFF - 1) + 1;
 
       // Enable video if it's a video call
       if (isVideoCall) {
@@ -196,10 +228,41 @@ class CallingController extends GetxController {
     callState.value = CallState.ended;
     isConnected.value = false;
     _callDurationTimer?.cancel();
+    _remoteEmptyTimer?.cancel();
+    _remoteEmptyTimer = null;
     // Cancel rejection listener when call ends
     _rejectionListener?.cancel();
     _rejectionListener = null;
     developer.log('Left channel. Duration: ${stats?.duration}ms');
+
+    try {
+      final started = callStartTime.value ?? DateTime.now();
+      final ended = DateTime.now();
+      final dur = ended.difference(started);
+      final missed = callStartTime.value == null || dur.inSeconds <= 0;
+
+      if (user != null) {
+        // One-to-one call
+        FirebaseService.recordOneToOneCall(
+          otherUserId: user!.id,
+          isVideo: isVideoCall,
+          missed: missed,
+          startedAt: started,
+          endedAt: missed ? null : ended,
+          duration: missed ? null : dur,
+        );
+      } else if (group != null) {
+        // Group call
+        FirebaseService.recordGroupCall(
+          groupId: group!.id,
+          isVideo: isVideoCall,
+          startedAt: started,
+          endedAt: missed ? null : ended,
+          duration: missed ? null : dur,
+          missed: missed,
+        );
+      }
+    } catch (_) {}
   }
 
   Future<bool> _requestPermissions() async {
@@ -248,7 +311,7 @@ class CallingController extends GetxController {
 
       _token = await AgoraTokenService.getTokenWithRetry(
         channelName: channelName,
-        uid: 0, // 0 means Agora will assign a UID
+        uid: _desiredUid == 0 ? 1 : _desiredUid,
         expireTime: 86400, // 24 hours
       );
 
@@ -278,7 +341,7 @@ class CallingController extends GetxController {
   Future<void> _joinChannel() async {
     try {
       final String channelName = getChannelName();
-      final uid = 0; // 0 means Agora will assign a UID
+      final uid = _desiredUid == 0 ? 1 : _desiredUid; // match token uid
 
       developer.log('Joining channel: $channelName');
       await _engine!.joinChannel(

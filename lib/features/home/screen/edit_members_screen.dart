@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:online_chat/features/home/controller/edit_members_controller.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_spacing.dart';
@@ -60,7 +63,7 @@ class EditMembersScreen extends StatelessWidget {
                             _buildMembersSection(controller),
                             SizedBox(height: Spacing.sm),
                             // Call History Section
-                            _buildCallHistorySection(),
+                            _buildCallHistorySection(controller),
                             // Extra bottom padding to prevent content from being hidden
                             SizedBox(height: Spacing.lg),
                           ],
@@ -579,9 +582,8 @@ class EditMembersScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildCallHistorySection() {
+  Widget _buildCallHistorySection(EditMembersController controller) {
     return Container(
-      constraints: BoxConstraints(maxHeight: 100.h),
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
         borderRadius: BorderRadius.circular(8.r),
@@ -595,19 +597,43 @@ class EditMembersScreen extends StatelessWidget {
         ],
       ),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
             padding: EdgeInsets.symmetric(
               horizontal: Spacing.md,
               vertical: Spacing.sm,
             ),
-            child: AppText(
-              text: AppString.callHistory,
-              fontSize: 12.sp,
-              fontWeight: FontWeight.w700,
-              color: AppColor.darkGrey,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                AppText(
+                  text: AppString.callHistory,
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w700,
+                  color: AppColor.darkGrey,
+                ),
+                Obx(() => controller.isCurrentUserAdmin.value
+                    ? TextButton(
+                        onPressed: () async {
+                          final ok =
+                              await FirebaseService.clearGroupCallHistory(
+                            groupId: group.id,
+                          );
+                          if (!ok) {
+                            // silently ignore; snackbars are global
+                          }
+                        },
+                        child: AppText(
+                          text: 'Clear',
+                          fontSize: 12.sp,
+                          color: AppColor.primaryColor,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      )
+                    : const SizedBox.shrink()),
+              ],
             ),
           ),
           Divider(
@@ -615,7 +641,103 @@ class EditMembersScreen extends StatelessWidget {
             thickness: 1,
             color: AppColor.lightGrey.withOpacity(0.5),
           ),
-          _buildEmptyCallList(),
+          StreamBuilder<QuerySnapshot>(
+            stream: FirebaseService.streamGroupCallHistory(
+              groupId: group.id,
+              limit: 25,
+            ),
+            builder: (context, snapshot) {
+              if (!snapshot.hasData) {
+                return Padding(
+                  padding: EdgeInsets.all(Spacing.sm),
+                  child: const Center(
+                    child: CircularProgressIndicator(color: AppColor.primaryColor),
+                  ),
+                );
+              }
+              final docs = snapshot.data!.docs;
+              if (docs.isEmpty) {
+                return _buildEmptyCallList();
+              }
+              return ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: docs.length,
+                separatorBuilder: (_, __) => Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColor.lightGrey.withOpacity(0.3),
+                ),
+                itemBuilder: (context, index) {
+                  final data = docs[index].data() as Map<String, dynamic>;
+                  final isVideo = (data['type'] ?? 'audio') == 'video';
+                  final missed = (data['missed'] ?? false) as bool;
+                  DateTime dt;
+                  final startedAt = data['startedAt'];
+                  if (startedAt is Timestamp) {
+                    dt = startedAt.toDate();
+                  } else if (startedAt is String) {
+                    dt = DateTime.tryParse(startedAt) ?? DateTime.now();
+                  } else {
+                    dt = DateTime.now();
+                  }
+                  final durationSec = data['durationSec'] as int?;
+                  final duration = durationSec != null
+                      ? _formatTimeLength(Duration(seconds: durationSec))
+                      : null;
+                  final iconColor =
+                      missed ? AppColor.lightRedColor : AppColor.primaryColor;
+                  return ListTile(
+                    dense: true,
+                    contentPadding: EdgeInsets.symmetric(
+                        horizontal: Spacing.md, vertical: Spacing.xs),
+                    leading: Container(
+                      width: 28.w,
+                      height: 28.h,
+                      decoration: BoxDecoration(
+                        color: iconColor.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(8.r),
+                      ),
+                      child: Icon(
+                        isVideo ? Icons.videocam_rounded : Icons.call_rounded,
+                        color: iconColor,
+                        size: 16.sp,
+                      ),
+                    ),
+                    title: AppText(
+                      text: isVideo ? 'Group video call' : 'Group call',
+                      fontSize: 12.sp,
+                      fontWeight: FontWeight.w600,
+                      color: AppColor.darkGrey,
+                    ),
+                    subtitle: AppText(
+                      text:
+                          '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
+                      fontSize: 11.sp,
+                      color: AppColor.greyColor,
+                    ),
+                    trailing: Obx(
+                      () => controller.isCurrentUserAdmin.value
+                          ? IconButton(
+                              icon: Icon(
+                                Icons.delete_outline,
+                                size: 18.sp,
+                                color: AppColor.lightRedColor,
+                              ),
+                              onPressed: () async {
+                                await FirebaseService.deleteGroupCallHistoryEntry(
+                                  groupId: group.id,
+                                  entryId: docs[index].id,
+                                );
+                              },
+                            )
+                          : const SizedBox.shrink(),
+                    ),
+                  );
+                },
+              );
+            },
+          ),
         ],
       ),
     );
@@ -644,6 +766,32 @@ class EditMembersScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String _formatTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final dateOnly = DateTime(dateTime.year, dateTime.month, dateTime.day);
+    final hour = dateTime.hour;
+    final minute = dateTime.minute;
+    final period = hour >= 12 ? 'PM' : 'AM';
+    final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
+    final timeString =
+        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    if (dateOnly == today) {
+      return 'today at $timeString';
+    } else if (dateOnly == today.subtract(const Duration(days: 1))) {
+      return 'yesterday at $timeString';
+    } else {
+      final dateString = DateFormat('MMM d').format(dateTime);
+      return '$dateString at $timeString';
+    }
+  }
+
+  String _formatTimeLength(Duration d) {
+    final minutes = d.inMinutes;
+    final seconds = d.inSeconds % 60;
+    return '${minutes.toString()}:${seconds.toString().padLeft(2, '0')}';
   }
 
   Widget _buildUpdateGroupButton(EditMembersController controller) {
