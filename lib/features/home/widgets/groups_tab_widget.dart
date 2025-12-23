@@ -42,37 +42,38 @@ class GroupsTabWidget extends StatelessWidget {
 
   Widget _buildGroupItem(GroupChatModel group, context) {
     return Container(
-      margin: EdgeInsets.only(bottom: Spacing.sm),
+      margin: EdgeInsets.only(bottom: Spacing.xs),
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.lightGrey.withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColor.lightGrey.withOpacity(0.25),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: ListTile(
+        dense: true,
         contentPadding: EdgeInsets.symmetric(
-          horizontal: Spacing.md,
-          vertical: Spacing.sm,
+          horizontal: Spacing.sm,
+          vertical: Spacing.xs,
         ),
         leading: AppProfileImage(
-          width: 56.w,
-          height: 56.h,
+          width: 44.w,
+          height: 44.h,
           username: group.name,
           imageUrl: group.groupImage,
           fallbackIcon: Icons.group,
-          fontSize: 28.sp,
+          fontSize: 22.sp,
         ),
         title: Row(
           children: [
             Expanded(
               child: AppText(
                 text: group.name,
-                fontSize: 16.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColor.darkGrey,
               ),
@@ -81,18 +82,16 @@ class GroupsTabWidget extends StatelessWidget {
               final unreadCount = controller.getUnreadCountForGroup(group.id);
               if (unreadCount > 0) {
                 return Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 6.w,
-                    vertical: 2.h,
-                  ),
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color: AppColor.primaryColor,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: AppText(
                     text: unreadCount > 99 ? '99+' : unreadCount.toString(),
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
                     color: AppColor.whiteColor,
                   ),
                 );
@@ -102,18 +101,18 @@ class GroupsTabWidget extends StatelessWidget {
           ],
         ),
         subtitle: Padding(
-          padding: EdgeInsets.only(top: 4.h),
+          padding: EdgeInsets.only(top: 2.h),
           child: Row(
             children: [
               Icon(
                 Icons.people_outline,
-                size: 14.sp,
+                size: 12.sp,
                 color: AppColor.greyColor,
               ),
               SizedBox(width: 4.w),
               AppText(
                 text: '${group.memberCount} ${AppString.members}',
-                fontSize: 12.sp,
+                fontSize: 11.sp,
                 color: AppColor.greyColor,
               ),
             ],

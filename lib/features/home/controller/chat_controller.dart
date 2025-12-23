@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/message_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
+import 'package:online_chat/features/home/screen/media_preview_screen.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_file_picker.dart';
 import 'package:online_chat/utils/app_image_picker.dart';
@@ -386,6 +387,7 @@ class ChatController extends GetxController {
 
       if (messageId != null) {
         pendingMessageIds.add(messageId);
+        AppSnackbar.success(message: AppString.operationSuccess);
       }
 
       clearReply();
@@ -447,6 +449,7 @@ class ChatController extends GetxController {
 
       if (messageId != null) {
         pendingMessageIds.add(messageId);
+        AppSnackbar.success(message: AppString.operationSuccess);
       }
 
       clearReply();
@@ -465,7 +468,7 @@ class ChatController extends GetxController {
       imageQuality: 85,
     );
     if (image != null) {
-      sendImageMessage(image);
+      Get.to(() => MediaPreviewScreen(file: image, isImage: true));
     }
   }
 
@@ -477,7 +480,7 @@ class ChatController extends GetxController {
       imageQuality: 85,
     );
     if (image != null) {
-      sendImageMessage(image);
+      Get.to(() => MediaPreviewScreen(file: image, isImage: true));
     }
   }
 
@@ -510,7 +513,7 @@ class ChatController extends GetxController {
   Future<void> pickAndSendFile() async {
     final file = await AppFilePicker.pickPDFOrZIP();
     if (file != null) {
-      sendFileMessage(file);
+      Get.to(() => MediaPreviewScreen(file: file, isImage: false));
     }
   }
 

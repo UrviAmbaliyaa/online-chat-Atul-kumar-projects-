@@ -758,6 +758,57 @@ class FirebaseService {
     }
   }
 
+  /// Search users by prefix of email or name (case-insensitive for email)
+  /// [query] - The search text; performs prefix search
+  /// Returns up to [limit] users matching either email or name prefix
+  static Future<List<UserModel>> searchUsersByQuery({
+    required String query,
+    int limit = 20,
+  }) async {
+    try {
+      final q = query.trim();
+      if (q.isEmpty) return [];
+
+      final String qLower = q.toLowerCase();
+
+      // Email prefix search
+      final emailSnap = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .orderBy('email')
+          .startAt([qLower])
+          .endAt([ '$qLower\uf8ff' ])
+          .limit(limit)
+          .get();
+
+      // Name prefix search (best-effort; case-sensitive depending on stored data)
+      final nameSnap = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .orderBy('name')
+          .startAt([q])
+          .endAt([ '$q\uf8ff' ])
+          .limit(limit)
+          .get();
+
+      final Map<String, UserModel> byId = {};
+
+      for (final doc in emailSnap.docs) {
+        if (doc.exists) {
+          byId[doc.id] = UserModel.fromFirestore(doc.data(), doc.id);
+        }
+      }
+      for (final doc in nameSnap.docs) {
+        if (doc.exists) {
+          byId[doc.id] = UserModel.fromFirestore(doc.data(), doc.id);
+        }
+      }
+
+      return byId.values.toList();
+    } catch (e) {
+      log("Search users error: $e");
+      return [];
+    }
+  }
+
   /// Get users by IDs
   /// [userIds] - List of user IDs
   /// Returns list of UserModel

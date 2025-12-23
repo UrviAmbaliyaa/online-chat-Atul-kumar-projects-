@@ -11,6 +11,9 @@ import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
+import 'package:online_chat/services/firebase_service.dart';
+import 'package:online_chat/utils/firebase_constants.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UsersTabWidget extends StatelessWidget {
   final HomeController controller;
@@ -38,22 +41,23 @@ class UsersTabWidget extends StatelessWidget {
 
   Widget _buildUserItem(UserModel user) {
     return Container(
-      margin: EdgeInsets.only(bottom: Spacing.sm),
+      margin: EdgeInsets.only(bottom: Spacing.xs),
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.lightGrey.withOpacity(0.3),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
+            color: AppColor.lightGrey.withOpacity(0.25),
+            blurRadius: 3,
+            offset: const Offset(0, 1),
           ),
         ],
       ),
       child: ListTile(
+        dense: true,
         contentPadding: EdgeInsets.symmetric(
-          horizontal: Spacing.md,
-          vertical: Spacing.sm,
+          horizontal: Spacing.sm,
+          vertical: Spacing.xs,
         ),
         onTap: () {
           AppNavigation.push(
@@ -64,60 +68,70 @@ class UsersTabWidget extends StatelessWidget {
             },
           );
         },
-        leading: Stack(
-          children: [
-            AppProfileImage(
-              width: 56.w,
-              height: 56.h,
-              username: user.name,
-              imageUrl: user.profileImage,
-              fontSize: 18.sp,
-            ),
-            if (user.isOnline)
-              Positioned(
-                right: 0,
-                bottom: 0,
-                child: Container(
-                  width: 16.w,
-                  height: 16.h,
-                  decoration: BoxDecoration(
-                    color: AppColor.accentColor,
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColor.whiteColor,
-                      width: 2,
+        leading: StreamBuilder<DocumentSnapshot>(
+          stream: FirebaseService.streamDocument(
+            collection: FirebaseConstants.userCollection,
+            docId: user.id,
+          ),
+          builder: (context, snapshot) {
+            final data = snapshot.data?.data() as Map<String, dynamic>?;
+            final isOnlineLive = data?['isOnline'] as bool?;
+            final isOnline = isOnlineLive ?? user.isOnline;
+            return Stack(
+              children: [
+                AppProfileImage(
+                  width: 44.w,
+                  height: 44.h,
+                  username: user.name,
+                  imageUrl: user.profileImage,
+                  fontSize: 16.sp,
+                ),
+                Positioned(
+                  right: 0,
+                  bottom: 0,
+                  child: Container(
+                    width: 12.w,
+                    height: 12.h,
+                    decoration: BoxDecoration(
+                      color:
+                          isOnline ? AppColor.accentColor : AppColor.greyColor,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: AppColor.whiteColor,
+                        width: 2,
+                      ),
                     ),
                   ),
                 ),
-              ),
-          ],
+              ],
+            );
+          },
         ),
         title: Row(
           children: [
             Expanded(
               child: AppText(
                 text: user.name,
-                fontSize: 16.sp,
+                fontSize: 14.sp,
                 fontWeight: FontWeight.w600,
                 color: AppColor.darkGrey,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
               ),
             ),
             Obx(() {
               final unreadCount = controller.getUnreadCountForUser(user.id);
               if (unreadCount > 0) {
                 return Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 6.w,
-                    vertical: 2.h,
-                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color: AppColor.primaryColor,
-                    borderRadius: BorderRadius.circular(12.r),
+                    borderRadius: BorderRadius.circular(10.r),
                   ),
                   child: AppText(
                     text: unreadCount > 99 ? '99+' : unreadCount.toString(),
-                    fontSize: 11.sp,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 10.sp,
+                    fontWeight: FontWeight.w700,
                     color: AppColor.whiteColor,
                   ),
                 );
@@ -130,30 +144,28 @@ class UsersTabWidget extends StatelessWidget {
           final chatInfo = controller.getChatInfoForUser(user.id);
           final lastMessage = chatInfo?.lastMessage ??
               controller.getLastMessageForUser(user.id);
-
           if (lastMessage != null && lastMessage.isNotEmpty) {
             return Padding(
-              padding: EdgeInsets.only(top: 4.h),
+              padding: EdgeInsets.only(top: 2.h),
               child: AppText(
-                text: lastMessage.length > 50
-                    ? '${lastMessage.substring(0, 50)}...'
+                text: lastMessage.length > 42
+                    ? '${lastMessage.substring(0, 42)}...'
                     : lastMessage,
-                fontSize: 13.sp,
+                fontSize: 12.sp,
                 color: AppColor.greyColor,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
             );
-          } else {
-            return Padding(
-              padding: EdgeInsets.only(top: 4.h),
-              child: AppText(
-                text: AppString.noMessagesYet,
-                fontSize: 13.sp,
-                color: AppColor.greyColor.withOpacity(0.6),
-              ),
-            );
           }
+          return Padding(
+            padding: EdgeInsets.only(top: 2.h),
+            child: AppText(
+              text: AppString.noMessagesYet,
+              fontSize: 12.sp,
+              color: AppColor.greyColor.withOpacity(0.6),
+            ),
+          );
         }),
       ),
     );

@@ -152,18 +152,18 @@ class AppSnackbar {
       titleText: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(6.w),
+            padding: EdgeInsets.all(4.w),
             decoration: BoxDecoration(
               color: AppColor.whiteColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(5.r),
+              borderRadius: BorderRadius.circular(4.r),
             ),
             child: Icon(
               icon,
               color: AppColor.whiteColor,
-              size: 13.sp,
+              size: 12.sp,
             ),
           ),
-          SizedBox(width: 12.w),
+          SizedBox(width: 8.w),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,10 +179,10 @@ class AppSnackbar {
                   // SizedBox(height: 4.h),
                   AppText(
                     text: message,
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w400,
                     color: AppColor.whiteColor.withOpacity(0.9),
-                    maxLines: 2,
+                    maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ],
@@ -196,22 +196,22 @@ class AppSnackbar {
       colorText: AppColor.whiteColor,
       snackPosition: position,
       duration: duration,
-      margin: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
-      borderRadius: 12.r,
-      padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 16.h),
+      margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 8.h),
+      borderRadius: 8.r,
+      padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10.h),
       boxShadows: [
         BoxShadow(
           color: color.withOpacity(0.3),
-          blurRadius: 10,
-          spreadRadius: 2,
-          offset: const Offset(0, 4),
+          blurRadius: 6,
+          spreadRadius: 1,
+          offset: const Offset(0, 2),
         ),
       ],
       isDismissible: true,
       dismissDirection: DismissDirection.horizontal,
-      forwardAnimationCurve: Curves.easeOutBack,
-      reverseAnimationCurve: Curves.easeInBack,
-      animationDuration: const Duration(milliseconds: 400),
+      forwardAnimationCurve: Curves.easeOutCubic,
+      reverseAnimationCurve: Curves.easeInCubic,
+      animationDuration: const Duration(milliseconds: 250),
     );
   }
 

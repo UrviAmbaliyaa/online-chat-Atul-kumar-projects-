@@ -23,7 +23,7 @@ class UserDetailScreen extends StatelessWidget {
       backgroundColor: AppColor.ScaffoldColor,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(Spacing.md),
+        padding: EdgeInsets.all(Spacing.sm),
         child: Column(
           children: [
             // Profile Section
@@ -31,7 +31,7 @@ class UserDetailScreen extends StatelessWidget {
 
             // User Info Section
             _buildUserInfoSection(),
-            SizedBox(height: Spacing.lg),
+            SizedBox(height: Spacing.md),
             // Call List Section
             _buildCallListSection(),
           ],
@@ -77,17 +77,17 @@ class UserDetailScreen extends StatelessWidget {
 
   Widget _buildProfileSection() {
     return Container(
-      padding: EdgeInsets.only(bottom: Spacing.xl, top: Spacing.sm),
+      padding: EdgeInsets.only(bottom: Spacing.lg, top: Spacing.xs),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16.r),
       ),
       child: AppProfileImage(
-        width: 120.w,
-        height: 120.h,
+        width: 90.w,
+        height: 90.h,
         username: user.name,
         imageUrl: user.profileImage,
-        fontSize: 48.sp,
-        borderWidth: 4,
+        fontSize: 36.sp,
+        borderWidth: 3,
         borderColor: AppColor.primaryColor,
       ),
     );
@@ -97,11 +97,11 @@ class UserDetailScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 15,
+            blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
@@ -120,14 +120,6 @@ class UserDetailScreen extends StatelessWidget {
             label: AppString.email,
             value: user.email,
           ),
-          if (user.phone != null && user.phone!.isNotEmpty) ...[
-            _buildDivider(),
-            _buildInfoItem(
-              icon: Icons.phone_outlined,
-              label: AppString.phone,
-              value: user.phone!,
-            ),
-          ],
         ],
       ),
     );
@@ -139,12 +131,12 @@ class UserDetailScreen extends StatelessWidget {
     required String value,
   }) {
     return Padding(
-      padding: EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.all(Spacing.md),
       child: Row(
         children: [
           Container(
-            width: 40.w,
-            height: 40.h,
+            width: 32.w,
+            height: 32.h,
             decoration: BoxDecoration(
               color: AppColor.primaryColor.withOpacity(0.1),
               borderRadius: BorderRadius.circular(10.r),
@@ -152,7 +144,7 @@ class UserDetailScreen extends StatelessWidget {
             child: Icon(
               icon,
               color: AppColor.primaryColor,
-              size: 20.sp,
+              size: 16.sp,
             ),
           ),
           SizedBox(width: Spacing.md),
@@ -162,13 +154,13 @@ class UserDetailScreen extends StatelessWidget {
               children: [
                 AppText(
                   text: label,
-                  fontSize: 12.sp,
+                  fontSize: 11.sp,
                   color: AppColor.greyColor,
                 ),
-                SizedBox(height: 4.h),
+                SizedBox(height: 3.h),
                 AppText(
                   text: value,
-                  fontSize: 15.sp,
+                  fontSize: 13.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColor.darkGrey,
                 ),
@@ -185,7 +177,7 @@ class UserDetailScreen extends StatelessWidget {
       height: 1,
       thickness: 1,
       color: AppColor.lightGrey.withOpacity(0.5),
-      indent: Spacing.lg + 40.w + Spacing.md,
+      indent: Spacing.md + 32.w + Spacing.sm,
     );
   }
 
@@ -193,11 +185,11 @@ class UserDetailScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(12.r),
+        borderRadius: BorderRadius.circular(10.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 15,
+            blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
@@ -207,10 +199,10 @@ class UserDetailScreen extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: EdgeInsets.all(Spacing.lg),
+            padding: EdgeInsets.all(Spacing.md),
             child: AppText(
               text: AppString.callHistory,
-              fontSize: 16.sp,
+              fontSize: 14.sp,
               fontWeight: FontWeight.w700,
               color: AppColor.darkGrey,
             ),
@@ -224,18 +216,18 @@ class UserDetailScreen extends StatelessWidget {
 
   Widget _buildEmptyCallList() {
     return Padding(
-      padding: EdgeInsets.all(Spacing.xl),
+      padding: EdgeInsets.all(Spacing.lg),
       child: Column(
         children: [
           Icon(
             Icons.call_outlined,
-            size: 48.sp,
+            size: 36.sp,
             color: AppColor.greyColor.withOpacity(0.5),
           ),
           SizedBox(height: Spacing.md),
           AppText(
             text: AppString.noCallHistory,
-            fontSize: 14.sp,
+            fontSize: 12.sp,
             color: AppColor.greyColor,
             textAlign: TextAlign.center,
           ),

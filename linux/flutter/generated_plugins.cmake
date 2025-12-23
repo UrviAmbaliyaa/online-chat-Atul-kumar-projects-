@@ -4,7 +4,9 @@
 
 list(APPEND FLUTTER_PLUGIN_LIST
   audioplayers_linux
+  file_saver
   file_selector_linux
+  syncfusion_pdfviewer_linux
   url_launcher_linux
 )
 

@@ -55,6 +55,7 @@ class ChatScreen extends StatelessWidget {
                 controller: controller.scrollController,
                 padding: EdgeInsets.all(Spacing.md),
                 itemCount: controller.messages.length,
+                addAutomaticKeepAlives: false,
                 itemBuilder: (context, index) {
                   final message = controller.messages[index];
                   final previousMessage =
@@ -188,21 +189,26 @@ class ChatScreen extends StatelessWidget {
                         if (otherUser == null) {
                           return const SizedBox.shrink();
                         }
-
-                        String statusText;
-                        if (otherUser.isOnline) {
-                          statusText = AppString.online;
-                        } else if (otherUser.lastSeen != null) {
-                          statusText =
-                              '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
-                        } else {
-                          statusText = AppString.offline;
-                        }
-
-                        return AppText(
-                          text: statusText,
-                          fontSize: 12.sp,
-                          color: AppColor.whiteColor.withOpacity(0.8),
+                        return StreamBuilder<DateTime>(
+                          stream: Stream.periodic(
+                              const Duration(seconds: 30), (_) => DateTime.now()),
+                          initialData: DateTime.now(),
+                          builder: (context, snapshot) {
+                            String statusText;
+                            if (otherUser.isOnline) {
+                              statusText = AppString.online;
+                            } else if (otherUser.lastSeen != null) {
+                              statusText =
+                                  '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
+                            } else {
+                              statusText = AppString.offline;
+                            }
+                            return AppText(
+                              text: statusText,
+                              fontSize: 12.sp,
+                              color: AppColor.whiteColor.withOpacity(0.8),
+                            );
+                          },
                         );
                       }),
                   ],

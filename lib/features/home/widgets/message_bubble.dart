@@ -11,6 +11,11 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:get/get.dart';
+import 'package:online_chat/features/home/screen/media_preview_screen.dart';
+import 'package:online_chat/utils/app_downloader.dart';
+import 'package:online_chat/utils/app_snackbar.dart';
+import 'package:online_chat/utils/download_manager.dart';
 
 class MessageBubble extends StatelessWidget {
   final MessageModel message;
@@ -39,7 +44,8 @@ class MessageBubble extends StatelessWidget {
       onLongPress: onLongPress,
       child: Container(
         margin: EdgeInsets.only(
-          bottom: Spacing.xs,
+          bottom: Spacing.sm,
+          top: Spacing.sm,
           left: isCurrentUser ? 50.w : 0,
           right: isCurrentUser ? 0 : 50.w,
         ),
@@ -62,7 +68,7 @@ class MessageBubble extends StatelessWidget {
             Flexible(
               child: Container(
                 padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
+                  horizontal: Spacing.sm,
                   vertical: Spacing.sm,
                 ),
                 decoration: BoxDecoration(
@@ -88,7 +94,7 @@ class MessageBubble extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  crossAxisAlignment: !isCurrentUser ? CrossAxisAlignment.start:CrossAxisAlignment.end,
                   children: [
                     // Reply preview
                     if (message.replyToMessageId != null) _buildReplyPreview(),
@@ -109,7 +115,7 @@ class MessageBubble extends StatelessWidget {
                         if (isCurrentUser) ...[
                           SizedBox(width: 4.w),
                           Opacity(
-                            opacity: 0.5,
+                            opacity: message.isRead ?1 :0.5,
                             child: Icon(
                               message.isRead
                                   ? Icons.done_all
@@ -191,33 +197,84 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildImageMessage() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(8.r),
-      child: CachedNetworkImage(
-        imageUrl: message.imageUrl ?? '',
-        width: 200.w,
-        height: 200.h,
-        fit: BoxFit.cover,
-        placeholder: (context, url) => Container(
-          width: 200.w,
-          height: 200.h,
-          color: AppColor.lightGrey,
-          child: const Center(
-            child: CircularProgressIndicator(
-              color: AppColor.primaryColor,
+    final dm = Get.put(DownloadManager(), permanent: true);
+    return Stack(
+      children: [
+        InkWell(
+          onTap: () {
+            if (message.imageUrl != null && message.imageUrl!.isNotEmpty) {
+              Get.to(
+                () => MediaPreviewScreen(
+                  isImage: true,
+                  networkUrl: message.imageUrl,
+                  enableSend: false,
+                  fileName: message.fileName,
+                  fileExtension: 'jpg',
+                ),
+              );
+            }
+          },
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8.r),
+            child: CachedNetworkImage(
+              imageUrl: message.imageUrl ?? '',
+              width: 200.w,
+              height: 200.h,
+              fit: BoxFit.cover,
+              placeholder: (context, url) => Container(
+                width: 200.w,
+                height: 200.h,
+                color: AppColor.lightGrey,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: AppColor.primaryColor,
+                  ),
+                ),
+              ),
+              errorWidget: (context, url, error) => Container(
+                width: 200.w,
+                height: 200.h,
+                color: AppColor.lightGrey,
+                child: const Icon(
+                  Icons.error,
+                  color: AppColor.redColor,
+                ),
+              ),
             ),
           ),
         ),
-        errorWidget: (context, url, error) => Container(
-          width: 200.w,
-          height: 200.h,
-          color: AppColor.lightGrey,
-          child: const Icon(
-            Icons.error,
-            color: AppColor.redColor,
+        if (message.imageUrl != null && message.imageUrl!.isNotEmpty)
+          Positioned(
+            right: 6.w,
+            bottom: 6.h,
+            child: Obx(() {
+              final isThisDownloading = dm.isDownloading.value &&
+                  dm.currentUrl.value == message.imageUrl;
+              if (isThisDownloading) {
+                return Container(
+                  width: 26.w,
+                  height: 26.h,
+                  decoration: BoxDecoration(
+                    color: Colors.black54,
+                    borderRadius: BorderRadius.circular(16.r),
+                  ),
+                  child: Padding(
+                    padding: EdgeInsets.all(6.w),
+                    child: const CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: AppColor.whiteColor,
+                    ),
+                  ),
+                );
+              }
+              return _buildDownloadChip(
+                onTap: () {
+                  dm.enqueue(message.imageUrl!, fileName: message.fileName);
+                },
+              );
+            }),
           ),
-        ),
-      ),
+      ],
     );
   }
 
@@ -227,27 +284,35 @@ class MessageBubble extends StatelessWidget {
         message.fileExtension?.toLowerCase() == 'rar' ||
         message.fileExtension?.toLowerCase() == '7z';
 
+    final dm = Get.put(DownloadManager(), permanent: true);
     return InkWell(
-      onTap: () async {
-        if (message.fileUrl != null) {
-          final uri = Uri.parse(message.fileUrl!);
-          if (await canLaunchUrl(uri)) {
-            await launchUrl(uri, mode: LaunchMode.externalApplication);
-          }
+      onTap: () {
+        if (message.fileUrl != null && message.fileUrl!.isNotEmpty) {
+          Get.to(
+            () => MediaPreviewScreen(
+              isImage: false,
+              networkUrl: message.fileUrl,
+              enableSend: false,
+              fileName: message.fileName,
+              fileExtension: message.fileExtension,
+            ),
+          );
         }
       },
+      borderRadius: BorderRadius.circular(8.r),
       child: Container(
-        padding: EdgeInsets.all(Spacing.md),
+        padding:
+            EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
         decoration: BoxDecoration(
           color: (isCurrentUser ? AppColor.whiteColor : AppColor.lightGrey)
               .withOpacity(0.3),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             Container(
-              padding: EdgeInsets.all(Spacing.sm),
+              padding: EdgeInsets.all(Spacing.xs),
               decoration: BoxDecoration(
                 color: isCurrentUser
                     ? AppColor.whiteColor.withOpacity(0.2)
@@ -262,17 +327,18 @@ class MessageBubble extends StatelessWidget {
                         : Icons.insert_drive_file,
                 color:
                     isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
-                size: 24.sp,
+                size: 18.sp,
               ),
             ),
             SizedBox(width: Spacing.sm),
-            Flexible(
+            Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
                   AppText(
                     text: message.fileName ?? 'File',
-                    fontSize: 14.sp,
+                    fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     color:
                         isCurrentUser ? AppColor.whiteColor : AppColor.darkGrey,
@@ -283,7 +349,7 @@ class MessageBubble extends StatelessWidget {
                     SizedBox(height: 2.h),
                     AppText(
                       text: message.fileSize!,
-                      fontSize: 12.sp,
+                      fontSize: 10.sp,
                       color: isCurrentUser
                           ? AppColor.whiteColor.withOpacity(0.7)
                           : AppColor.greyColor,
@@ -292,6 +358,51 @@ class MessageBubble extends StatelessWidget {
                 ],
               ),
             ),
+            SizedBox(width: Spacing.xs),
+          Obx(() {
+            final isThisDownloading = dm.isDownloading.value &&
+                dm.currentUrl.value == message.fileUrl;
+            return InkWell(
+              onTap: () {
+                if (message.fileUrl == null || message.fileUrl!.isEmpty) {
+                  return;
+                }
+                if (dm.isDownloading.value &&
+                    dm.currentUrl.value != message.fileUrl) {
+                  AppSnackbar.warning(message: AppString.downloading);
+                }
+                dm.enqueue(message.fileUrl!, fileName: message.fileName);
+              },
+              borderRadius: BorderRadius.circular(6.r),
+              child: Container(
+                width: 28.w,
+                height: 28.h,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: isCurrentUser
+                      ? AppColor.whiteColor.withOpacity(0.15)
+                      : AppColor.primaryColor.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6.r),
+                ),
+                child: isThisDownloading
+                    ? const SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: AppColor.primaryColor,
+                        ),
+                      )
+                    : Icon(
+                        Icons.download_rounded,
+                        size: 18.sp,
+                        color: isCurrentUser
+                            ? AppColor.whiteColor
+                            : AppColor.primaryColor,
+                      ),
+              ),
+            );
+          }),
           ],
         ),
       ),
@@ -337,6 +448,39 @@ class MessageBubble extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildDownloadChip({required VoidCallback onTap}) {
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: Colors.black54,
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.download_rounded,
+                size: 14.sp,
+                color: AppColor.whiteColor,
+              ),
+              SizedBox(width: 4.w),
+              AppText(
+                text: AppString.download,
+                fontSize: 10.sp,
+                color: AppColor.whiteColor,
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 

@@ -29,7 +29,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       backgroundColor: AppColor.ScaffoldColor,
       appBar: _buildAppBar(),
       body: SingleChildScrollView(
-        padding: EdgeInsets.all(Spacing.md),
+        padding: EdgeInsets.all(Spacing.sm),
         child: Obx(() {
           return ShimmerSkeleton(
             isLoading: controller.isLoading.value,
@@ -38,19 +38,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  SizedBox(height: Spacing.md),
+                  SizedBox(height: Spacing.sm),
                   // Profile Picture Section
                   _buildProfilePictureSection(controller),
 
                   // Form Fields
                   _buildFormFields(controller),
-                  SizedBox(height: Spacing.xl),
+                  SizedBox(height: Spacing.lg),
                   // Update Button
                   _buildUpdateButton(controller),
-                  SizedBox(height: Spacing.lg),
+                  SizedBox(height: Spacing.md),
                   // Delete Account Button
                   _buildDeleteAccountButton(controller),
-                  SizedBox(height: Spacing.lg),
+                  SizedBox(height: Spacing.md),
                 ],
               ),
             ),
@@ -72,13 +72,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             icon: Icon(
               Icons.arrow_back_ios,
               color: AppColor.darkGrey,
-              size: 20.sp,
+              size: 18.sp,
             ),
             onPressed: () => Get.back(),
           ),
           AppText(
             text: AppString.editProfile,
-            fontSize: 20.sp,
+            fontSize: 18.sp,
             fontWeight: FontWeight.w600,
             color: AppColor.darkGrey,
           ),
@@ -104,8 +104,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             children: [
               Obx(
                 () => Container(
-                  width: 120.w,
-                  height: 120.w,
+                  width: 96.w,
+                  height: 96.w,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     boxShadow: [
@@ -118,16 +118,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ],
                   ),
                   child: AppProfileImage(
-                    width: 120.w,
-                    height: 120.w,
+                    width: 96.w,
+                    height: 96.w,
                     username: controller.nameController.text.isNotEmpty
                         ? controller.nameController.text
                         : 'User',
                     imageUrl: controller.currentProfileImageUrl,
                     imageFile: controller.profileImage.value,
-                    borderWidth: 4,
+                    borderWidth: 3,
                     borderColor: AppColor.primaryColor,
-                    fontSize: 48.sp,
+                    fontSize: 36.sp,
                   ),
                 ),
               ),
@@ -202,17 +202,17 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(6.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 15,
+            blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 4),
           ),
         ],
       ),
-      padding: EdgeInsets.all(Spacing.lg),
+      padding: EdgeInsets.all(Spacing.md),
       child: Column(
         children: [
           // Full Name Field
@@ -223,7 +223,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             prefixIcon: Icon(
               Icons.person_outline,
               color: AppColor.primaryColor,
-              size: 20.sp,
+              size: 18.sp,
             ),
             onChanged: (p0) {
               if (p0.trim().isNotEmpty &&
@@ -235,12 +235,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             validator: controller.validateName,
             focusNode: controller.nameFocusNode,
             textStyle: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 14.sp,
               color: AppColor.darkGrey,
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: Spacing.md),
+          SizedBox(height: Spacing.sm),
           // Email Field
           AppTextField(
             controller: controller.emailController,
@@ -249,7 +249,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             prefixIcon: Icon(
               Icons.email_outlined,
               color: AppColor.primaryColor,
-              size: 20.sp,
+              size: 18.sp,
             ),
             keyboardType: TextInputType.emailAddress,
             validator: controller.validateEmail,
@@ -258,7 +258,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             // Email is usually not editable
             fillColor: AppColor.lightGrey.withOpacity(0.3),
             textStyle: TextStyle(
-              fontSize: 15.sp,
+              fontSize: 14.sp,
               color: AppColor.greyColor,
               fontWeight: FontWeight.w500,
             ),

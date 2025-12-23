@@ -211,6 +211,7 @@ class AppString {
   static const String members = "Members";
   static const String created = "Created";
   static const String pullToRefresh = "Pull to refresh";
+  static const String tapSendToShare = "Tap Send to share";
 
   // Settings Screen
   static const String settings = "Settings";
@@ -384,6 +385,12 @@ class AppString {
   static const String fileMessage = "[File]";
   static const String forward = "Forward";
   static const String info = "Info";
+  static const String downloading = "Downloading...";
+  static const String downloadingToDownloads =
+      "Your file is downloading to the Downloads folder.";
+  static const String savedToDownloads =
+      "Saved to Downloads. Check your Files/Downloads.";
+  static const String downloadFailed = "Failed to download. Please try again.";
 
   // User Detail Screen
   static const String userDetails = "User Details";

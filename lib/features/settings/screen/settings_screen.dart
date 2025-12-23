@@ -28,21 +28,21 @@ class SettingsScreen extends StatelessWidget {
             : SingleChildScrollView(
                 physics: const AlwaysScrollableScrollPhysics(),
                 padding: EdgeInsets.symmetric(
-                  horizontal: Spacing.md,
-                  vertical: Spacing.md,
+                  horizontal: Spacing.sm,
+                  vertical: Spacing.sm,
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Profile Section
                     _buildProfileSection(controller),
-                    SizedBox(height: Spacing.lg),
+                    SizedBox(height: Spacing.md),
 
                     // Account Section
                     _buildSectionTitle(AppString.account),
-                    SizedBox(height: Spacing.sm),
+                    SizedBox(height: Spacing.xs),
                     _buildAccountSection(controller),
-                    SizedBox(height: Spacing.lg),
+                    SizedBox(height: Spacing.md),
 
                     // // Notifications Section
                     // _buildSectionTitle(AppString.notifications),
@@ -79,15 +79,15 @@ class SettingsScreen extends StatelessWidget {
           GestureDetector(
             onTap: () => AppNavigation.back(),
             child: SizedBox(
-              width: 50.r,
-              height: 50.r,
-              child: Icon(Icons.arrow_back_ios, size: 25.r),
+              width: 40.r,
+              height: 40.r,
+              child: Icon(Icons.arrow_back_ios, size: 18.r),
             ),
           ),
 
           AppText(
             text: AppString.settings,
-            fontSize: 18.sp,
+            fontSize: 16.sp,
             fontWeight: FontWeight.w600,
             color: AppColor.darkGrey,
             maxLines: 1,
@@ -123,34 +123,34 @@ class SettingsScreen extends StatelessWidget {
         return Container(
           decoration: BoxDecoration(
             color: AppColor.whiteColor,
-            borderRadius: BorderRadius.circular(8.r),
+            borderRadius: BorderRadius.circular(6.r),
             boxShadow: [
               BoxShadow(
                 color: AppColor.primaryColor.withOpacity(0.08),
-                blurRadius: 10,
+                blurRadius: 6,
                 spreadRadius: 0,
                 offset: const Offset(0, 2),
               ),
             ],
           ),
-          padding: EdgeInsets.all(Spacing.md),
+          padding: EdgeInsets.all(Spacing.sm),
           child: Row(
             children: [
               // Profile Picture
               _displaing_profile_image(userProfileImage, userName),
-              SizedBox(width: Spacing.md),
+              SizedBox(width: Spacing.sm),
               // User Info
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _userName(userName),
-                    SizedBox(height: 4.h),
+                    SizedBox(height: 2.h),
                     _userEmail(userEmail),
-                    if (userPhone != null && userPhone.isNotEmpty) ...[
-                      SizedBox(height: 4.h),
-                      _contactInfo(userPhone),
-                    ],
+                    // if (userPhone != null && userPhone.isNotEmpty) ...[
+                    //   SizedBox(height: 2.h),
+                    //   _contactInfo(userPhone),
+                    // ],
                   ],
                 ),
               ),
@@ -173,7 +173,7 @@ class SettingsScreen extends StatelessWidget {
   AppText _contactInfo(String userPhone) {
     return AppText(
       text: userPhone,
-      fontSize: 14.sp,
+      fontSize: 12.sp,
       color: AppColor.greyColor,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -183,7 +183,7 @@ class SettingsScreen extends StatelessWidget {
   AppText _userEmail(String userEmail) {
     return AppText(
       text: userEmail.isNotEmpty ? userEmail : 'email@example.com',
-      fontSize: 14.sp,
+      fontSize: 12.sp,
       color: AppColor.greyColor,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
@@ -193,7 +193,7 @@ class SettingsScreen extends StatelessWidget {
   AppText _userName(String userName) {
     return AppText(
       text: userName.isNotEmpty ? userName : 'User',
-      fontSize: 17.sp,
+      fontSize: 15.sp,
       fontWeight: FontWeight.w600,
       color: AppColor.darkGrey,
       maxLines: 1,
@@ -203,13 +203,13 @@ class SettingsScreen extends StatelessWidget {
 
   Widget _displaing_profile_image(String? userProfileImage, String userName) {
     return AppProfileImage(
-      width: 60.w,
-      height: 60.h,
+      width: 48.w,
+      height: 48.h,
       username: userName,
       imageUrl: userProfileImage,
-      borderWidth: 3,
+      borderWidth: 2,
       borderColor: AppColor.primaryColor,
-      fontSize: 32.sp,
+      fontSize: 24.sp,
     );
   }
 
@@ -218,7 +218,7 @@ class SettingsScreen extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: Spacing.xs),
       child: AppText(
         text: title,
-        fontSize: 16.sp,
+        fontSize: 14.sp,
         fontWeight: FontWeight.w600,
         color: AppColor.darkGrey,
       ),
@@ -229,11 +229,11 @@ class SettingsScreen extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
-        borderRadius: BorderRadius.circular(8.r),
+        borderRadius: BorderRadius.circular(6.r),
         boxShadow: [
           BoxShadow(
             color: AppColor.primaryColor.withOpacity(0.08),
-            blurRadius: 10,
+            blurRadius: 6,
             spreadRadius: 0,
             offset: const Offset(0, 2),
           ),
@@ -332,31 +332,31 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
-        horizontal: Spacing.md,
-        vertical: 4.h,
+        horizontal: Spacing.sm,
+        vertical: 2.h,
       ),
       leading: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
           color: (iconColor ?? AppColor.primaryColor).withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
           icon,
           color: iconColor ?? AppColor.primaryColor,
-          size: 20.sp,
+          size: 18.sp,
         ),
       ),
       title: AppText(
         text: title,
-        fontSize: 15.sp,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: titleColor ?? AppColor.darkGrey,
       ),
       trailing: Icon(
         Icons.chevron_right,
         color: AppColor.greyColor,
-        size: 20.sp,
+        size: 18.sp,
       ),
       onTap: onTap,
     );
@@ -370,24 +370,24 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
-        horizontal: Spacing.md,
-        vertical: 4.h,
+        horizontal: Spacing.sm,
+        vertical: 2.h,
       ),
       leading: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
           color: AppColor.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
           icon,
           color: AppColor.primaryColor,
-          size: 20.sp,
+          size: 18.sp,
         ),
       ),
       title: AppText(
         text: title,
-        fontSize: 15.sp,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: AppColor.darkGrey,
       ),
@@ -409,24 +409,24 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
-        horizontal: Spacing.md,
-        vertical: 4.h,
+        horizontal: Spacing.sm,
+        vertical: 2.h,
       ),
       leading: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
           color: AppColor.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
           icon,
           color: AppColor.primaryColor,
-          size: 20.sp,
+          size: 18.sp,
         ),
       ),
       title: AppText(
         text: title,
-        fontSize: 15.sp,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: AppColor.darkGrey,
       ),
@@ -435,14 +435,14 @@ class SettingsScreen extends StatelessWidget {
         children: [
           AppText(
             text: value,
-            fontSize: 14.sp,
+            fontSize: 12.sp,
             color: AppColor.greyColor,
           ),
           SizedBox(width: 4.w),
           Icon(
             Icons.chevron_right,
             color: AppColor.greyColor,
-            size: 20.sp,
+            size: 18.sp,
           ),
         ],
       ),
@@ -457,30 +457,30 @@ class SettingsScreen extends StatelessWidget {
   }) {
     return ListTile(
       contentPadding: EdgeInsets.symmetric(
-        horizontal: Spacing.md,
-        vertical: 4.h,
+        horizontal: Spacing.sm,
+        vertical: 2.h,
       ),
       leading: Container(
-        padding: EdgeInsets.all(8.w),
+        padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
           color: AppColor.primaryColor.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8.r),
+          borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
           icon,
           color: AppColor.primaryColor,
-          size: 20.sp,
+          size: 18.sp,
         ),
       ),
       title: AppText(
         text: title,
-        fontSize: 15.sp,
+        fontSize: 13.sp,
         fontWeight: FontWeight.w500,
         color: AppColor.darkGrey,
       ),
       trailing: AppText(
         text: value,
-        fontSize: 14.sp,
+        fontSize: 12.sp,
         color: AppColor.greyColor,
         fontWeight: FontWeight.w500,
       ),
@@ -491,7 +491,7 @@ class SettingsScreen extends StatelessWidget {
     return Divider(
       height: 1,
       thickness: 1,
-      indent: 60.w,
+      indent: 48.w,
       color: AppColor.lightGrey,
     );
   }
