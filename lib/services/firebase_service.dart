@@ -847,6 +847,38 @@ class FirebaseService {
     }
   }
 
+  // ==================== PRESENCE METHODS ====================
+
+  /// Mark current user online with updated lastSeen
+  static Future<void> setUserOnline() async {
+    try {
+      final uid = getCurrentUserId();
+      if (uid == null) return;
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(uid)
+          .update({
+        'isOnline': true,
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+  }
+
+  /// Mark current user offline and update lastSeen
+  static Future<void> setUserOffline() async {
+    try {
+      final uid = getCurrentUserId();
+      if (uid == null) return;
+      await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(uid)
+          .update({
+        'isOnline': false,
+        'lastSeen': FieldValue.serverTimestamp(),
+      });
+    } catch (_) {}
+  }
+
   // ==================== GROUP METHODS ====================
 
   /// Create a new group
