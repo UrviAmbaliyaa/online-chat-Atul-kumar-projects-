@@ -251,6 +251,15 @@ class CallingController extends GetxController {
           endedAt: missed ? null : ended,
           duration: missed ? null : dur,
         );
+        // Cancel incoming notification for callee
+        final currentUserId = FirebaseService.getCurrentUserId();
+        if (currentUserId != null) {
+          CallNotificationService.cancelCallNotificationsForUsers(
+            userIds: [user!.id],
+            chatId: chatId,
+            since: started,
+          );
+        }
       } else if (group != null) {
         // Group call
         FirebaseService.recordGroupCall(
@@ -261,6 +270,19 @@ class CallingController extends GetxController {
           duration: missed ? null : dur,
           missed: missed,
         );
+        // Cancel incoming notifications for group members (except self)
+        final currentUserId = FirebaseService.getCurrentUserId();
+        if (currentUserId != null) {
+          final memberIds = List<String>.from(group!.members)
+            ..removeWhere((id) => id == currentUserId);
+          if (memberIds.isNotEmpty) {
+            CallNotificationService.cancelCallNotificationsForUsers(
+              userIds: memberIds,
+              chatId: chatId,
+              since: started,
+            );
+          }
+        }
       }
     } catch (_) {}
   }

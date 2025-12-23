@@ -143,92 +143,109 @@ class HomeScreen extends StatelessWidget {
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
       automaticallyImplyLeading: false,
-      title: Obx(
-        () {
-          final currentUser = AppPreference.currentUser.value;
-          final userName = currentUser?.name ?? AppLocalStorage.getUserName();
-          final userEmail =
-              currentUser?.email ?? AppLocalStorage.getUserEmail();
-          final userProfileImage = currentUser?.profileImage ??
-              (AppLocalStorage.getUserProfileImage().isNotEmpty
-                  ? AppLocalStorage.getUserProfileImage()
-                  : null);
+      title: Obx(() {
+        if (controller.isSearching.value) {
+          return _buildSearchField(controller);
+        }
+        final currentUser = AppPreference.currentUser.value;
+        final userName = currentUser?.name ?? AppLocalStorage.getUserName();
+        final userEmail =
+            currentUser?.email ?? AppLocalStorage.getUserEmail();
+        final userProfileImage = currentUser?.profileImage ??
+            (AppLocalStorage.getUserProfileImage().isNotEmpty
+                ? AppLocalStorage.getUserProfileImage()
+                : null);
 
-          return Row(
-            children: [
-              // Profile Picture
-              GestureDetector(
-                onTap: () {
-                  // TODO: Navigate to profile screen
-                },
-                child: Container(
-                  width: 40.w,
-                  height: 40.h,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: AppColor.primaryColor,
-                      width: 2,
-                    ),
+        return Row(
+          children: [
+            // Profile Picture
+            GestureDetector(
+              onTap: () {
+                // TODO: Navigate to profile screen
+              },
+              child: Container(
+                width: 40.w,
+                height: 40.h,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: AppColor.primaryColor,
+                    width: 2,
                   ),
-                  clipBehavior: Clip.antiAlias,
-                  child: userProfileImage != null &&
-                          userProfileImage.isNotEmpty &&
-                          userProfileImage.startsWith('http')
-                      ? CachedNetworkImage(
-                          imageUrl: userProfileImage,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) =>
-                              _buildProfilePlaceholder(userName),
-                          errorWidget: (context, url, error) =>
-                              _buildProfilePlaceholder(userName),
-                        )
-                      : userProfileImage != null &&
-                              userProfileImage.isNotEmpty &&
-                              !userProfileImage.startsWith('http')
-                          ? Image.file(
-                              File(userProfileImage),
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return _buildProfilePlaceholder(userName);
-                              },
-                            )
-                          : _buildProfilePlaceholder(userName),
                 ),
+                clipBehavior: Clip.antiAlias,
+                child: userProfileImage != null &&
+                        userProfileImage.isNotEmpty &&
+                        userProfileImage.startsWith('http')
+                    ? CachedNetworkImage(
+                        imageUrl: userProfileImage,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) =>
+                            _buildProfilePlaceholder(userName),
+                        errorWidget: (context, url, error) =>
+                            _buildProfilePlaceholder(userName),
+                      )
+                    : userProfileImage != null &&
+                            userProfileImage.isNotEmpty &&
+                            !userProfileImage.startsWith('http')
+                        ? Image.file(
+                            File(userProfileImage),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return _buildProfilePlaceholder(userName);
+                            },
+                          )
+                        : _buildProfilePlaceholder(userName),
               ),
-              SizedBox(width: 12.w),
-              // Name and Email
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    AppText(
-                      text: userName.isNotEmpty ? userName : 'User',
-                      fontSize: 16.sp,
-                      fontWeight: FontWeight.w600,
-                      color: AppColor.darkGrey,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    SizedBox(height: 2.h),
-                    AppText(
-                      text: userEmail.isNotEmpty
-                          ? userEmail
-                          : 'email@example.com',
-                      fontSize: 12.sp,
-                      color: AppColor.greyColor,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
+            ),
+            SizedBox(width: 12.w),
+            // Name and Email
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  AppText(
+                    text: userName.isNotEmpty ? userName : 'User',
+                    fontSize: 16.sp,
+                    fontWeight: FontWeight.w600,
+                    color: AppColor.darkGrey,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                  SizedBox(height: 2.h),
+                  AppText(
+                    text: userEmail.isNotEmpty
+                        ? userEmail
+                        : 'email@example.com',
+                    fontSize: 12.sp,
+                    color: AppColor.greyColor,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
               ),
-            ],
-          );
-        },
-      ),
+            ),
+          ],
+        );
+      }),
       actions: [
+        Obx(() {
+          final searching = controller.isSearching.value;
+          return IconButton(
+            icon: Icon(
+              searching ? Icons.close : Icons.search,
+              size: 24.sp,
+              color: AppColor.darkGrey,
+            ),
+            onPressed: () {
+              if (searching) {
+                controller.clearSearch();
+              }
+              controller.toggleSearch();
+            },
+          );
+        }),
         IconButton(
           icon: Icon(
             Icons.settings_outlined,
@@ -247,6 +264,37 @@ class HomeScreen extends StatelessWidget {
           color: AppColor.lightGrey,
           height: 1.h,
         ),
+      ),
+    );
+  }
+
+  Widget _buildSearchField(HomeController controller) {
+    return Container(
+      height: 40.h,
+      padding: EdgeInsets.symmetric(horizontal: Spacing.sm),
+      decoration: BoxDecoration(
+        color: AppColor.whiteColor,
+        borderRadius: BorderRadius.circular(8.r),
+        border:
+            Border.all(color: AppColor.lightGrey.withOpacity(0.6), width: 1),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.search, size: 18.sp, color: AppColor.greyColor),
+          SizedBox(width: 8.w),
+          Expanded(
+            child: TextField(
+              autofocus: true,
+              decoration: const InputDecoration(
+                hintText: 'Search users and groups...',
+                border: InputBorder.none,
+                isDense: true,
+              ),
+              style: TextStyle(fontSize: 14.sp, color: AppColor.darkGrey),
+              onChanged: controller.setSearchQuery,
+            ),
+          ),
+        ],
       ),
     );
   }

@@ -15,7 +15,7 @@ import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/firebase_constants.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-class UsersTabWidget extends StatelessWidget {
+class UsersTabWidget extends StatefulWidget {
   final HomeController controller;
 
   const UsersTabWidget({
@@ -24,18 +24,67 @@ class UsersTabWidget extends StatelessWidget {
   });
 
   @override
+  State<UsersTabWidget> createState() => _UsersTabWidgetState();
+}
+
+class _UsersTabWidgetState extends State<UsersTabWidget> {
+  static const int _pageSize = 20;
+  final ScrollController _scrollController = ScrollController();
+  int _visibleCount = _pageSize;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final max = _scrollController.position.maxScrollExtent;
+    final offset = _scrollController.offset;
+    if (offset >= max - 200) {
+      setState(() {
+        _visibleCount += _pageSize;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(
-      () => controller.addedUsers.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: EdgeInsets.all(Spacing.md),
-              itemCount: controller.addedUsers.length,
-              itemBuilder: (context, index) {
-                final user = controller.addedUsers[index];
-                return _buildUserItem(user);
-              },
-            ),
+      () {
+        final query = widget.controller.searchQuery.value.trim().toLowerCase();
+        final list = query.isEmpty
+            ? widget.controller.addedUsers
+            : widget.controller.addedUsers
+                .where((u) =>
+                    u.name.toLowerCase().contains(query) ||
+                    (u.email.toLowerCase().contains(query)))
+                .toList();
+        final count = list.length;
+        final showCount = count == 0 ? 0 : (_visibleCount.clamp(0, count));
+        return count == 0
+            ? _buildEmptyState()
+            : ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.all(Spacing.md),
+                itemCount: showCount + (showCount < count ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= showCount) {
+                    return _buildLoadMoreIndicator();
+                  }
+                  final user = list[index];
+                  return _buildUserItem(user);
+                },
+              );
+      },
     );
   }
 
@@ -120,7 +169,7 @@ class UsersTabWidget extends StatelessWidget {
               ),
             ),
             Obx(() {
-              final unreadCount = controller.getUnreadCountForUser(user.id);
+              final unreadCount = widget.controller.getUnreadCountForUser(user.id);
               if (unreadCount > 0) {
                 return Container(
                   padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
@@ -141,9 +190,9 @@ class UsersTabWidget extends StatelessWidget {
           ],
         ),
         subtitle: Obx(() {
-          final chatInfo = controller.getChatInfoForUser(user.id);
+          final chatInfo = widget.controller.getChatInfoForUser(user.id);
           final lastMessage = chatInfo?.lastMessage ??
-              controller.getLastMessageForUser(user.id);
+              widget.controller.getLastMessageForUser(user.id);
           if (lastMessage != null && lastMessage.isNotEmpty) {
             return Padding(
               padding: EdgeInsets.only(top: 2.h),
@@ -167,6 +216,19 @@ class UsersTabWidget extends StatelessWidget {
             ),
           );
         }),
+      ),
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Spacing.sm),
+      child: Center(
+        child: SizedBox(
+          width: 20.w,
+          height: 20.h,
+          child: const CircularProgressIndicator(strokeWidth: 2),
+        ),
       ),
     );
   }

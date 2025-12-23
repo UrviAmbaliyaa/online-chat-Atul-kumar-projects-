@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get.dart';
@@ -27,6 +28,10 @@ class HomeController extends GetxController {
   final RxMap<String, ChatInfoModel> groupChatInfo =
       <String, ChatInfoModel>{}.obs;
 
+  // Search
+  final RxBool isSearching = false.obs;
+  final RxString searchQuery = ''.obs;
+
   // Stream subscriptions
   final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions =
       {};
@@ -53,6 +58,22 @@ class HomeController extends GetxController {
     _chatInfoSubscriptions.clear();
     _callNotificationSubscription?.cancel();
     super.onClose();
+  }
+
+  // Search controls
+  void toggleSearch() {
+    isSearching.value = !isSearching.value;
+    if (!isSearching.value) {
+      clearSearch();
+    }
+  }
+
+  void setSearchQuery(String query) {
+    searchQuery.value = query;
+  }
+
+  void clearSearch() {
+    searchQuery.value = '';
   }
 
   // Load users and groups
@@ -599,6 +620,21 @@ class HomeController extends GetxController {
         return;
       }
 
+      // Mark as read immediately to avoid repeated dialogs
+      final currentUserId = FirebaseService.getCurrentUserId();
+      if (currentUserId != null) {
+        try {
+          await FirebaseFirestore.instance
+              .collection(FirebaseConstants.userCollection)
+              .doc(currentUserId)
+              .collection('callNotifications')
+              .doc(notificationId)
+              .update({'isRead': true});
+        } catch (_) {
+          // ignore
+        }
+      }
+
       // Get caller information
       UserModel? caller;
       GroupChatModel? group;
@@ -662,7 +698,7 @@ class HomeController extends GetxController {
         );
       }
     } catch (e) {
-      print('Error handling call notification: $e');
+      log('Error handling call notification: $e');
     }
   }
 }

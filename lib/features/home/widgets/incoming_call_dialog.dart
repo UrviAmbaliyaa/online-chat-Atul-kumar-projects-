@@ -41,16 +41,19 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
     with SingleTickerProviderStateMixin {
   bool _isRinging = true;
   final AudioPlayer _audioPlayer = AudioPlayer();
+  StreamSubscription<DocumentSnapshot>? _notifSubscription;
 
   @override
   void initState() {
     super.initState();
     _startRingtone();
+    _listenNotificationCancelled();
   }
 
   @override
   void dispose() {
     _stopRingtone();
+    _notifSubscription?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
@@ -80,6 +83,27 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
     } catch (e) {
       print('Error stopping ringtone: $e');
     }
+  }
+
+  void _listenNotificationCancelled() {
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (currentUserId == null) return;
+    // Close when the call notification document is deleted by caller cancellation
+    _notifSubscription = FirebaseFirestore.instance
+        .collection(FirebaseConstants.userCollection)
+        .doc(currentUserId)
+        .collection('callNotifications')
+        .doc(widget.notificationId)
+        .snapshots()
+        .listen((docSnap) {
+      if (!docSnap.exists) {
+        // Caller ended/cancelled - close dialog
+        _stopRingtone();
+        if (mounted) {
+          Get.back();
+        }
+      }
+    });
   }
 
   Future<void> _handleAccept() async {

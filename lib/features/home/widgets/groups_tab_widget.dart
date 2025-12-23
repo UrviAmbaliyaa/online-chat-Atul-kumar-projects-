@@ -16,7 +16,7 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 
-class GroupsTabWidget extends StatelessWidget {
+class GroupsTabWidget extends StatefulWidget {
   final HomeController controller;
 
   const GroupsTabWidget({
@@ -25,18 +25,65 @@ class GroupsTabWidget extends StatelessWidget {
   });
 
   @override
+  State<GroupsTabWidget> createState() => _GroupsTabWidgetState();
+}
+
+class _GroupsTabWidgetState extends State<GroupsTabWidget> {
+  static const int _pageSize = 20;
+  final ScrollController _scrollController = ScrollController();
+  int _visibleCount = _pageSize;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final max = _scrollController.position.maxScrollExtent;
+    final offset = _scrollController.offset;
+    if (offset >= max - 200) {
+      setState(() {
+        _visibleCount += _pageSize;
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Obx(
-      () => controller.createdGroups.isEmpty
-          ? _buildEmptyState()
-          : ListView.builder(
-              padding: EdgeInsets.all(Spacing.md),
-              itemCount: controller.createdGroups.length,
-              itemBuilder: (context, index) {
-                final group = controller.createdGroups[index];
-                return _buildGroupItem(group, context);
-              },
-            ),
+      () {
+        final query = widget.controller.searchQuery.value.trim().toLowerCase();
+        final list = query.isEmpty
+            ? widget.controller.createdGroups
+            : widget.controller.createdGroups
+                .where((g) => g.name.toLowerCase().contains(query))
+                .toList();
+        final count = list.length;
+        final showCount = count == 0 ? 0 : (_visibleCount.clamp(0, count));
+        return list.isEmpty
+            ? _buildEmptyState()
+            : ListView.builder(
+                controller: _scrollController,
+                padding: EdgeInsets.all(Spacing.md),
+                itemCount: showCount + (showCount < count ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index >= showCount) {
+                    return _buildLoadMoreIndicator();
+                  }
+                  final group = list[index];
+                  return _buildGroupItem(group, context);
+                },
+              );
+      },
     );
   }
 
@@ -79,7 +126,7 @@ class GroupsTabWidget extends StatelessWidget {
               ),
             ),
             Obx(() {
-              final unreadCount = controller.getUnreadCountForGroup(group.id);
+              final unreadCount = widget.controller.getUnreadCountForGroup(group.id);
               if (unreadCount > 0) {
                 return Container(
                   padding:
@@ -268,7 +315,7 @@ class GroupsTabWidget extends StatelessWidget {
       if (success) {
         AppSnackbar.success(message: AppString.groupExitedSuccessfully);
         // Refresh groups list
-        await controller.refreshGroups();
+        await widget.controller.refreshGroups();
       } else {
         AppSnackbar.error(message: AppString.exitGroupError);
       }
@@ -281,9 +328,22 @@ class GroupsTabWidget extends StatelessWidget {
     Get.dialog(
       GroupDetailsDialog(
         group: group,
-        controller: controller,
+        controller: widget.controller,
       ),
       barrierDismissible: true,
+    );
+  }
+
+  Widget _buildLoadMoreIndicator() {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: Spacing.sm),
+      child: Center(
+        child: SizedBox(
+          width: 20.w,
+          height: 20.h,
+          child: const CircularProgressIndicator(strokeWidth: 2),
+        ),
+      ),
     );
   }
 }

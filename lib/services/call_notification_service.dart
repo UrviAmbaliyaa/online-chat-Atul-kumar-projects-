@@ -235,5 +235,33 @@ class CallNotificationService {
       log('Error deleting call notification: $e');
     }
   }
+
+  /// Cancel call notifications for specific users for a given chat
+  /// Used when the caller ends the call before it's accepted/rejected.
+  static Future<void> cancelCallNotificationsForUsers({
+    required List<String> userIds,
+    required String chatId,
+    DateTime? since,
+  }) async {
+    final ts = since != null ? Timestamp.fromDate(since) : null;
+    try {
+      for (final uid in userIds) {
+        Query query = _firestore
+            .collection(FirebaseConstants.userCollection)
+            .doc(uid)
+            .collection('callNotifications')
+            .where('chatId', isEqualTo: chatId);
+        if (ts != null) {
+          query = query.where('timestamp', isGreaterThan: ts);
+        }
+        final snap = await query.get();
+        for (final doc in snap.docs) {
+          await doc.reference.delete();
+        }
+      }
+    } catch (e) {
+      log('Error cancelling call notifications: $e');
+    }
+  }
 }
 

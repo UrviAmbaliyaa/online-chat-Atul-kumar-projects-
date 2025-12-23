@@ -13,8 +13,12 @@ import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 
-class CallingScreen extends StatelessWidget {
+class CallingScreen extends StatefulWidget {
   final UserModel? user; // For one-to-one call
   final GroupChatModel? group; // For group call
   final bool isIncoming; // Whether it's an incoming call
@@ -31,14 +35,73 @@ class CallingScreen extends StatelessWidget {
   });
 
   @override
+  State<CallingScreen> createState() => _CallingScreenState();
+}
+
+class _CallingScreenState extends State<CallingScreen> {
+  @override
+  void initState() {
+    super.initState();
+    // Handle CallKit when entering this screen
+    _handleCallKitOnEnter();
+  }
+
+  Future<void> _handleCallKitOnEnter() async {
+    try {
+      // For outgoing calls, present an OS call UI entry via CallKit
+      if (!widget.isIncoming) {
+        final title = widget.group != null
+            ? (widget.group?.name ?? AppString.groupCall)
+            : (widget.user?.name ?? AppString.calling);
+        final handle = widget.group != null
+            ? 'Group'
+            : (widget.user?.email ?? 'Unknown');
+        final avatar = widget.group != null
+            ? widget.group?.groupImage
+            : widget.user?.profileImage;
+
+        final params = CallKitParams(
+          id: widget.chatId,
+          nameCaller: title,
+          appName: 'Online Chat',
+          avatar: avatar,
+          handle: handle,
+          type: widget.isVideoCall ? 1 : 0,
+          textAccept: 'Accept',
+          textDecline: 'Decline',
+          extra: {'fromCallingScreen': true},
+          android: const AndroidParams(
+            isCustomNotification: true,
+            backgroundColor: '#0955fa',
+            actionColor: '#4CAF50',
+            incomingCallNotificationChannelName: 'Outgoing Calls',
+            // Ensure raw resource exists: android/app/src/main/res/raw/incomming_call.mp3
+            ringtonePath: 'incomming_call',
+          ),
+          ios: const IOSParams(
+            handleType: 'generic',
+            supportsVideo: true,
+            maximumCallGroups: 2,
+            maximumCallsPerCallGroup: 1,
+            audioSessionMode: 'default',
+          ),
+        );
+        await FlutterCallkitIncoming.startCall(params);
+      }
+    } catch (e) {
+      // safe ignore
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     try {
       final controller = Get.put(CallingController(
-        user: user,
-        chatId: chatId,
-        group: group,
-        isIncoming: isIncoming,
-        isVideoCall: isVideoCall,
+        user: widget.user,
+        chatId: widget.chatId,
+        group: widget.group,
+        isIncoming: widget.isIncoming,
+        isVideoCall: widget.isVideoCall,
       ));
       ever(controller.callState, (CallState state) {
         if (state == CallState.failed) {
