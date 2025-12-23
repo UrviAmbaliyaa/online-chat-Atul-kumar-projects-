@@ -263,9 +263,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               fontWeight: FontWeight.w500,
             ),
           ),
-          SizedBox(height: Spacing.md),
-          // Phone Number Field
-          _buildPhoneField(controller),
+          // SizedBox(height: Spacing.md),
+          // // Phone Number Field
+          // _buildPhoneField(controller),
         ],
       ),
     );

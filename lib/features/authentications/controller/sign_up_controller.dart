@@ -21,7 +21,7 @@ class SignUpController extends GetxController {
   // Text Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
+  // final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -31,7 +31,7 @@ class SignUpController extends GetxController {
   final RxBool isConfirmPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
   final RxBool agreeToTerms = false.obs;
-  final Rx<CountryCode> selectedCountry = CountryCodePicker.countries[0].obs;
+  // final Rx<CountryCode> selectedCountry = CountryCodePicker.countries[0].obs;
   final Rx<File?> profileImage = Rx<File?>(null);
 
   // Focus Nodes
@@ -45,7 +45,7 @@ class SignUpController extends GetxController {
   void onClose() {
     nameController.dispose();
     emailController.dispose();
-    phoneController.dispose();
+    // phoneController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     nameFocusNode.dispose();
@@ -129,21 +129,21 @@ class SignUpController extends GetxController {
   }
 
   // Update selected country
-  void updateSelectedCountry(CountryCode country) {
-    selectedCountry.value = country;
-    // Clear phone number when country changes to avoid format conflicts
-    phoneController.clear();
-  }
+  // void updateSelectedCountry(CountryCode country) {
+  //   selectedCountry.value = country;
+  //   // Clear phone number when country changes to avoid format conflicts
+  //   phoneController.clear();
+  // }
 
   // Get phone number formatter based on selected country
-  List<TextInputFormatter> getPhoneFormatters() {
-    return [PhoneNumberFormatter.getFormatter(selectedCountry.value)];
-  }
+  // List<TextInputFormatter> getPhoneFormatters() {
+  //   return [PhoneNumberFormatter.getFormatter(selectedCountry.value)];
+  // }
 
   // Get max length for phone number based on selected country
-  int? getPhoneMaxLength() {
-    return PhoneNumberFormatter.getMaxLength(selectedCountry.value);
-  }
+  // int? getPhoneMaxLength() {
+  //   return PhoneNumberFormatter.getMaxLength(selectedCountry.value);
+  // }
 
   // Handle sign up
   Future<void> signUp() async {
@@ -170,9 +170,9 @@ class SignUpController extends GetxController {
       isLoading.value = true;
 
       // Remove formatting from phone number
-      final cleanedPhone =
-          phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
-      final fullPhoneNumber = '${selectedCountry.value.dialCode}$cleanedPhone';
+      // final cleanedPhone =
+      //     phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+      // final fullPhoneNumber = '${selectedCountry.value.dialCode}$cleanedPhone';
 
       // Step 1: Create user with Firebase Authentication
       final userCredential = await FirebaseService.signUpWithEmailAndPassword(
@@ -201,9 +201,9 @@ class SignUpController extends GetxController {
       final userData = {
         'name': nameController.text,
         'email': emailController.text,
-        'phone': fullPhoneNumber,
-        'countryCode': selectedCountry.value.code,
-        'dialCode': selectedCountry.value.dialCode,
+        // 'phone': fullPhoneNumber,
+        // 'countryCode': selectedCountry.value.code,
+        // 'dialCode': selectedCountry.value.dialCode,
         'profileImage': profileImageUrl ?? "",
         'isOnline': false,
       };
@@ -225,7 +225,7 @@ class SignUpController extends GetxController {
         userId: userId,
         userName: nameController.text,
         userEmail: emailController.text,
-        userPhone: fullPhoneNumber,
+        // userPhone: fullPhoneNumber,
         userProfileImage: profileImageUrl,
       );
 

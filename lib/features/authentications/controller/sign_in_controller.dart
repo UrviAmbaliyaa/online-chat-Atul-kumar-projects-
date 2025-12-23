@@ -101,7 +101,7 @@ class SignInController extends GetxController {
           userId: userCredential.user!.uid,
           userEmail: userCredential.user!.email ?? emailController.text,
           userName: userData?['name'] ?? '',
-          userPhone: userData?['phone'] ?? '',
+          // userPhone: userData?['phone'] ?? '',
           userProfileImage: userData?['profileImage'] ?? '',
         );
 

@@ -67,14 +67,14 @@ class SignUpScreen extends StatelessWidget {
                     .slideX(
                         begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
 
-                SizedBox(height: 16.h),
+                // SizedBox(height: 16.h),
 
                 // Phone Number Field
-                _buildPhoneField(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 500.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 500.ms),
+                // _buildPhoneField(controller)
+                //     .animate()
+                //     .fadeIn(duration: 600.ms, delay: 500.ms)
+                //     .slideX(
+                //         begin: -0.1, end: 0, duration: 600.ms, delay: 500.ms),
 
                 SizedBox(height: 16.h),
 
@@ -280,7 +280,8 @@ class SignUpScreen extends StatelessWidget {
           color: AppColor.darkGrey,
         ),
         SizedBox(height: 6.h),
-        Obx(
+
+        /*Obx(
           () => Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -292,30 +293,30 @@ class SignUpScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(width: 12.w),
-              Expanded(
-                child: AppTextField(
-                  controller: controller.phoneController,
-                  hintText: AppString.phoneNumberHint,
-                  keyboardType: TextInputType.phone,
-                  prefixIcon: Icon(
-                    Icons.phone_outlined,
-                    color: AppColor.primaryColor,
-                    size: 18.sp,
-                  ),
-                  validator: controller.validatePhone,
-                  focusNode: controller.phoneFocusNode,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
-                  inputFormatters: controller.getPhoneFormatters(),
-                  maxLength: controller.getPhoneMaxLength(),
-                  onSubmitted: (_) {
-                    controller.passwordFocusNode.requestFocus();
-                  },
-                ),
-              ),
+              // Expanded(
+              //   child: AppTextField(
+              //     controller: controller.phoneController,
+              //     hintText: AppString.phoneNumberHint,
+              //     keyboardType: TextInputType.phone,
+              //     prefixIcon: Icon(
+              //       Icons.phone_outlined,
+              //       color: AppColor.primaryColor,
+              //       size: 18.sp,
+              //     ),
+              //     validator: controller.validatePhone,
+              //     focusNode: controller.phoneFocusNode,
+              //     contentPadding:
+              //         EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+              //     inputFormatters: controller.getPhoneFormatters(),
+              //     maxLength: controller.getPhoneMaxLength(),
+              //     onSubmitted: (_) {
+              //       controller.passwordFocusNode.requestFocus();
+              //     },
+              //   ),
+              // ),
             ],
           ),
-        ),
+        ),*/
       ],
     );
   }

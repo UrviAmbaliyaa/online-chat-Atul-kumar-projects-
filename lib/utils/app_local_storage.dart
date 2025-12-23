@@ -118,7 +118,7 @@ class AppLocalStorage {
     String? userId,
     String? userName,
     String? userEmail,
-    String? userPhone,
+    // String? userPhone,
     String? userProfileImage,
     String? userToken,
   }) async {
@@ -132,9 +132,9 @@ class AppLocalStorage {
     if (userEmail != null) {
       success = success && await saveUserEmail(userEmail);
     }
-    if (userPhone != null) {
-      success = success && await saveUserPhone(userPhone);
-    }
+    // if (userPhone != null) {
+    //   success = success && await saveUserPhone(userPhone);
+    // }
     if (userProfileImage != null) {
       success = success && await saveUserProfileImage(userProfileImage);
     }
@@ -150,7 +150,7 @@ class AppLocalStorage {
     success = success && await _prefs.remove(AppLocalKeys.userId);
     success = success && await _prefs.remove(AppLocalKeys.userName);
     success = success && await _prefs.remove(AppLocalKeys.userEmail);
-    success = success && await _prefs.remove(AppLocalKeys.userPhone);
+    // success = success && await _prefs.remove(AppLocalKeys.userPhone);
     success = success && await _prefs.remove(AppLocalKeys.userProfileImage);
     success = success && await _prefs.remove(AppLocalKeys.userToken);
     success = success && await _prefs.remove(AppLocalKeys.userRefreshToken);
