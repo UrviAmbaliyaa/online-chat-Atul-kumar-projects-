@@ -150,12 +150,17 @@ class SettingsController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Set user offline before signing out
+      await FirebaseService.setUserOffline();
+
       // Sign out from Firebase
       final success = await FirebaseService.signOut();
 
       if (success) {
         // Clear local storage
         await AppLocalStorage.logout();
+        // Clear in-memory current user cache
+        AppPreference.clearCurrentUser();
 
         // Show success message
         AppSnackbar.success(message: AppString.logoutSuccess);

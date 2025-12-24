@@ -55,11 +55,8 @@ class AddGroupController extends GetxController {
     if (query.isEmpty) {
       filteredContacts.value = availableContacts.toList();
     } else {
-      filteredContacts.value = availableContacts
-          .where((contact) =>
-              contact.name.toLowerCase().contains(query) ||
-              contact.email.toLowerCase().contains(query))
-          .toList();
+      filteredContacts.value =
+          availableContacts.where((contact) => contact.name.toLowerCase().contains(query) || contact.email.toLowerCase().contains(query)).toList();
     }
   }
 

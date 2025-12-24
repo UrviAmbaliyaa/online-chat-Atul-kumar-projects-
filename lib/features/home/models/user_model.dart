@@ -45,16 +45,14 @@ class UserModel {
       phone: json['phone'],
       profileImage: json['profileImage'],
       isOnline: json['isOnline'] ?? false,
-      lastSeen:
-          json['lastSeen'] != null ? DateTime.parse(json['lastSeen']) : null,
+      lastSeen: json['lastSeen'] != null ? DateTime.parse(json['lastSeen']) : null,
       countryCode: json['countryCode'],
       dialCode: json['dialCode'],
     );
   }
 
   /// Create from Firestore document (includes document ID)
-  factory UserModel.fromFirestore(
-      Map<String, dynamic> json, String documentId) {
+  factory UserModel.fromFirestore(Map<String, dynamic> json, String documentId) {
     return UserModel(
       id: documentId,
       name: json['name'] ?? '',
@@ -63,9 +61,7 @@ class UserModel {
       profileImage: json['profileImage'],
       isOnline: json['isOnline'] ?? false,
       lastSeen: json['lastSeen'] != null
-          ? (json['lastSeen'] is Timestamp
-              ? (json['lastSeen'] as Timestamp).toDate()
-              : DateTime.parse(json['lastSeen']))
+          ? (json['lastSeen'] is Timestamp ? (json['lastSeen'] as Timestamp).toDate() : DateTime.parse(json['lastSeen']))
           : null,
       countryCode: json['countryCode'],
       dialCode: json['dialCode'],

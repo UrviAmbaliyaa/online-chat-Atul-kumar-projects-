@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
+import 'package:intl/intl.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
@@ -16,7 +17,6 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 import 'package:online_chat/utils/app_textfield.dart';
-import 'package:intl/intl.dart';
 
 class GroupDetailsDialog extends StatefulWidget {
   final GroupChatModel group;
@@ -61,10 +61,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
       final currentUserId = FirebaseService.getCurrentUserId();
       if (currentUserId == null) return;
 
-      final groupDoc = await FirebaseFirestore.instance
-          .collection('group')
-          .doc(widget.group.id)
-          .get();
+      final groupDoc = await FirebaseFirestore.instance.collection('group').doc(widget.group.id).get();
 
       if (groupDoc.exists) {
         final admins = List<String>.from(groupDoc.data()?['admins'] ?? []);
@@ -78,8 +75,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
   Future<void> _loadGroupMembers() async {
     try {
       isLoading.value = true;
-      final membersList =
-          await FirebaseService.getGroupMembers(widget.group.id);
+      final membersList = await FirebaseService.getGroupMembers(widget.group.id);
       members.value = membersList;
     } catch (e) {
       AppSnackbar.error(message: AppString.errorLoadingMembers);
@@ -168,8 +164,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
           children: [
             // Header
             Container(
-              padding: EdgeInsets.only(
-                  top: Spacing.sm, left: Spacing.lg, right: Spacing.lg),
+              padding: EdgeInsets.only(top: Spacing.sm, left: Spacing.lg, right: Spacing.lg),
               decoration: BoxDecoration(
                 border: Border(
                   bottom: BorderSide(
@@ -201,11 +196,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
             // Content
             Flexible(
               child: SingleChildScrollView(
-                padding: EdgeInsets.only(
-                    bottom: Spacing.sm,
-                    top: Spacing.sm,
-                    left: Spacing.lg,
-                    right: Spacing.lg),
+                padding: EdgeInsets.only(bottom: Spacing.sm, top: Spacing.sm, left: Spacing.lg, right: Spacing.lg),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -336,14 +327,11 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                     dt = DateTime.now();
                   }
                   final durationSec = data['durationSec'] as int?;
-                  final duration = durationSec != null
-                      ? _formatTimeLength(Duration(seconds: durationSec))
-                      : null;
+                  final duration = durationSec != null ? _formatTimeLength(Duration(seconds: durationSec)) : null;
                   final iconColor = missed ? AppColor.lightRedColor : AppColor.primaryColor;
                   return ListTile(
                     dense: true,
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+                    contentPadding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                     leading: Container(
                       width: 32.w,
                       height: 32.h,
@@ -364,8 +352,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                       color: AppColor.darkGrey,
                     ),
                     subtitle: AppText(
-                      text:
-                          '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
+                      text: '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
                       fontSize: 11.sp,
                       color: AppColor.greyColor,
                     ),
@@ -387,8 +374,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    final timeString =
-        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    final timeString = '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
     if (dateOnly == today) {
       return 'today at $timeString';
     } else if (dateOnly == today.subtract(const Duration(days: 1))) {
@@ -464,14 +450,12 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       itemCount: members.length,
-                      separatorBuilder: (context, index) =>
-                          SizedBox(height: Spacing.sm),
+                      separatorBuilder: (context, index) => SizedBox(height: Spacing.sm),
                       itemBuilder: (context, index) {
                         final member = members[index];
                         final user = member['user'] as UserModel;
                         final isAdmin = member['isAdmin'] as bool;
-                        final currentUserId =
-                            FirebaseService.getCurrentUserId();
+                        final currentUserId = FirebaseService.getCurrentUserId();
 
                         return _buildMemberItem(user, isAdmin, currentUserId);
                       },
@@ -513,14 +497,12 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                 ],
               ),
             ),
-            child: user.profileImage != null &&
-                    user.profileImage!.startsWith('http')
+            child: user.profileImage != null && user.profileImage!.startsWith('http')
                 ? ClipOval(
                     child: CachedNetworkImage(
                       imageUrl: user.profileImage!,
                       fit: BoxFit.cover,
-                      errorWidget: (context, url, error) =>
-                          _buildAvatarPlaceholder(user.name),
+                      errorWidget: (context, url, error) => _buildAvatarPlaceholder(user.name),
                     ),
                   )
                 : _buildAvatarPlaceholder(user.name),
@@ -577,8 +559,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
                 color: AppColor.lightRedColor,
                 size: 20.sp,
               ),
-              onPressed: () =>
-                  _showRemoveMemberConfirmation(user.id, user.name),
+              onPressed: () => _showRemoveMemberConfirmation(user.id, user.name),
             ),
         ],
       ),
@@ -611,8 +592,7 @@ class _GroupDetailsDialogState extends State<GroupDetailsDialog> {
             color: AppColor.darkGrey,
           ),
           content: AppText(
-            text: AppString.removeMemberConfirmation
-                .replaceAll('{name}', userName),
+            text: AppString.removeMemberConfirmation.replaceAll('{name}', userName),
             fontSize: 14.sp,
             color: AppColor.greyColor,
           ),

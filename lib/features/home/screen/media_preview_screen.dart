@@ -1,18 +1,19 @@
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/controller/chat_controller.dart';
 import 'package:online_chat/utils/app_color.dart';
+import 'package:online_chat/utils/app_downloader.dart';
+import 'package:online_chat/utils/app_file_picker.dart';
+import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
-import 'package:online_chat/utils/app_file_picker.dart';
+import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
-import 'package:online_chat/utils/app_downloader.dart';
-import 'package:online_chat/utils/app_snackbar.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 
 class MediaPreviewScreen extends StatefulWidget {
   final File? file;
@@ -39,31 +40,50 @@ class MediaPreviewScreen extends StatefulWidget {
 class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
   double _downloadProgress = 0.0;
   bool _isDownloading = false;
+  static const double _maxImageSizeMB = 15.0;
+  static const double _maxFileSizeMB = 50.0;
+
+  File? _effectiveFile(ChatController controller) {
+    return widget.file ?? controller.pendingPickedFile.value;
+  }
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<ChatController>();
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       body: _buildBody(controller),
-      floatingActionButton:
-          widget.enableSend ? _buildSendFab(controller) : _buildDownloadFab(),
+      floatingActionButton: widget.enableSend ? _buildSendFab(controller) : _buildDownloadFab(),
     );
   }
 
   Widget _buildBody(ChatController controller) {
     return Stack(
       children: [
-        _buildPreviewContent(),
+        _buildPreviewContent(controller),
         _buildCancelButton(),
         if (_isDownloading) _buildDownloadProgressOverlay(),
+        // Loader while waiting for file selection (for non-image files)
+        // Obx(() {
+        if (!widget.isImage)
+          Obx(
+            () => (_effectiveFile(controller) == null) ? _buildPickerOverlay() : const SizedBox.shrink(),
+          )
+        // }),
       ],
     );
   }
 
-  Widget _buildPreviewContent() {
+  Widget _buildPreviewContent(ChatController controller) {
     return Positioned.fill(
-      child: widget.isImage ? _buildImagePreview() : SafeArea(child: _buildFilePreview()),
+      child: widget.isImage
+          ? _buildImagePreview()
+          : SafeArea(
+              child: Obx(() {
+                final picked = controller.pendingPickedFile.value;
+                return _buildFilePreviewWithFile(picked);
+              }),
+            ),
     );
   }
 
@@ -97,8 +117,10 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
 
   Widget _buildSendFab(ChatController controller) {
     return Obx(() {
-      final isUploading =
-          controller.isUploadingImage.value || controller.isUploadingFile.value;
+      final isUploading = controller.isUploadingImage.value || controller.isUploadingFile.value;
+      final picked = controller.pendingPickedFile.value;
+      final fileToSend = widget.file ?? picked;
+      final isDisabled = fileToSend == null;
       if (isUploading) {
         return Container(
           width: 44.w,
@@ -120,33 +142,52 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
         );
       }
       return GestureDetector(
-        onTap: () async {
-          // Start upload and immediately navigate back to chat.
-          // Chat screen send button will show loading until upload completes.
-          if (widget.file == null) {
-            Get.snackbar(
-              AppString.errorTitle,
-              AppString.operationFailed,
-              snackPosition: SnackPosition.BOTTOM,
-              colorText: AppColor.whiteColor,
-              backgroundColor: Colors.black87,
-            );
-            return;
-          }
-          if (widget.isImage) {
-            // ignore: unawaited_futures
-            controller.sendImageMessage(widget.file!);
-          } else {
-            // ignore: unawaited_futures
-            controller.sendFileMessage(widget.file!);
-          }
-          Get.back();
-        },
+        onTap: isDisabled
+            ? null
+            : () async {
+                // Start upload and immediately navigate back to chat.
+                // Chat screen send button will show loading until upload completes.
+                if (fileToSend == null) {
+                  Get.snackbar(
+                    AppString.errorTitle,
+                    AppString.operationFailed,
+                    snackPosition: SnackPosition.BOTTOM,
+                    colorText: AppColor.whiteColor,
+                    backgroundColor: Colors.black87,
+                  );
+                  return;
+                }
+
+                // Enforce file size limits before sending
+                try {
+                  final bytes = await fileToSend.length();
+                  final sizeMB = bytes / (1024 * 1024);
+                  final limitMB = widget.isImage ? _maxImageSizeMB : _maxFileSizeMB;
+                  if (sizeMB > limitMB) {
+                    AppSnackbar.error(
+                      message: 'File is too large. Max ${limitMB.toStringAsFixed(0)} MB',
+                    );
+                    return;
+                  }
+                } catch (_) {
+                  // If size read fails, proceed but it's unlikely
+                }
+
+                if (widget.isImage) {
+                  // ignore: unawaited_futures
+                  controller.sendImageMessage(fileToSend);
+                } else {
+                  // ignore: unawaited_futures
+                  controller.sendFileMessage(fileToSend);
+                  controller.pendingPickedFile.value = null;
+                }
+                Get.back();
+              },
         child: Container(
           width: 44.w,
           height: 44.h,
           decoration: BoxDecoration(
-            color: AppColor.primaryColor,
+            color: isDisabled ? AppColor.primaryColor.withOpacity(0.5) : AppColor.primaryColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
@@ -196,42 +237,42 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
     );
   }
 
-  Widget _buildFilePreview() {
-    final localName =
-        widget.file != null ? widget.file!.path.split(Platform.pathSeparator).last : null;
-    final networkName = widget.networkUrl != null
-        ? widget.networkUrl!
-            .split('/')
-            .last
-            .split('?')
-            .first
-            .split('#')
-            .first
-        : null;
+  Widget _buildFilePreviewWithFile(File? file) {
+    final localName = file != null ? file.path.split(Platform.pathSeparator).last : null;
+    final networkName = widget.networkUrl != null ? widget.networkUrl!.split('/').last.split('?').first.split('#').first : null;
     final displayName = widget.fileName ?? localName ?? networkName ?? 'File';
-    final isPdfLocal = widget.file != null && AppFilePicker.isPDF(widget.file!);
-    final isPdfNetwork = widget.file == null &&
-        ((widget.fileExtension?.toLowerCase() == 'pdf') ||
-            (displayName.toLowerCase().endsWith('.pdf')));
+    final isPdfLocal = file != null && AppFilePicker.isPDF(file);
+    final isPdfNetwork = widget.file == null && ((widget.fileExtension?.toLowerCase() == 'pdf') || (displayName.toLowerCase().endsWith('.pdf')));
+    final isZip = displayName.toLowerCase().endsWith('.zip');
     if (isPdfLocal) {
       return SizedBox.expand(
-        child: SfPdfViewer.file(
-          widget.file!,
-          canShowScrollHead: true,
-          canShowScrollStatus: true,
+        child: SfPdfViewerTheme(
+          data: SfPdfViewerThemeData(
+            progressBarColor: AppColor.primaryColor,
+          ),
+          child: SfPdfViewer.file(
+            file!,
+            canShowScrollHead: true,
+            canShowScrollStatus: true,
+          ),
         ),
       );
     }
     if (isPdfNetwork && widget.networkUrl != null) {
       return SizedBox.expand(
-        child: SfPdfViewer.network(
-          widget.networkUrl!,
-          canShowScrollHead: true,
-          canShowScrollStatus: true,
+        child: SfPdfViewerTheme(
+          data: SfPdfViewerThemeData(
+            progressBarColor: AppColor.primaryColor,
+          ),
+          child: SfPdfViewer.network(
+            widget.networkUrl!,
+            canShowScrollHead: true,
+            canShowScrollStatus: true,
+          ),
         ),
       );
     }
-    final fileSize = widget.file != null ? AppFilePicker.getFileSize(widget.file!) : null;
+    final fileSize = file != null ? AppFilePicker.getFileSize(file) : null;
     return Container(
       padding: EdgeInsets.all(Spacing.lg),
       decoration: BoxDecoration(
@@ -245,15 +286,15 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            Icons.insert_drive_file_rounded,
-            color: AppColor.whiteColor,
+            isZip ? Icons.archive_rounded : Icons.insert_drive_file_rounded,
+            color: AppColor.primaryColor,
             size: 64.sp,
           ),
           SizedBox(height: Spacing.sm),
           AppText(
             text: displayName,
             fontSize: 14.sp,
-            color: AppColor.whiteColor,
+            color: AppColor.primaryColor,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
@@ -263,10 +304,28 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
             AppText(
               text: fileSize,
               fontSize: 12.sp,
-              color: AppColor.whiteColor.withOpacity(0.8),
+              color: AppColor.primaryColor.withOpacity(0.8),
               textAlign: TextAlign.center,
             ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildPickerOverlay() {
+    return Positioned.fill(
+      child: Container(
+        color: Colors.black54,
+        child: Center(
+          child: SizedBox(
+            width: 28.w,
+            height: 28.h,
+            child: const CircularProgressIndicator(
+              strokeWidth: 2,
+              color: AppColor.whiteColor,
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -300,11 +359,8 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
           _isDownloading = false;
         });
         if (savedPath != null) {
-          final pathHint = Platform.isAndroid
-              ? 'Downloads/OnlineChat'
-              : 'Files app';
-          AppSnackbar.success(
-              message: '${AppString.savedToDownloads} ($pathHint)');
+          final pathHint = Platform.isAndroid ? 'Downloads/OnlineChat' : 'Files app';
+          AppSnackbar.success(message: '${AppString.savedToDownloads} ($pathHint)');
         } else {
           AppSnackbar.error(message: AppString.downloadFailed);
         }
@@ -371,5 +427,3 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
     );
   }
 }
-
-

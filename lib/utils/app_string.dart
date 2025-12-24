@@ -28,8 +28,7 @@ class AppString {
   static const String removeProfilePicture = "Remove";
   static const String confirmPassword = "Confirm Password";
   static const String confirmPasswordHint = "Re-enter your password";
-  static const String confirmPasswordHintChangePassword =
-      "Confirm your new password";
+  static const String confirmPasswordHintChangePassword = "Confirm your new password";
   static const String alreadyHaveAccount = "Already have an account? ";
   static const String agreeToTerms = "I agree to the ";
   static const String termsAndConditions = "Terms & Conditions";
@@ -40,8 +39,7 @@ class AppString {
   static const String emailRequired = "Email is required";
   static const String emailInvalid = "Please enter a valid email";
   static const String passwordRequired = "Password is required";
-  static const String passwordMinLength =
-      "Password must be at least 6 characters";
+  static const String passwordMinLength = "Password must be at least 6 characters";
   static const String nameRequired = "Name is required";
   static const String nameMinLength = "Name must be at least 3 characters";
   static const String confirmPasswordRequired = "Please confirm your password";
@@ -55,8 +53,7 @@ class AppString {
   static const String signInSuccess = "Signed in successfully";
   static const String signInError = "Failed to sign in. Please try again.";
   static const String signUpSuccess = "Account created successfully";
-  static const String signUpError =
-      "Failed to create account. Please try again.";
+  static const String signUpError = "Failed to create account. Please try again.";
 
   // Snackbar Titles
   static const String successTitle = "Success";
@@ -65,16 +62,11 @@ class AppString {
   static const String warningTitle = "Warning";
 
   // Image Picker Messages
-  static const String imagePickGalleryError =
-      "Failed to pick image from gallery. Please try again.";
-  static const String imagePickCameraError =
-      "Failed to capture image. Please try again.";
-  static const String imagePickMultipleError =
-      "Failed to pick images. Please try again.";
-  static const String videoPickGalleryError =
-      "Failed to pick video. Please try again.";
-  static const String videoPickCameraError =
-      "Failed to record video. Please try again.";
+  static const String imagePickGalleryError = "Failed to pick image from gallery. Please try again.";
+  static const String imagePickCameraError = "Failed to capture image. Please try again.";
+  static const String imagePickMultipleError = "Failed to pick images. Please try again.";
+  static const String videoPickGalleryError = "Failed to pick video. Please try again.";
+  static const String videoPickCameraError = "Failed to record video. Please try again.";
   static const String selectImageSource = "Select Image Source";
   static const String selectVideoSource = "Select Video Source";
   static const String selectMultipleImages = "Select Multiple Images";
@@ -82,18 +74,14 @@ class AppString {
   static const String camera = "Camera";
 
   // File Picker Messages
-  static const String filePickPDFError =
-      "Failed to pick PDF file. Please try again.";
-  static const String filePickZIPError =
-      "Failed to pick ZIP file. Please try again.";
+  static const String filePickPDFError = "Failed to pick PDF file. Please try again.";
+  static const String filePickZIPError = "Failed to pick ZIP file. Please try again.";
   static const String filePickError = "Failed to pick file. Please try again.";
-  static const String filePickMultipleError =
-      "Failed to pick files. Please try again.";
+  static const String filePickMultipleError = "Failed to pick files. Please try again.";
 
   // Forgot Password Screen
   static const String forgotPasswordTitle = "Forgot Password?";
-  static const String forgotPasswordSubtitle =
-      "Don't worry! Enter your email and we'll send you a link to reset your password.";
+  static const String forgotPasswordSubtitle = "Don't worry! Enter your email and we'll send you a link to reset your password.";
   static const String sendResetLink = "Send Reset Link";
   static const String backToSignIn = "Back to Sign In";
   static const String emailSentTitle = "Check Your Email";
@@ -103,14 +91,12 @@ class AppString {
   static const String resendEmail = "Resend Email";
 
   // Feature Coming Soon Messages
-  static const String forgotPasswordComingSoon =
-      "Forgot password screen coming soon";
+  static const String forgotPasswordComingSoon = "Forgot password screen coming soon";
   static const String signUpComingSoon = "Sign up screen coming soon";
   static const String featureComingSoon = "Feature coming soon";
 
   // General Messages
-  static const String somethingWentWrong =
-      "Something went wrong. Please try again.";
+  static const String somethingWentWrong = "Something went wrong. Please try again.";
   static const String operationSuccess = "Operation completed successfully";
   static const String operationFailed = "Operation failed. Please try again.";
   static const String pleaseTryAgain = "Please try again";
@@ -124,43 +110,32 @@ class AppString {
   static const String addContact = "Add Contact";
   static const String addGroup = "Add Group";
   static const String createNewGroup = "Create New Group";
-  static const String createGroupSubtitle =
-      "Add a group name and select members from your contacts";
+  static const String createGroupSubtitle = "Add a group name and select members from your contacts";
   static const String groupName = "Group Name";
   static const String groupNameHint = "Enter group name";
   static const String groupNameRequired = "Group name is required";
-  static const String groupNameMinLength =
-      "Group name must be at least 3 characters";
+  static const String groupNameMinLength = "Group name must be at least 3 characters";
   static const String selectMembers = "Select Members";
   static const String selected = "selected";
   static const String noContactsToAdd = "No contacts available";
   static const String addContactsFirst = "Add contacts first to create a group";
-  static const String selectAtLeastOneMember =
-      "Please select at least one member";
+  static const String selectAtLeastOneMember = "Please select at least one member";
   static const String createGroup = "Create Group";
   static const String groupCreatedSuccessfully = "Group created successfully";
-  static const String groupCreateError =
-      "Failed to create group. Please try again.";
-  static const String groupUpdateError =
-      "Failed to update group. Please try again.";
+  static const String groupCreateError = "Failed to create group. Please try again.";
+  static const String groupUpdateError = "Failed to update group. Please try again.";
   static const String groupNotFound = "Group not found";
-  static const String onlyAdminCanAddMembers =
-      "Only group admin can add members";
-  static const String allMembersAlreadyAdded =
-      "All selected members are already in the group";
+  static const String onlyAdminCanAddMembers = "Only group admin can add members";
+  static const String allMembersAlreadyAdded = "All selected members are already in the group";
   static const String exitFromGroup = "Exit from Group";
-  static const String exitGroupConfirmation =
-      "Are you sure you want to exit from this group?";
+  static const String exitGroupConfirmation = "Are you sure you want to exit from this group?";
   static const String exitGroup = "Exit Group";
-  static const String groupExitedSuccessfully =
-      "You have exited from the group";
-  static const String exitGroupError =
-      "Failed to exit from group. Please try again.";
+  static const String groupExitedSuccessfully = "You have exited from the group";
+  static const String exitGroupError = "Failed to exit from group. Please try again.";
   static const String groupMembers = "Group Members";
   static const String admin = "Admin";
   static const String member = "Member";
-  static const String adminCannotExitGroup =
-      "Group admin cannot exit from the group";
+  static const String adminCannotExitGroup = "Group admin cannot exit from the group";
   static const String userNotInGroup = "You are not a member of this group";
   static const String errorLoadingMembers = "Error loading members";
   static const String groupDetails = "Group Details";
@@ -169,40 +144,29 @@ class AppString {
   static const String addMember = "Add Member";
   static const String noMembersFound = "No members found";
   static const String removeMember = "Remove Member";
-  static const String removeMemberConfirmation =
-      "Are you sure you want to remove {name} from this group?";
+  static const String removeMemberConfirmation = "Are you sure you want to remove {name} from this group?";
   static const String remove = "Remove";
   static const String memberRemovedSuccessfully = "Member removed successfully";
-  static const String removeMemberError =
-      "Failed to remove member. Please try again.";
-  static const String onlyAdminCanRemoveMembers =
-      "Only group admin can remove members";
+  static const String removeMemberError = "Failed to remove member. Please try again.";
+  static const String onlyAdminCanRemoveMembers = "Only group admin can remove members";
   static const String cannotRemoveAdmin = "Cannot remove admin from the group";
   static const String editMembers = "Edit Members";
   static const String editGroupMembers = "Edit Group Members";
-  static const String editGroupMembersSubtitle =
-      "Update group name and manage members";
+  static const String editGroupMembersSubtitle = "Update group name and manage members";
   static const String updateGroup = "Update Group";
   static const String groupUpdatedSuccessfully = "Group updated successfully";
   static const String deleteGroup = "Delete Group";
-  static const String deleteGroupConfirmation =
-      "Are you sure you want to delete this group? This action cannot be undone.";
+  static const String deleteGroupConfirmation = "Are you sure you want to delete this group? This action cannot be undone.";
   static const String groupDeletedSuccessfully = "Group deleted successfully";
-  static const String deleteGroupError =
-      "Failed to delete group. Please try again.";
-  static const String onlyAdminCanDeleteGroup =
-      "Only group admin can delete the group";
+  static const String deleteGroupError = "Failed to delete group. Please try again.";
+  static const String onlyAdminCanDeleteGroup = "Only group admin can delete the group";
   static const String addContactTitle = "Add New Contact";
-  static const String addContactSubtitle =
-      "Enter the email address of the person you want to add as a contact";
+  static const String addContactSubtitle = "Enter the email address of the person you want to add as a contact";
   static const String addContactEmailHint = "Enter contact email address";
   static const String contactAddedSuccessfully = "Contact added successfully";
-  static const String contactAddError =
-      "Failed to add contact. Please try again.";
-  static const String contactAlreadyExists =
-      "This contact is already in your list";
-  static const String cannotAddYourself =
-      "You cannot add yourself as a contact";
+  static const String contactAddError = "Failed to add contact. Please try again.";
+  static const String contactAlreadyExists = "This contact is already in your list";
+  static const String cannotAddYourself = "You cannot add yourself as a contact";
   static const String noUsersFound = "No users found";
   static const String noGroupsFound = "No groups found";
   static const String online = "Online";
@@ -256,70 +220,46 @@ class AppString {
   static const String logoutSuccess = "Logged out successfully";
   static const String logoutError = "Failed to logout. Please try again.";
   static const String settingsSaved = "Settings saved successfully";
-  static const String settingsSaveError =
-      "Failed to save settings. Please try again.";
+  static const String settingsSaveError = "Failed to save settings. Please try again.";
   static const String profileUpdated = "Profile updated successfully";
-  static const String profileUpdateError =
-      "Failed to update profile. Please try again.";
-  static const String deleteAccountConfirmation =
-      "Are you sure you want to delete your account? This action cannot be undone.";
+  static const String profileUpdateError = "Failed to update profile. Please try again.";
+  static const String deleteAccountConfirmation = "Are you sure you want to delete your account? This action cannot be undone.";
   static const String cancel = "Cancel";
   static const String delete = "Delete";
 
   // Edit Profile Messages
-  static const String userNotLoggedIn =
-      "User not logged in. Please sign in again.";
-  static const String profileImageUploadError =
-      "Failed to upload profile image. Please try again.";
-  static const String userEmailNotFound =
-      "User email not found. Please sign in again.";
-  static const String networkError =
-      "Network error. Please check your internet connection.";
+  static const String userNotLoggedIn = "User not logged in. Please sign in again.";
+  static const String profileImageUploadError = "Failed to upload profile image. Please try again.";
+  static const String userEmailNotFound = "User email not found. Please sign in again.";
+  static const String networkError = "Network error. Please check your internet connection.";
   static const String permissionDenied = "Permission denied. Please try again.";
 
   // Firebase Service Messages
   static const String signOutError = "Failed to sign out. Please try again.";
-  static const String passwordResetEmailSent =
-      "Password reset email sent. Please check your inbox.";
-  static const String passwordResetEmailError =
-      "Failed to send password reset email. Please try again.";
-  static const String createDocumentError =
-      "Failed to create document. Please try again.";
-  static const String getDocumentError =
-      "Failed to get document. Please try again.";
-  static const String updateDocumentError =
-      "Failed to update document. Please try again.";
-  static const String deleteDocumentError =
-      "Failed to delete document. Please try again.";
-  static const String getDocumentsError =
-      "Failed to get documents. Please try again.";
-  static const String createUserDocumentError =
-      "Failed to create user profile. Please try again.";
-  static const String updateProfilePermissionDenied =
-      "Permission denied. You do not have access to update this profile.";
-  static const String updateProfileNotFound =
-      "User document not found. Please try again.";
-  static const String updateProfileUnavailable =
-      "Service unavailable. Please try again later.";
-  static const String updateProfileTimeout =
-      "Request timeout. Please check your internet connection and try again.";
-  static const String uploadFileError =
-      "Failed to upload file. Please try again.";
-  static const String deleteFileError =
-      "Failed to delete file. Please try again.";
-  static const String batchOperationError =
-      "Failed to perform batch operation. Please try again.";
+  static const String passwordResetEmailSent = "Password reset email sent. Please check your inbox.";
+  static const String passwordResetEmailError = "Failed to send password reset email. Please try again.";
+  static const String createDocumentError = "Failed to create document. Please try again.";
+  static const String getDocumentError = "Failed to get document. Please try again.";
+  static const String updateDocumentError = "Failed to update document. Please try again.";
+  static const String deleteDocumentError = "Failed to delete document. Please try again.";
+  static const String getDocumentsError = "Failed to get documents. Please try again.";
+  static const String createUserDocumentError = "Failed to create user profile. Please try again.";
+  static const String updateProfilePermissionDenied = "Permission denied. You do not have access to update this profile.";
+  static const String updateProfileNotFound = "User document not found. Please try again.";
+  static const String updateProfileUnavailable = "Service unavailable. Please try again later.";
+  static const String updateProfileTimeout = "Request timeout. Please check your internet connection and try again.";
+  static const String uploadFileError = "Failed to upload file. Please try again.";
+  static const String deleteFileError = "Failed to delete file. Please try again.";
+  static const String batchOperationError = "Failed to perform batch operation. Please try again.";
 
   // Firebase Auth Exception Messages
   static const String userNotFound = "No user found with this email.";
   static const String wrongPassword = "Wrong password provided.";
-  static const String emailAlreadyInUse =
-      "An account already exists with this email.";
+  static const String emailAlreadyInUse = "An account already exists with this email.";
   static const String weakPassword = "The password provided is too weak.";
   static const String invalidEmail = "The email address is invalid.";
   static const String userDisabled = "This user account has been disabled.";
-  static const String tooManyRequests =
-      "Too many requests. Please try again later.";
+  static const String tooManyRequests = "Too many requests. Please try again later.";
   static const String operationNotAllowed = "This operation is not allowed.";
   static const String authErrorDefault = "An error occurred. Please try again.";
 
@@ -328,16 +268,12 @@ class AppString {
   static const String currentPasswordHint = "Enter your current password";
   static const String newPasswordHint = "Enter your new password";
   static const String passwordChanged = "Password changed successfully";
-  static const String passwordChangeError =
-      "Failed to change password. Please try again.";
+  static const String passwordChangeError = "Failed to change password. Please try again.";
   static const String currentPasswordRequired = "Current password is required";
   static const String newPasswordRequired = "New password is required";
-  static const String samePasswordError =
-      "New password must be different from current password";
-  static const String weakPasswordError =
-      "Password must be at least 6 characters long";
-  static const String reauthenticationRequired =
-      "Please enter your current password to continue";
+  static const String samePasswordError = "New password must be different from current password";
+  static const String weakPasswordError = "Password must be at least 6 characters long";
+  static const String reauthenticationRequired = "Please enter your current password to continue";
   static const String reauthenticationFailed = "Current password is incorrect";
 
   // Chat Screen
@@ -348,10 +284,8 @@ class AppString {
   static const String startConversation = "Start a conversation";
   static const String sending = "Sending...";
   static const String sendingDots = "Sending";
-  static const String sendMessageError =
-      "Failed to send message. Please try again.";
-  static const String uploadImageError =
-      "Failed to upload image. Please try again.";
+  static const String sendMessageError = "Failed to send message. Please try again.";
+  static const String uploadImageError = "Failed to upload image. Please try again.";
   static const String selectImage = "Select Image";
   static const String selectAttachment = "Select Attachment";
   static const String attachFile = "Attach File";
@@ -372,24 +306,19 @@ class AppString {
   static const String copy = "Copy";
   static const String messageCopied = "Message copied to clipboard";
   static const String deleteMessage = "Delete Message";
-  static const String deleteMessageConfirmation =
-      "Are you sure you want to delete this message? This action cannot be undone.";
+  static const String deleteMessageConfirmation = "Are you sure you want to delete this message? This action cannot be undone.";
   static const String chatNotFound = "Chat not found";
   static const String messageNotFound = "Message not found";
-  static const String onlySenderCanDeleteMessage =
-      "You can only delete your own messages";
+  static const String onlySenderCanDeleteMessage = "You can only delete your own messages";
   static const String deleteMessageError = "Failed to delete message";
-  static const String messageDeletedSuccessfully =
-      "Message deleted successfully";
+  static const String messageDeletedSuccessfully = "Message deleted successfully";
   static const String imageMessage = "[Image]";
   static const String fileMessage = "[File]";
   static const String forward = "Forward";
   static const String info = "Info";
   static const String downloading = "Downloading...";
-  static const String downloadingToDownloads =
-      "Your file is downloading to the Downloads folder.";
-  static const String savedToDownloads =
-      "Saved to Downloads. Check your Files/Downloads.";
+  static const String downloadingToDownloads = "Your file is downloading to the Downloads folder.";
+  static const String savedToDownloads = "Saved to Downloads. Check your Files/Downloads.";
   static const String downloadFailed = "Failed to download. Please try again.";
 
   // User Detail Screen
@@ -416,17 +345,11 @@ class AppString {
   static const String speaker = "Speaker";
   static const String video = "Video";
   static const String audio = "Audio";
-  static const String callPermissionDenied =
-      "Microphone permission is required for calls";
-  static const String cameraPermissionDenied =
-      "Camera permission is required for video calls";
+  static const String callPermissionDenied = "Microphone permission is required for calls";
+  static const String cameraPermissionDenied = "Camera permission is required for video calls";
   static const String you = "You";
-  static const String callConnectionError =
-      "Failed to connect to call. Please check your internet connection.";
-  static const String callInitializationError =
-      "Failed to start call. Please try again.";
-  static const String callNetworkError =
-      "Network error. Please check your internet connection.";
-  static const String callServiceError =
-      "Call service error. Please try again.";
+  static const String callConnectionError = "Failed to connect to call. Please check your internet connection.";
+  static const String callInitializationError = "Failed to start call. Please try again.";
+  static const String callNetworkError = "Network error. Please check your internet connection.";
+  static const String callServiceError = "Call service error. Please try again.";
 }

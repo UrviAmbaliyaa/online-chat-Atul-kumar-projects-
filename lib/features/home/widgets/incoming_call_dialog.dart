@@ -17,6 +17,8 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 
+import '../../../utils/firebase_constants.dart';
+
 class IncomingCallDialog extends StatefulWidget {
   final UserModel? caller;
   final GroupChatModel? group;
@@ -37,8 +39,7 @@ class IncomingCallDialog extends StatefulWidget {
   State<IncomingCallDialog> createState() => _IncomingCallDialogState();
 }
 
-class _IncomingCallDialogState extends State<IncomingCallDialog>
-    with SingleTickerProviderStateMixin {
+class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTickerProviderStateMixin {
   bool _isRinging = true;
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription<DocumentSnapshot>? _notifSubscription;
@@ -62,11 +63,11 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
     try {
       // Set audio player to loop mode
       await _audioPlayer.setReleaseMode(ReleaseMode.loop);
-      
+
       // Play the ringtone audio file
       // Replace 'ringtone.mp3' with your actual audio file name
       await _audioPlayer.play(AssetSource('audio/incomming_call.mp3'));
-      
+
       _isRinging = true;
     } catch (e) {
       // If audio file is not found, fallback to silent or handle error
@@ -108,7 +109,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
 
   Future<void> _handleAccept() async {
     _stopRingtone();
-    
+
     // Delete notification
     final currentUserId = FirebaseService.getCurrentUserId();
     if (currentUserId != null) {
@@ -145,7 +146,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
 
   Future<void> _handleReject() async {
     _stopRingtone();
-    
+
     // Delete notification
     final currentUserId = FirebaseService.getCurrentUserId();
     if (currentUserId != null) {
@@ -168,20 +169,10 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
 
       if (widget.group != null) {
         // For group calls, store rejection in group document
-        await firestore
-            .collection('group')
-            .doc(widget.chatId)
-            .collection('callRejections')
-            .doc(currentUserId)
-            .set(rejectionData);
+        await firestore.collection('group').doc(widget.chatId).collection('callRejections').doc(currentUserId).set(rejectionData);
       } else if (widget.caller != null) {
         // For one-to-one calls, store rejection in chat document
-        await firestore
-            .collection('chat')
-            .doc(widget.chatId)
-            .collection('callRejections')
-            .doc(currentUserId)
-            .set(rejectionData);
+        await firestore.collection('chat').doc(widget.chatId).collection('callRejections').doc(currentUserId).set(rejectionData);
       }
     } catch (e) {
       // Silently fail - rejection notification is optional
@@ -195,15 +186,9 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
   @override
   Widget build(BuildContext context) {
     final isGroup = widget.group != null;
-    final title = isGroup
-        ? widget.group?.name ?? AppString.groupCall
-        : widget.caller?.name ?? AppString.incomingCall;
-    final image = isGroup
-        ? widget.group?.groupImage
-        : widget.caller?.profileImage;
-    final subtitle = isGroup
-        ? '${widget.group?.memberCount ?? 0} ${AppString.participants}'
-        : widget.caller?.email ?? '';
+    final title = isGroup ? widget.group?.name ?? AppString.groupCall : widget.caller?.name ?? AppString.incomingCall;
+    final image = isGroup ? widget.group?.groupImage : widget.caller?.profileImage;
+    final subtitle = isGroup ? '${widget.group?.memberCount ?? 0} ${AppString.participants}' : widget.caller?.email ?? '';
 
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -252,9 +237,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
                     ),
                     SizedBox(width: Spacing.xs),
                     AppText(
-                      text: widget.isVideoCall
-                          ? '${AppString.video} Call'
-                          : '${AppString.audio} Call',
+                      text: widget.isVideoCall ? '${AppString.video} Call' : '${AppString.audio} Call',
                       fontSize: 12.sp,
                       color: AppColor.whiteColor,
                       fontWeight: FontWeight.w600,
@@ -344,10 +327,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(
-                duration: 2000.ms,
-                begin: const Offset(1, 1),
-                end: const Offset(1.2, 1.2))
+            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.2, 1.2))
             .fade(duration: 2000.ms, begin: 0.5, end: 0.0),
         // Middle ring
         Container(
@@ -362,11 +342,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(
-                duration: 2000.ms,
-                begin: const Offset(1, 1),
-                end: const Offset(1.15, 1.15),
-                delay: 300.ms)
+            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.15, 1.15), delay: 300.ms)
             .fade(duration: 2000.ms, begin: 0.6, end: 0.0, delay: 300.ms),
         // Profile image
         Container(
@@ -426,11 +402,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog>
           color: iconColor,
           size: (buttonSize * 0.5).sp,
         ),
-      ).animate().scale(duration: 100.ms).then().scale(
-          duration: 100.ms,
-          begin: const Offset(1.1, 1.1),
-          end: const Offset(1, 1)),
+      ).animate().scale(duration: 100.ms).then().scale(duration: 100.ms, begin: const Offset(1.1, 1.1), end: const Offset(1, 1)),
     );
   }
 }
-

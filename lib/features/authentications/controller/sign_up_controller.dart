@@ -1,18 +1,17 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
 import 'package:online_chat/navigations/routes.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_image_picker.dart';
 import 'package:online_chat/utils/app_local_storage.dart';
+import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_validator.dart';
-import 'package:online_chat/utils/country_code_picker.dart';
-import 'package:online_chat/utils/phone_number_formatter.dart';
+import 'package:online_chat/utils/session_service.dart';
 
 class SignUpController extends GetxController {
   // Form Key
@@ -21,16 +20,17 @@ class SignUpController extends GetxController {
   // Text Controllers
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
+
   // final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController confirmPasswordController =
-      TextEditingController();
+  final TextEditingController confirmPasswordController = TextEditingController();
 
   // Observables
   final RxBool isPasswordVisible = false.obs;
   final RxBool isConfirmPasswordVisible = false.obs;
   final RxBool isLoading = false.obs;
   final RxBool agreeToTerms = false.obs;
+
   // final Rx<CountryCode> selectedCountry = CountryCodePicker.countries[0].obs;
   final Rx<File?> profileImage = Rx<File?>(null);
 
@@ -78,12 +78,10 @@ class SignUpController extends GetxController {
   String? validateEmail(String? value) => AppValidator.validateEmail(value);
 
   // Password validation
-  String? validatePassword(String? value) =>
-      AppValidator.validatePassword(value);
+  String? validatePassword(String? value) => AppValidator.validatePassword(value);
 
   // Confirm password validation
-  String? validateConfirmPassword(String? value) =>
-      AppValidator.validateConfirmPassword(value, passwordController.text);
+  String? validateConfirmPassword(String? value) => AppValidator.validateConfirmPassword(value, passwordController.text);
 
   // Phone validation
   String? validatePhone(String? value) {
@@ -189,8 +187,7 @@ class SignUpController extends GetxController {
 
       // Step 2: Upload profile image if exists
       if (profileImage.value != null) {
-        final imagePath =
-            'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final imagePath = 'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
         profileImageUrl = await FirebaseService.uploadFile(
           file: profileImage.value!,
           path: imagePath,
@@ -228,6 +225,12 @@ class SignUpController extends GetxController {
         // userPhone: fullPhoneNumber,
         userProfileImage: profileImageUrl,
       );
+
+      // Load current user model into AppPreference (in-memory cache for UI)
+      await AppPreference.loadCurrentUser();
+      // Ensure presence and session
+      await FirebaseService.setUserOnline();
+      await SessionService.ensure();
 
       // Show success message
       AppSnackbar.success(

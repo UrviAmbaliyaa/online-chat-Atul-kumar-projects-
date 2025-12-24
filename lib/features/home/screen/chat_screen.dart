@@ -31,11 +31,10 @@ class ChatScreen extends StatelessWidget {
       backgroundColor: AppColor.chatBackground,
       appBar: _buildAppBar(controller),
       body: Column(
+        verticalDirection: VerticalDirection.down,
         children: [
           // Reply preview
-          Obx(() => controller.replyingToMessage.value != null
-              ? _buildReplyPreview(controller)
-              : const SizedBox.shrink()),
+          Obx(() => controller.replyingToMessage.value != null ? _buildReplyPreview(controller) : const SizedBox.shrink()),
           // Messages list
           Expanded(
             child: Obx(() {
@@ -58,8 +57,7 @@ class ChatScreen extends StatelessWidget {
                 addAutomaticKeepAlives: false,
                 itemBuilder: (context, index) {
                   final message = controller.messages[index];
-                  final previousMessage =
-                      index > 0 ? controller.messages[index - 1] : null;
+                  final previousMessage = index > 0 ? controller.messages[index - 1] : null;
 
                   // Check if we need to show date separator
                   final showDateSeparator = previousMessage == null ||
@@ -70,11 +68,9 @@ class ChatScreen extends StatelessWidget {
 
                   return Column(
                     children: [
-                      if (showDateSeparator)
-                        DateSeparator(date: message.timestamp),
+                      if (showDateSeparator) DateSeparator(date: message.timestamp),
                       Obx(() {
-                        final isHighlighted =
-                            controller.highlightedMessageId.value == message.id;
+                        final isHighlighted = controller.highlightedMessageId.value == message.id;
                         return Container(
                           decoration: isHighlighted
                               ? BoxDecoration(
@@ -82,20 +78,13 @@ class ChatScreen extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(8.r),
                                 )
                               : null,
-                          padding: isHighlighted
-                              ? EdgeInsets.all(Spacing.xs)
-                              : EdgeInsets.zero,
+                          padding: isHighlighted ? EdgeInsets.all(Spacing.xs) : EdgeInsets.zero,
                           child: MessageBubble(
                             message: message,
-                            isItGroupChat:
-                                controller.chatType.value == ChatType.group,
-                            isCurrentUser:
-                                controller.isCurrentUser(message.senderId),
-                            isSending: (controller.isUploadingImage.value ||
-                                    controller.isUploadingFile.value ||
-                                    controller.isSending.value) &&
-                                controller.pendingMessageIds
-                                    .contains(message.id),
+                            isItGroupChat: controller.chatType.value == ChatType.group,
+                            isCurrentUser: controller.isCurrentUser(message.senderId),
+                            isSending: (controller.isUploadingImage.value || controller.isUploadingFile.value || controller.isSending.value) &&
+                                controller.pendingMessageIds.contains(message.id),
                             onReply: () {
                               controller.setReplyingToMessage(message);
                             },
@@ -190,16 +179,14 @@ class ChatScreen extends StatelessWidget {
                           return const SizedBox.shrink();
                         }
                         return StreamBuilder<DateTime>(
-                          stream: Stream.periodic(
-                              const Duration(seconds: 30), (_) => DateTime.now()),
+                          stream: Stream.periodic(const Duration(seconds: 30), (_) => DateTime.now()),
                           initialData: DateTime.now(),
                           builder: (context, snapshot) {
                             String statusText;
                             if (otherUser.isOnline) {
                               statusText = AppString.online;
                             } else if (otherUser.lastSeen != null) {
-                              statusText =
-                                  '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
+                              statusText = '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
                             } else {
                               statusText = AppString.offline;
                             }
@@ -243,8 +230,7 @@ class ChatScreen extends StatelessWidget {
         }
       },
       child: Container(
-        margin:
-            EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+        margin: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
         padding: EdgeInsets.all(Spacing.md),
         decoration: BoxDecoration(
           color: AppColor.primaryColor.withOpacity(0.05),
@@ -278,8 +264,7 @@ class ChatScreen extends StatelessWidget {
                       ),
                       SizedBox(width: 4.w),
                       AppText(
-                        text:
-                            '${AppString.replyingTo} ${replyMessage.senderName}',
+                        text: '${AppString.replyingTo} ${replyMessage.senderName}',
                         fontSize: 12.sp,
                         fontWeight: FontWeight.w600,
                         color: AppColor.primaryColor,
@@ -288,9 +273,7 @@ class ChatScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 4.h),
                   AppText(
-                    text: replyMessage.message.length > 50
-                        ? '${replyMessage.message.substring(0, 50)}...'
-                        : replyMessage.message,
+                    text: replyMessage.message.length > 50 ? '${replyMessage.message.substring(0, 50)}...' : replyMessage.message,
                     fontSize: 13.sp,
                     color: AppColor.darkGrey,
                     maxLines: 2,
@@ -349,7 +332,11 @@ class ChatScreen extends StatelessWidget {
                     color: AppColor.primaryColor,
                     size: 24.sp,
                   ),
-                  onPressed: () => _showAttachmentOptions(controller),
+                  onPressed: () {
+                    // Close keyboard before opening attachment options
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    _showAttachmentOptions(controller);
+                  },
                 ),
               ),
               SizedBox(width: Spacing.sm),
@@ -362,6 +349,12 @@ class ChatScreen extends StatelessWidget {
                     hintText: AppString.typeMessage,
                     enabled: !isSending,
                     maxLines: null,
+                    onTap: () {
+                      // Scroll to bottom when focusing the input (keyboard opens)
+                      Future.delayed(const Duration(milliseconds: 150), () {
+                        controller.scrollToBottom(animate: true); // private but same lib
+                      });
+                    },
                     fillColor: AppColor.lightGrey.withOpacity(0.3),
                     borderColor: Colors.transparent,
                     borderRadius: 8.r,
@@ -391,8 +384,7 @@ class ChatScreen extends StatelessWidget {
               // Send button
               Obx(() {
                 final hasText = controller.messageText.value.trim().isNotEmpty;
-                final isUploading = controller.isUploadingImage.value ||
-                    controller.isUploadingFile.value;
+                final isUploading = controller.isUploadingImage.value || controller.isUploadingFile.value;
                 final isSending = controller.isSending.value;
                 final isLoading = isUploading || isSending;
 
@@ -418,15 +410,12 @@ class ChatScreen extends StatelessWidget {
                 }
 
                 return GestureDetector(
-                  onTap: hasText && !isSending
-                      ? () => controller.sendTextMessage()
-                      : null,
+                  onTap: hasText && !isSending ? () => controller.sendTextMessage() : null,
                   child: Container(
                     width: 44.w,
                     height: 44.h,
                     decoration: BoxDecoration(
-                      color:
-                          hasText ? AppColor.primaryColor : AppColor.lightGrey,
+                      color: hasText ? AppColor.primaryColor : AppColor.lightGrey,
                       shape: BoxShape.circle,
                       boxShadow: hasText
                           ? [
@@ -736,9 +725,7 @@ class ChatScreen extends StatelessWidget {
   }
 
   bool _isSameDay(DateTime date1, DateTime date2) {
-    return date1.year == date2.year &&
-        date1.month == date2.month &&
-        date1.day == date2.day;
+    return date1.year == date2.year && date1.month == date2.month && date1.day == date2.day;
   }
 
   String _formatLastSeen(DateTime dateTime) {
@@ -752,8 +739,7 @@ class ChatScreen extends StatelessWidget {
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    final timeString =
-        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    final timeString = '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
 
     if (messageDate == today) {
       return 'today at $timeString';

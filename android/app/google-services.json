@@ -1,13 +1,14 @@
 {
   "project_info": {
-    "project_number": "484376656640",
-    "project_id": "apna-chat-6b9b3",
-    "storage_bucket": "apna-chat-6b9b3.firebasestorage.app"
+    "project_number": "755110933607",
+    "firebase_url": "https://geomed-assistans-default-rtdb.firebaseio.com",
+    "project_id": "geomed-assistans",
+    "storage_bucket": "geomed-assistans.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:484376656640:android:27d99308a8e553bcc991e5",
+        "mobilesdk_app_id": "1:755110933607:android:af8186a4c0eba6d3ccd0c2",
         "android_client_info": {
           "package_name": "com.apnachatapp.com"
         }
@@ -15,7 +16,26 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyD4jn2YSAXuZ6151NaPsMr19jk-xICPfE0"
+          "current_key": "AIzaSyC8qnlElTk9JICi8bxsFl8hrDSicHgME0I"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:755110933607:android:be387dbef9476c7bccd0c2",
+        "android_client_info": {
+          "package_name": "com.example.geomed_assist"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC8qnlElTk9JICi8bxsFl8hrDSicHgME0I"
         }
       ],
       "services": {
@@ -27,4 +47,3 @@
   ],
   "configuration_version": "1"
 }
-

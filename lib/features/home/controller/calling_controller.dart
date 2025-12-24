@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer' as developer;
+import 'dart:math';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'dart:math';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
@@ -98,11 +98,8 @@ class CallingController extends GetxController {
       final permissionGranted = await _requestPermissions();
       if (!permissionGranted) {
         _handleError(
-          userMessage: isVideoCall
-              ? AppString.cameraPermissionDenied
-              : AppString.callPermissionDenied,
-          developerMessage:
-              'Permissions not granted for ${isVideoCall ? 'video' : 'audio'} call',
+          userMessage: isVideoCall ? AppString.cameraPermissionDenied : AppString.callPermissionDenied,
+          developerMessage: 'Permissions not granted for ${isVideoCall ? 'video' : 'audio'} call',
         );
         return;
       }
@@ -119,8 +116,7 @@ class CallingController extends GetxController {
         RtcEngineEventHandler(
           onJoinChannelSuccess: (RtcConnection connection, int elapsed) {
             _localUid = connection.localUid;
-            developer.log(
-                'Call connected successfully. Local UID: ${connection.localUid}');
+            developer.log('Call connected successfully. Local UID: ${connection.localUid}');
           },
           onTokenPrivilegeWillExpire: (RtcConnection connection, String token) async {
             try {
@@ -159,12 +155,11 @@ class CallingController extends GetxController {
               _setupRemoteVideo(remoteUid);
             }
           },
-          onUserOffline: (RtcConnection connection, int remoteUid,
-              UserOfflineReasonType reason) {
+          onUserOffline: (RtcConnection connection, int remoteUid, UserOfflineReasonType reason) {
             developer.log("remoteUsers.length :::::::::::::::::::${remoteUsers}");
             remoteUsers.remove(remoteUid);
             remoteVideoViews.remove(remoteUid);
-            if(remoteUsers.length == 0){
+            if (remoteUsers.length == 0) {
               // If no remotes in the channel, wait a short grace period to avoid
               // immediate call end on transient disconnects.
               _remoteEmptyTimer?.cancel();
@@ -273,8 +268,7 @@ class CallingController extends GetxController {
         // Cancel incoming notifications for group members (except self)
         final currentUserId = FirebaseService.getCurrentUserId();
         if (currentUserId != null) {
-          final memberIds = List<String>.from(group!.members)
-            ..removeWhere((id) => id == currentUserId);
+          final memberIds = List<String>.from(group!.members)..removeWhere((id) => id == currentUserId);
           if (memberIds.isNotEmpty) {
             CallNotificationService.cancelCallNotificationsForUsers(
               userIds: memberIds,
@@ -294,8 +288,7 @@ class CallingController extends GetxController {
         final microphoneStatus = await Permission.microphone.request();
 
         if (cameraStatus.isDenied || microphoneStatus.isDenied) {
-          developer.log(
-              'Permissions denied - Camera: $cameraStatus, Microphone: $microphoneStatus');
+          developer.log('Permissions denied - Camera: $cameraStatus, Microphone: $microphoneStatus');
           return false;
         }
         return cameraStatus.isGranted && microphoneStatus.isGranted;
@@ -382,8 +375,7 @@ class CallingController extends GetxController {
         stackTrace: stackTrace,
       );
       _handleError(
-        userMessage:
-            'Failed to connect to call. Please check your internet connection.',
+        userMessage: 'Failed to connect to call. Please check your internet connection.',
         developerMessage: 'Channel join error: $e',
       );
     }
@@ -544,8 +536,7 @@ class CallingController extends GetxController {
       );
       isVideoEnabled.value = !isVideoEnabled.value; // Revert on error
       AppSnackbar.error(
-        message:
-            'Failed to ${isVideoEnabled.value ? "enable" : "disable"} video.',
+        message: 'Failed to ${isVideoEnabled.value ? "enable" : "disable"} video.',
       );
     }
   }
@@ -678,9 +669,7 @@ class CallingController extends GetxController {
 
       if (group != null) {
         // Group call: send notifications to all members except the caller
-        final memberIds = group!.members
-            .where((memberId) => memberId != callerId)
-            .toList();
+        final memberIds = group!.members.where((memberId) => memberId != callerId).toList();
 
         if (memberIds.isNotEmpty) {
           await CallNotificationService.sendGroupCallNotifications(
@@ -749,10 +738,7 @@ class CallingController extends GetxController {
 
       _rejectionListener = query.snapshots().listen((snapshot) {
         // Only process rejections if call is still active and not connected yet
-        if (snapshot.docs.isNotEmpty && 
-            callState.value != CallState.ended && 
-            !isConnected.value && 
-            remoteUsers.isEmpty) {
+        if (snapshot.docs.isNotEmpty && callState.value != CallState.ended && !isConnected.value && remoteUsers.isEmpty) {
           // Call was rejected, end the call
           developer.log('Call rejected by user, ending call');
           AppSnackbar.error(message: 'Call was rejected');

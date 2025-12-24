@@ -37,4 +37,5 @@ class AppLocalKeys {
   static const String appVersion = 'app_version';
   static const String deviceId = 'device_id';
   static const String fcmToken = 'fcm_token';
+  static const String sessionId = 'session_id';
 }

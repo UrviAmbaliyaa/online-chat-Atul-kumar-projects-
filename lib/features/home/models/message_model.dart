@@ -13,8 +13,7 @@ enum ChatType {
 
 class MessageModel {
   final String id;
-  final String
-      chatId; // For one-to-one: combination of user IDs, For group: group ID
+  final String chatId; // For one-to-one: combination of user IDs, For group: group ID
   final String senderId;
   final String senderName;
   final String? senderImage;
@@ -102,9 +101,7 @@ class MessageModel {
       replyToMessageId: json['replyToMessageId'],
       replyToMessage: json['replyToMessage'],
       replyToSenderName: json['replyToSenderName'],
-      timestamp: json['timestamp'] is Timestamp
-          ? (json['timestamp'] as Timestamp).toDate()
-          : DateTime.parse(json['timestamp']),
+      timestamp: json['timestamp'] is Timestamp ? (json['timestamp'] as Timestamp).toDate() : DateTime.parse(json['timestamp']),
       isRead: json['isRead'] ?? false,
       readBy: List<String>.from(json['readBy'] ?? []),
     );

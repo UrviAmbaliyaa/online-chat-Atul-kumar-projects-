@@ -21,8 +21,7 @@ class ChangePasswordScreen extends StatelessWidget {
       backgroundColor: AppColor.ScaffoldColor,
       appBar: _buildAppBar(),
       body: Obx(
-        () => controller.isChanging.value &&
-                !controller.formKey.currentState!.validate()
+        () => controller.isChanging.value && !controller.formKey.currentState!.validate()
             ? _buildShimmerLoader()
             : SingleChildScrollView(
                 padding: EdgeInsets.all(Spacing.md),
@@ -136,9 +135,7 @@ class ChangePasswordScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isCurrentPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isCurrentPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),
@@ -166,9 +163,7 @@ class ChangePasswordScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isNewPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isNewPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),
@@ -196,9 +191,7 @@ class ChangePasswordScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isConfirmPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isConfirmPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),
@@ -217,9 +210,7 @@ class ChangePasswordScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: AppString.changePassword,
-        onPressed: controller.isChanging.value
-            ? () {}
-            : () => controller.changePassword(),
+        onPressed: controller.isChanging.value ? () {} : () => controller.changePassword(),
         isLoading: controller.isChanging.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,

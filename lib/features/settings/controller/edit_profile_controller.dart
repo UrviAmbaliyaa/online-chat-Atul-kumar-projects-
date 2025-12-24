@@ -35,8 +35,7 @@ class EditProfileController extends GetxController {
   final Rx<CountryCode> selectedCountry = CountryCodePicker.countries[0].obs;
   final Rx<UserModel?> currentUser = Rx<UserModel?>(null);
   final Rx<EditProfileModel?> editProfileData = Rx<EditProfileModel?>(null);
-  String?
-      currentProfileImageUrl; // Store current profile image URL from Firebase
+  String? currentProfileImageUrl; // Store current profile image URL from Firebase
 
   // Focus Nodes
   final FocusNode nameFocusNode = FocusNode();
@@ -72,13 +71,11 @@ class EditProfileController extends GetxController {
           if (userModel.countryCode != null && userModel.dialCode != null) {
             // Find matching country from CountryCodePicker
             for (var country in CountryCodePicker.countries) {
-              if (country.code == userModel.countryCode &&
-                  country.dialCode == userModel.dialCode) {
+              if (country.code == userModel.countryCode && country.dialCode == userModel.dialCode) {
                 selectedCountry.value = country;
                 // Remove dial code from phone number
                 if (phoneNumber.startsWith(country.dialCode)) {
-                  phoneController.text =
-                      phoneNumber.substring(country.dialCode.length);
+                  phoneController.text = phoneNumber.substring(country.dialCode.length);
                 } else {
                   phoneController.text = phoneNumber;
                 }
@@ -91,8 +88,7 @@ class EditProfileController extends GetxController {
               for (var country in CountryCodePicker.countries) {
                 if (phoneNumber.startsWith(country.dialCode)) {
                   selectedCountry.value = country;
-                  phoneController.text =
-                      phoneNumber.substring(country.dialCode.length);
+                  phoneController.text = phoneNumber.substring(country.dialCode.length);
                   break;
                 }
               }
@@ -103,8 +99,7 @@ class EditProfileController extends GetxController {
         }
 
         // Handle profile image
-        if (userModel.profileImage != null &&
-            userModel.profileImage!.isNotEmpty) {
+        if (userModel.profileImage != null && userModel.profileImage!.isNotEmpty) {
           if (userModel.profileImage!.startsWith('http')) {
             currentProfileImageUrl = userModel.profileImage;
           } else {
@@ -153,8 +148,7 @@ class EditProfileController extends GetxController {
           if (phoneWithCode.startsWith(country.dialCode)) {
             selectedCountry.value = country;
             // Remove country code from phone number
-            final phoneNumber =
-                phoneWithCode.substring(country.dialCode.length);
+            final phoneNumber = phoneWithCode.substring(country.dialCode.length);
             phoneController.text = phoneNumber;
             break;
           }
@@ -286,17 +280,14 @@ class EditProfileController extends GetxController {
       isSaving.value = true;
 
       // Prepare phone number (cleaned, without dial code prefix)
-      final cleanedPhone =
-          phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
+      final cleanedPhone = phoneController.text.replaceAll(RegExp(r'[\s\-\(\)]'), '');
 
       // Step 1: Upload profile image if a new one is selected
       // Preserve existing profile image URL if no new image is selected
-      String? profileImageUrl =
-          currentProfileImageUrl ?? currentUser.value?.profileImage;
+      String? profileImageUrl = currentProfileImageUrl ?? currentUser.value?.profileImage;
 
       if (profileImage.value != null) {
-        final imagePath =
-            'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
+        final imagePath = 'profile_images/$userId/${DateTime.now().millisecondsSinceEpoch}.jpg';
         profileImageUrl = await FirebaseService.uploadFile(
           file: profileImage.value!,
           path: imagePath,
@@ -317,13 +308,11 @@ class EditProfileController extends GetxController {
         phone: cleanedPhone,
         countryCode: selectedCountry.value.code,
         dialCode: selectedCountry.value.dialCode,
-        profileImage:
-            profileImageUrl, // Profile image URL to be stored in user document
+        profileImage: profileImageUrl, // Profile image URL to be stored in user document
       );
 
       // Step 3: Get current user email (not editable)
-      final currentEmail =
-          currentUser.value?.email ?? AppLocalStorage.getUserEmail();
+      final currentEmail = currentUser.value?.email ?? AppLocalStorage.getUserEmail();
       log("currentEmail ::::::::::::::::::::$currentEmail");
       if (currentEmail.isEmpty) {
         AppSnackbar.error(message: AppString.userEmailNotFound);

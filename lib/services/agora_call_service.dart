@@ -52,9 +52,7 @@ class AgoraCallService {
       channelId: channelId,
       uid: uid,
       options: ChannelMediaOptions(
-        clientRoleType: isBroadcaster
-            ? ClientRoleType.clientRoleBroadcaster
-            : ClientRoleType.clientRoleAudience,
+        clientRoleType: isBroadcaster ? ClientRoleType.clientRoleBroadcaster : ClientRoleType.clientRoleAudience,
         channelProfile: ChannelProfileType.channelProfileCommunication,
       ),
     );
@@ -74,5 +72,3 @@ class AgoraCallService {
     _engine = null;
   }
 }
-
-

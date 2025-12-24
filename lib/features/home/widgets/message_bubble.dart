@@ -4,17 +4,15 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get/get.dart';
 import 'package:online_chat/features/home/models/message_model.dart';
+import 'package:online_chat/features/home/screen/media_preview_screen.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_profile_image.dart';
+import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get.dart';
-import 'package:online_chat/features/home/screen/media_preview_screen.dart';
-import 'package:online_chat/utils/app_downloader.dart';
-import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/download_manager.dart';
 
 class MessageBubble extends StatelessWidget {
@@ -50,8 +48,7 @@ class MessageBubble extends StatelessWidget {
           right: isCurrentUser ? 0 : 50.w,
         ),
         child: Row(
-          mainAxisAlignment:
-              isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
+          mainAxisAlignment: isCurrentUser ? MainAxisAlignment.end : MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             if (!isCurrentUser) ...[
@@ -72,9 +69,7 @@ class MessageBubble extends StatelessWidget {
                   vertical: Spacing.sm,
                 ),
                 decoration: BoxDecoration(
-                  color: isCurrentUser
-                      ? AppColor.primaryColor
-                      : AppColor.whiteColor,
+                  color: isCurrentUser ? AppColor.primaryColor : AppColor.whiteColor,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(12.r),
                     topRight: Radius.circular(12.r),
@@ -94,7 +89,7 @@ class MessageBubble extends StatelessWidget {
                   ],
                 ),
                 child: Column(
-                  crossAxisAlignment: !isCurrentUser ? CrossAxisAlignment.start:CrossAxisAlignment.end,
+                  crossAxisAlignment: !isCurrentUser ? CrossAxisAlignment.start : CrossAxisAlignment.end,
                   children: [
                     // Reply preview
                     if (message.replyToMessageId != null) _buildReplyPreview(),
@@ -108,18 +103,14 @@ class MessageBubble extends StatelessWidget {
                         AppText(
                           text: _formatTime(message.timestamp),
                           fontSize: 11.sp,
-                          color: isCurrentUser
-                              ? AppColor.whiteColor.withOpacity(0.7)
-                              : AppColor.greyColor,
+                          color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.7) : AppColor.greyColor,
                         ),
                         if (isCurrentUser) ...[
                           SizedBox(width: 4.w),
                           Opacity(
-                            opacity: message.isRead ?1 :0.5,
+                            opacity: message.isRead ? 1 : 0.5,
                             child: Icon(
-                              message.isRead
-                                  ? Icons.done_all
-                                  : Icons.check_outlined,
+                              message.isRead ? Icons.done_all : Icons.check_outlined,
                               size: 14.sp,
                               color: AppColor.whiteColor,
                             ),
@@ -144,13 +135,11 @@ class MessageBubble extends StatelessWidget {
         margin: EdgeInsets.only(bottom: Spacing.sm),
         padding: EdgeInsets.all(Spacing.sm),
         decoration: BoxDecoration(
-          color: (isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor)
-              .withOpacity(0.2),
+          color: (isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor).withOpacity(0.2),
           borderRadius: BorderRadius.circular(8.r),
           border: Border(
             left: BorderSide(
-              color:
-                  isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
+              color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
               width: 3.w,
             ),
           ),
@@ -162,16 +151,13 @@ class MessageBubble extends StatelessWidget {
               text: message.replyToSenderName ?? "User",
               fontSize: 12.sp,
               fontWeight: FontWeight.w600,
-              color:
-                  isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
+              color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
             ),
             SizedBox(height: 2.h),
             AppText(
               text: message.replyToMessage ?? '',
               fontSize: 12.sp,
-              color: isCurrentUser
-                  ? AppColor.whiteColor.withOpacity(0.8)
-                  : AppColor.darkGrey,
+              color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.8) : AppColor.darkGrey,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -248,8 +234,7 @@ class MessageBubble extends StatelessWidget {
             right: 6.w,
             bottom: 6.h,
             child: Obx(() {
-              final isThisDownloading = dm.isDownloading.value &&
-                  dm.currentUrl.value == message.imageUrl;
+              final isThisDownloading = dm.isDownloading.value && dm.currentUrl.value == message.imageUrl;
               if (isThisDownloading) {
                 return Container(
                   width: 26.w,
@@ -301,11 +286,9 @@ class MessageBubble extends StatelessWidget {
       },
       borderRadius: BorderRadius.circular(8.r),
       child: Container(
-        padding:
-            EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
+        padding: EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
         decoration: BoxDecoration(
-          color: (isCurrentUser ? AppColor.whiteColor : AppColor.lightGrey)
-              .withOpacity(0.3),
+          color: (isCurrentUser ? AppColor.whiteColor : AppColor.lightGrey).withOpacity(0.3),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
@@ -314,9 +297,7 @@ class MessageBubble extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(Spacing.xs),
               decoration: BoxDecoration(
-                color: isCurrentUser
-                    ? AppColor.whiteColor.withOpacity(0.2)
-                    : AppColor.primaryColor.withOpacity(0.1),
+                color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.2) : AppColor.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
@@ -325,8 +306,7 @@ class MessageBubble extends StatelessWidget {
                     : isZIP
                         ? Icons.folder_zip
                         : Icons.insert_drive_file,
-                color:
-                    isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
+                color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
                 size: 18.sp,
               ),
             ),
@@ -340,8 +320,7 @@ class MessageBubble extends StatelessWidget {
                     text: message.fileName ?? 'File',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
-                    color:
-                        isCurrentUser ? AppColor.whiteColor : AppColor.darkGrey,
+                    color: isCurrentUser ? AppColor.whiteColor : AppColor.darkGrey,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -350,59 +329,51 @@ class MessageBubble extends StatelessWidget {
                     AppText(
                       text: message.fileSize!,
                       fontSize: 10.sp,
-                      color: isCurrentUser
-                          ? AppColor.whiteColor.withOpacity(0.7)
-                          : AppColor.greyColor,
+                      color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.7) : AppColor.greyColor,
                     ),
                   ],
                 ],
               ),
             ),
             SizedBox(width: Spacing.xs),
-          Obx(() {
-            final isThisDownloading = dm.isDownloading.value &&
-                dm.currentUrl.value == message.fileUrl;
-            return InkWell(
-              onTap: () {
-                if (message.fileUrl == null || message.fileUrl!.isEmpty) {
-                  return;
-                }
-                if (dm.isDownloading.value &&
-                    dm.currentUrl.value != message.fileUrl) {
-                  AppSnackbar.warning(message: AppString.downloading);
-                }
-                dm.enqueue(message.fileUrl!, fileName: message.fileName);
-              },
-              borderRadius: BorderRadius.circular(6.r),
-              child: Container(
-                width: 28.w,
-                height: 28.h,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: isCurrentUser
-                      ? AppColor.whiteColor.withOpacity(0.15)
-                      : AppColor.primaryColor.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(6.r),
-                ),
-                child: isThisDownloading
-                    ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: AppColor.primaryColor,
+            Obx(() {
+              final isThisDownloading = dm.isDownloading.value && dm.currentUrl.value == message.fileUrl;
+              return InkWell(
+                onTap: () {
+                  if (message.fileUrl == null || message.fileUrl!.isEmpty) {
+                    return;
+                  }
+                  if (dm.isDownloading.value && dm.currentUrl.value != message.fileUrl) {
+                    AppSnackbar.warning(message: AppString.downloading);
+                  }
+                  dm.enqueue(message.fileUrl!, fileName: message.fileName);
+                },
+                borderRadius: BorderRadius.circular(6.r),
+                child: Container(
+                  width: 28.w,
+                  height: 28.h,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.15) : AppColor.primaryColor.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(6.r),
+                  ),
+                  child: isThisDownloading
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColor.primaryColor,
+                          ),
+                        )
+                      : Icon(
+                          Icons.download_rounded,
+                          size: 18.sp,
+                          color: isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor,
                         ),
-                      )
-                    : Icon(
-                        Icons.download_rounded,
-                        size: 18.sp,
-                        color: isCurrentUser
-                            ? AppColor.whiteColor
-                            : AppColor.primaryColor,
-                      ),
-              ),
-            );
-          }),
+                ),
+              );
+            }),
           ],
         ),
       ),

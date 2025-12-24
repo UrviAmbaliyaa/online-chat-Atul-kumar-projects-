@@ -2,6 +2,10 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/entities/ios_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/controller/calling_controller.dart';
@@ -13,10 +17,6 @@ import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
-import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/android_params.dart';
-import 'package:flutter_callkit_incoming/entities/ios_params.dart';
 
 class CallingScreen extends StatefulWidget {
   final UserModel? user; // For one-to-one call
@@ -50,15 +50,9 @@ class _CallingScreenState extends State<CallingScreen> {
     try {
       // For outgoing calls, present an OS call UI entry via CallKit
       if (!widget.isIncoming) {
-        final title = widget.group != null
-            ? (widget.group?.name ?? AppString.groupCall)
-            : (widget.user?.name ?? AppString.calling);
-        final handle = widget.group != null
-            ? 'Group'
-            : (widget.user?.email ?? 'Unknown');
-        final avatar = widget.group != null
-            ? widget.group?.groupImage
-            : widget.user?.profileImage;
+        final title = widget.group != null ? (widget.group?.name ?? AppString.groupCall) : (widget.user?.name ?? AppString.calling);
+        final handle = widget.group != null ? 'Group' : (widget.user?.email ?? 'Unknown');
+        final avatar = widget.group != null ? widget.group?.groupImage : widget.user?.profileImage;
 
         final params = CallKitParams(
           id: widget.chatId,
@@ -231,10 +225,7 @@ class _CallingScreenState extends State<CallingScreen> {
               ),
             )
                 .animate(onPlay: (controller) => controller.repeat())
-                .scale(
-                    duration: 3000.ms,
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.5, 1.5))
+                .scale(duration: 3000.ms, begin: const Offset(1, 1), end: const Offset(1.5, 1.5))
                 .fade(duration: 3000.ms, begin: 0.1, end: 0.0),
           ),
           Positioned(
@@ -249,10 +240,7 @@ class _CallingScreenState extends State<CallingScreen> {
               ),
             )
                 .animate(onPlay: (controller) => controller.repeat())
-                .scale(
-                    duration: 4000.ms,
-                    begin: const Offset(1, 1),
-                    end: const Offset(1.3, 1.3))
+                .scale(duration: 4000.ms, begin: const Offset(1, 1), end: const Offset(1.3, 1.3))
                 .fade(duration: 4000.ms, begin: 0.1, end: 0.0),
           ),
         ],
@@ -270,10 +258,7 @@ class _CallingScreenState extends State<CallingScreen> {
           }
 
           final allUsers = [
-            if (controller.isVideoCall &&
-                controller.isVideoEnabled.value &&
-                controller.localUid != null)
-              controller.localUid!,
+            if (controller.isVideoCall && controller.isVideoEnabled.value && controller.localUid != null) controller.localUid!,
             ...controller.remoteUsers,
           ];
 
@@ -292,8 +277,7 @@ class _CallingScreenState extends State<CallingScreen> {
             itemCount: allUsers.length,
             itemBuilder: (context, index) {
               final uid = allUsers[index];
-              final isLocal =
-                  controller.localUid != null && uid == controller.localUid;
+              final isLocal = controller.localUid != null && uid == controller.localUid;
 
               return Container(
                 decoration: BoxDecoration(
@@ -311,9 +295,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(16.r),
-                      child: isLocal
-                          ? controller.getLocalVideoView()
-                          : controller.getRemoteVideoView(uid),
+                      child: isLocal ? controller.getLocalVideoView() : controller.getRemoteVideoView(uid),
                     ),
                     if (isLocal)
                       Positioned(
@@ -371,8 +353,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(16.r),
                     child: controller.remoteUsers.isNotEmpty
-                        ? controller
-                            .getRemoteVideoView(controller.remoteUsers.first)
+                        ? controller.getRemoteVideoView(controller.remoteUsers.first)
                         : Container(
                             color: AppColor.darkGrey,
                             child: Center(
@@ -424,18 +405,13 @@ class _CallingScreenState extends State<CallingScreen> {
 
   Widget _buildMainContent(CallingController controller) {
     final isGroup = controller.group != null;
-    final title = isGroup
-        ? controller.group?.name ?? AppString.groupCall
-        : controller.user?.name ?? AppString.calling;
-    final image =
-        isGroup ? controller.group?.groupImage : controller.user?.profileImage;
+    final title = isGroup ? controller.group?.name ?? AppString.groupCall : controller.user?.name ?? AppString.calling;
+    final image = isGroup ? controller.group?.groupImage : controller.user?.profileImage;
 
     return Obx(
       () {
         // Hide main content when video call is active and connected
-        if (controller.isVideoCall &&
-            controller.isConnected.value &&
-            controller.remoteUsers.isNotEmpty) {
+        if (controller.isVideoCall && controller.isConnected.value && controller.remoteUsers.isNotEmpty) {
           return const SizedBox.shrink();
         }
 
@@ -468,10 +444,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 )
                     .animate(onPlay: (controller) => controller.repeat())
                     .fade(duration: 1500.ms, begin: 0.7, end: 1.0)
-                    .scale(
-                        duration: 1500.ms,
-                        begin: const Offset(0.98, 0.98),
-                        end: const Offset(1, 1)),
+                    .scale(duration: 1500.ms, begin: const Offset(0.98, 0.98), end: const Offset(1, 1)),
                 SizedBox(height: Spacing.xl * 2),
                 // Profile image with pulsing animation
                 _buildProfileImage(controller, title, image, isGroup)
@@ -497,8 +470,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   color: AppColor.whiteColor,
                   fontWeight: FontWeight.w700,
                   textAlign: TextAlign.center,
-                ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(
-                    begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
+                ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
                 SizedBox(height: Spacing.sm),
                 // Additional info
                 if (isGroup)
@@ -522,11 +494,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 // Call duration (when connected)
                 Obx(
                   () => controller.isConnected.value
-                      ? _buildCallDuration(controller)
-                          .animate()
-                          .fadeIn(duration: 300.ms)
-                          .scale(
-                              begin: const Offset(0.9, 0.9), duration: 300.ms)
+                      ? _buildCallDuration(controller).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), duration: 300.ms)
                       : const SizedBox.shrink(),
                 ),
               ],
@@ -559,10 +527,7 @@ class _CallingScreenState extends State<CallingScreen> {
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(
-                duration: 2000.ms,
-                begin: const Offset(1, 1),
-                end: const Offset(1.15, 1.15))
+            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.15, 1.15))
             .fade(duration: 2000.ms, begin: 0.3, end: 0.0),
         // Middle ring
         Container(
@@ -577,11 +542,7 @@ class _CallingScreenState extends State<CallingScreen> {
           ),
         )
             .animate(onPlay: (controller) => controller.repeat())
-            .scale(
-                duration: 2000.ms,
-                begin: const Offset(1, 1),
-                end: const Offset(1.1, 1.1),
-                delay: 300.ms)
+            .scale(duration: 2000.ms, begin: const Offset(1, 1), end: const Offset(1.1, 1.1), delay: 300.ms)
             .fade(duration: 2000.ms, begin: 0.4, end: 0.0, delay: 300.ms),
         // Profile image
         Container(
@@ -684,9 +645,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 () => _buildControlButton(
                   icon: controller.isMuted.value ? Icons.mic_off : Icons.mic,
                   onPressed: controller.toggleMute,
-                  backgroundColor: controller.isMuted.value
-                      ? AppColor.redColor.withOpacity(0.8)
-                      : AppColor.whiteColor.withOpacity(0.2),
+                  backgroundColor: controller.isMuted.value ? AppColor.redColor.withOpacity(0.8) : AppColor.whiteColor.withOpacity(0.2),
                   iconColor: AppColor.whiteColor,
                   isActive: controller.isMuted.value,
                 ),
@@ -694,13 +653,9 @@ class _CallingScreenState extends State<CallingScreen> {
               // Speaker button
               Obx(
                 () => _buildControlButton(
-                  icon: controller.isSpeakerOn.value
-                      ? Icons.volume_up
-                      : Icons.volume_down,
+                  icon: controller.isSpeakerOn.value ? Icons.volume_up : Icons.volume_down,
                   onPressed: controller.toggleSpeaker,
-                  backgroundColor: controller.isSpeakerOn.value
-                      ? AppColor.accentColor.withOpacity(0.8)
-                      : AppColor.whiteColor.withOpacity(0.2),
+                  backgroundColor: controller.isSpeakerOn.value ? AppColor.accentColor.withOpacity(0.8) : AppColor.whiteColor.withOpacity(0.2),
                   iconColor: AppColor.whiteColor,
                   isActive: controller.isSpeakerOn.value,
                 ),
@@ -757,9 +712,7 @@ class _CallingScreenState extends State<CallingScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: isEndCall
-                  ? AppColor.redColor.withOpacity(0.5)
-                  : AppColor.blackColor.withOpacity(0.4),
+              color: isEndCall ? AppColor.redColor.withOpacity(0.5) : AppColor.blackColor.withOpacity(0.4),
               blurRadius: isEndCall ? 20 : 15,
               spreadRadius: isEndCall ? 5 : 3,
             ),
@@ -776,10 +729,7 @@ class _CallingScreenState extends State<CallingScreen> {
           color: iconColor,
           size: (buttonSize * 0.45).sp,
         ),
-      ).animate().scale(duration: 100.ms).then().scale(
-          duration: 100.ms,
-          begin: const Offset(1.1, 1.1),
-          end: const Offset(1, 1)),
+      ).animate().scale(duration: 100.ms).then().scale(duration: 100.ms, begin: const Offset(1.1, 1.1), end: const Offset(1, 1)),
     );
   }
 }

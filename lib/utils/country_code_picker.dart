@@ -28,42 +28,26 @@ class CountryCodePicker extends StatelessWidget {
   });
 
   static final List<CountryCode> countries = [
-    const CountryCode(
-        name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸'),
-    const CountryCode(
-        name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧'),
+    const CountryCode(name: 'United States', code: 'US', dialCode: '+1', flag: '🇺🇸'),
+    const CountryCode(name: 'United Kingdom', code: 'GB', dialCode: '+44', flag: '🇬🇧'),
     const CountryCode(name: 'India', code: 'IN', dialCode: '+91', flag: '🇮🇳'),
     const CountryCode(name: 'Canada', code: 'CA', dialCode: '+1', flag: '🇨🇦'),
-    const CountryCode(
-        name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺'),
-    const CountryCode(
-        name: 'Germany', code: 'DE', dialCode: '+49', flag: '🇩🇪'),
-    const CountryCode(
-        name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷'),
+    const CountryCode(name: 'Australia', code: 'AU', dialCode: '+61', flag: '🇦🇺'),
+    const CountryCode(name: 'Germany', code: 'DE', dialCode: '+49', flag: '🇩🇪'),
+    const CountryCode(name: 'France', code: 'FR', dialCode: '+33', flag: '🇫🇷'),
     const CountryCode(name: 'Japan', code: 'JP', dialCode: '+81', flag: '🇯🇵'),
     const CountryCode(name: 'China', code: 'CN', dialCode: '+86', flag: '🇨🇳'),
-    const CountryCode(
-        name: 'Brazil', code: 'BR', dialCode: '+55', flag: '🇧🇷'),
+    const CountryCode(name: 'Brazil', code: 'BR', dialCode: '+55', flag: '🇧🇷'),
     const CountryCode(name: 'Russia', code: 'RU', dialCode: '+7', flag: '🇷🇺'),
-    const CountryCode(
-        name: 'South Korea', code: 'KR', dialCode: '+82', flag: '🇰🇷'),
+    const CountryCode(name: 'South Korea', code: 'KR', dialCode: '+82', flag: '🇰🇷'),
     const CountryCode(name: 'Italy', code: 'IT', dialCode: '+39', flag: '🇮🇹'),
     const CountryCode(name: 'Spain', code: 'ES', dialCode: '+34', flag: '🇪🇸'),
-    const CountryCode(
-        name: 'Mexico', code: 'MX', dialCode: '+52', flag: '🇲🇽'),
-    const CountryCode(
-        name: 'Indonesia', code: 'ID', dialCode: '+62', flag: '🇮🇩'),
-    const CountryCode(
-        name: 'Turkey', code: 'TR', dialCode: '+90', flag: '🇹🇷'),
-    const CountryCode(
-        name: 'Saudi Arabia', code: 'SA', dialCode: '+966', flag: '🇸🇦'),
-    const CountryCode(
-        name: 'United Arab Emirates',
-        code: 'AE',
-        dialCode: '+971',
-        flag: '🇦🇪'),
-    const CountryCode(
-        name: 'South Africa', code: 'ZA', dialCode: '+27', flag: '🇿🇦'),
+    const CountryCode(name: 'Mexico', code: 'MX', dialCode: '+52', flag: '🇲🇽'),
+    const CountryCode(name: 'Indonesia', code: 'ID', dialCode: '+62', flag: '🇮🇩'),
+    const CountryCode(name: 'Turkey', code: 'TR', dialCode: '+90', flag: '🇹🇷'),
+    const CountryCode(name: 'Saudi Arabia', code: 'SA', dialCode: '+966', flag: '🇸🇦'),
+    const CountryCode(name: 'United Arab Emirates', code: 'AE', dialCode: '+971', flag: '🇦🇪'),
+    const CountryCode(name: 'South Africa', code: 'ZA', dialCode: '+27', flag: '🇿🇦'),
   ];
 
   @override

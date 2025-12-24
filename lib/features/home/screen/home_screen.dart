@@ -27,9 +27,11 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FirebaseMessaging.instance.getToken().then((fcmToken) {
-      print("FCM Token: $fcmToken");
-    },);
+    FirebaseMessaging.instance.getToken().then(
+      (fcmToken) {
+        print("FCM Token: $fcmToken");
+      },
+    );
 
     return Scaffold(
       backgroundColor: AppColor.ScaffoldColor,
@@ -49,9 +51,7 @@ class HomeScreen extends StatelessWidget {
                       onRefresh: controller.refresh,
                       color: AppColor.primaryColor,
                       child: Obx(
-                        () => controller.selectedTab.value == 0
-                            ? UsersTabWidget(controller: controller)
-                            : GroupsTabWidget(controller: controller),
+                        () => controller.selectedTab.value == 0 ? UsersTabWidget(controller: controller) : GroupsTabWidget(controller: controller),
                       ),
                     ),
             ),
@@ -106,8 +106,7 @@ class HomeScreen extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border(
                 bottom: BorderSide(
-                  color:
-                      isSelected ? AppColor.primaryColor : AppColor.lightGrey,
+                  color: isSelected ? AppColor.primaryColor : AppColor.lightGrey,
                   width: isSelected ? 3 : 1,
                 ),
               ),
@@ -118,16 +117,14 @@ class HomeScreen extends StatelessWidget {
                 Icon(
                   icon,
                   size: 20.sp,
-                  color:
-                      isSelected ? AppColor.primaryColor : AppColor.greyColor,
+                  color: isSelected ? AppColor.primaryColor : AppColor.greyColor,
                 ),
                 SizedBox(width: 8.w),
                 AppText(
                   text: title,
                   fontSize: 14.sp,
                   fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-                  color:
-                      isSelected ? AppColor.primaryColor : AppColor.greyColor,
+                  color: isSelected ? AppColor.primaryColor : AppColor.greyColor,
                 ),
               ],
             ),
@@ -137,8 +134,7 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  PreferredSizeWidget _buildCustomAppBar(
-      BuildContext context, HomeController controller) {
+  PreferredSizeWidget _buildCustomAppBar(BuildContext context, HomeController controller) {
     return AppBar(
       backgroundColor: AppColor.whiteColor,
       elevation: 0,
@@ -149,12 +145,9 @@ class HomeScreen extends StatelessWidget {
         }
         final currentUser = AppPreference.currentUser.value;
         final userName = currentUser?.name ?? AppLocalStorage.getUserName();
-        final userEmail =
-            currentUser?.email ?? AppLocalStorage.getUserEmail();
-        final userProfileImage = currentUser?.profileImage ??
-            (AppLocalStorage.getUserProfileImage().isNotEmpty
-                ? AppLocalStorage.getUserProfileImage()
-                : null);
+        final userEmail = currentUser?.email ?? AppLocalStorage.getUserEmail();
+        final userProfileImage =
+            currentUser?.profileImage ?? (AppLocalStorage.getUserProfileImage().isNotEmpty ? AppLocalStorage.getUserProfileImage() : null);
 
         return Row(
           children: [
@@ -174,20 +167,14 @@ class HomeScreen extends StatelessWidget {
                   ),
                 ),
                 clipBehavior: Clip.antiAlias,
-                child: userProfileImage != null &&
-                        userProfileImage.isNotEmpty &&
-                        userProfileImage.startsWith('http')
+                child: userProfileImage != null && userProfileImage.isNotEmpty && userProfileImage.startsWith('http')
                     ? CachedNetworkImage(
                         imageUrl: userProfileImage,
                         fit: BoxFit.cover,
-                        placeholder: (context, url) =>
-                            _buildProfilePlaceholder(userName),
-                        errorWidget: (context, url, error) =>
-                            _buildProfilePlaceholder(userName),
+                        placeholder: (context, url) => _buildProfilePlaceholder(userName),
+                        errorWidget: (context, url, error) => _buildProfilePlaceholder(userName),
                       )
-                    : userProfileImage != null &&
-                            userProfileImage.isNotEmpty &&
-                            !userProfileImage.startsWith('http')
+                    : userProfileImage != null && userProfileImage.isNotEmpty && !userProfileImage.startsWith('http')
                         ? Image.file(
                             File(userProfileImage),
                             fit: BoxFit.cover,
@@ -215,9 +202,7 @@ class HomeScreen extends StatelessWidget {
                   ),
                   SizedBox(height: 2.h),
                   AppText(
-                    text: userEmail.isNotEmpty
-                        ? userEmail
-                        : 'email@example.com',
+                    text: userEmail.isNotEmpty ? userEmail : 'email@example.com',
                     fontSize: 12.sp,
                     color: AppColor.greyColor,
                     maxLines: 1,
@@ -275,8 +260,7 @@ class HomeScreen extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColor.whiteColor,
         borderRadius: BorderRadius.circular(8.r),
-        border:
-            Border.all(color: AppColor.lightGrey.withOpacity(0.6), width: 1),
+        border: Border.all(color: AppColor.lightGrey.withOpacity(0.6), width: 1),
       ),
       child: Row(
         children: [

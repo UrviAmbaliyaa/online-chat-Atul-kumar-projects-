@@ -117,8 +117,7 @@ class AppTextField extends StatelessWidget {
                 : null,
             filled: true,
             fillColor: fillColor ?? AppColor.whiteColor,
-            contentPadding: contentPadding ??
-                EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+            contentPadding: contentPadding ?? EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(borderRadius.r),
               borderSide: BorderSide(

@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:online_chat/utils/firebase_constants.dart';
@@ -100,10 +101,7 @@ class CallNotificationService {
   /// Get FCM token for a user from Firestore
   static Future<String?> _getUserFcmToken(String userId) async {
     try {
-      final userDoc = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .get();
+      final userDoc = await _firestore.collection(FirebaseConstants.userCollection).doc(userId).get();
 
       if (userDoc.exists && userDoc.data() != null) {
         final data = userDoc.data()!;
@@ -129,13 +127,8 @@ class CallNotificationService {
   }) async {
     try {
       final notificationId = DateTime.now().millisecondsSinceEpoch.toString();
-      
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .collection('callNotifications')
-          .doc(notificationId)
-          .set({
+
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).collection('callNotifications').doc(notificationId).set({
         'id': notificationId,
         'callerId': callerId,
         'callerName': callerName,
@@ -160,10 +153,7 @@ class CallNotificationService {
     required String fcmToken,
   }) async {
     try {
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .update({
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).update({
         'fcmToken': fcmToken,
         'fcmTokenUpdatedAt': FieldValue.serverTimestamp(),
       });
@@ -197,8 +187,7 @@ class CallNotificationService {
         provisional: false,
       );
 
-      if (settings.authorizationStatus == AuthorizationStatus.authorized ||
-          settings.authorizationStatus == AuthorizationStatus.provisional) {
+      if (settings.authorizationStatus == AuthorizationStatus.authorized || settings.authorizationStatus == AuthorizationStatus.provisional) {
         // Get FCM token
         final token = await getCurrentUserFcmToken();
         if (token != null) {
@@ -225,12 +214,7 @@ class CallNotificationService {
     required String notificationId,
   }) async {
     try {
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .collection('callNotifications')
-          .doc(notificationId)
-          .delete();
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).collection('callNotifications').doc(notificationId).delete();
     } catch (e) {
       log('Error deleting call notification: $e');
     }
@@ -246,11 +230,8 @@ class CallNotificationService {
     final ts = since != null ? Timestamp.fromDate(since) : null;
     try {
       for (final uid in userIds) {
-        Query query = _firestore
-            .collection(FirebaseConstants.userCollection)
-            .doc(uid)
-            .collection('callNotifications')
-            .where('chatId', isEqualTo: chatId);
+        Query query =
+            _firestore.collection(FirebaseConstants.userCollection).doc(uid).collection('callNotifications').where('chatId', isEqualTo: chatId);
         if (ts != null) {
           query = query.where('timestamp', isGreaterThan: ts);
         }
@@ -264,4 +245,3 @@ class CallNotificationService {
     }
   }
 }
-

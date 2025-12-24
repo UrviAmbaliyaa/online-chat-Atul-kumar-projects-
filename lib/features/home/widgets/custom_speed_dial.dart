@@ -57,12 +57,8 @@ class CustomSpeedDial extends StatelessWidget {
       spaceBetweenChildren: spaceBetweenChildren.h,
       direction: direction,
       elevation: 8,
-      buttonSize: buttonSize != null
-          ? Size(buttonSize!, buttonSize!)
-          : Size(56.w, 56.h),
-      childrenButtonSize: childrenButtonSize != null
-          ? Size(childrenButtonSize!, childrenButtonSize!)
-          : Size(50.w, 50.h),
+      buttonSize: buttonSize != null ? Size(buttonSize!, buttonSize!) : Size(56.w, 56.h),
+      childrenButtonSize: childrenButtonSize != null ? Size(childrenButtonSize!, childrenButtonSize!) : Size(50.w, 50.h),
       activeChild: Container(
         decoration: BoxDecoration(
           shape: BoxShape.circle,

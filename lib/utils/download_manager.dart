@@ -6,6 +6,7 @@ import 'package:online_chat/utils/app_string.dart';
 class DownloadTask {
   final String url;
   final String? fileName;
+
   DownloadTask(this.url, {this.fileName});
 }
 
@@ -16,8 +17,7 @@ class DownloadManager extends GetxController {
 
   void enqueue(String url, {String? fileName}) {
     // If this URL is already current or queued, ignore
-    if (currentUrl.value == url ||
-        _queue.any((t) => t.url == url)) {
+    if (currentUrl.value == url || _queue.any((t) => t.url == url)) {
       return;
     }
     _queue.add(DownloadTask(url, fileName: fileName));
@@ -85,5 +85,3 @@ class DownloadManager extends GetxController {
     return 'device storage';
   }
 }
-
-

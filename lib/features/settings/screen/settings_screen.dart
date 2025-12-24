@@ -111,14 +111,9 @@ class SettingsScreen extends StatelessWidget {
         final currentUser = AppPreference.currentUser.value;
         final userName = currentUser?.name ?? controller.userName.value;
         final userEmail = currentUser?.email ?? controller.userEmail.value;
-        final userPhone = currentUser?.phone ??
-            (controller.userPhone.value.isNotEmpty
-                ? controller.userPhone.value
-                : null);
-        final userProfileImage = currentUser?.profileImage ??
-            (controller.userProfileImage.value.isNotEmpty
-                ? controller.userProfileImage.value
-                : null);
+        final userPhone = currentUser?.phone ?? (controller.userPhone.value.isNotEmpty ? controller.userPhone.value : null);
+        final userProfileImage =
+            currentUser?.profileImage ?? (controller.userProfileImage.value.isNotEmpty ? controller.userProfileImage.value : null);
 
         return Container(
           decoration: BoxDecoration(
@@ -307,9 +302,7 @@ class SettingsScreen extends StatelessWidget {
   Widget _buildLogoutButton(SettingsController controller) {
     return Obx(() => CustomButton(
           text: AppString.logout,
-          onPressed: controller.isLoading.value
-              ? () {}
-              : controller.showLogoutConfirmation,
+          onPressed: controller.isLoading.value ? () {} : controller.showLogoutConfirmation,
           isLoading: controller.isLoading.value,
           backgroundColor: AppColor.lightRedColor,
           borderRadius: 8,

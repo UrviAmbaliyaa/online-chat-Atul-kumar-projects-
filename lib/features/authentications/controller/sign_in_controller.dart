@@ -8,6 +8,7 @@ import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_validator.dart';
+import 'package:online_chat/utils/session_service.dart';
 
 class SignInController extends GetxController {
   // Form Key
@@ -60,8 +61,7 @@ class SignInController extends GetxController {
   String? validateEmail(String? value) => AppValidator.validateEmail(value);
 
   // Password validation
-  String? validatePassword(String? value) =>
-      AppValidator.validatePassword(value);
+  String? validatePassword(String? value) => AppValidator.validatePassword(value);
 
   // Handle sign in
   Future<void> signIn() async {
@@ -85,8 +85,7 @@ class SignInController extends GetxController {
 
       if (userCredential?.user != null) {
         // Get user data from Firestore
-        final userData =
-            await FirebaseService.getUserDocument(userCredential!.user!.uid);
+        final userData = await FirebaseService.getUserDocument(userCredential!.user!.uid);
 
         // Save email if remember me is checked
         if (rememberMe.value) {
@@ -107,6 +106,9 @@ class SignInController extends GetxController {
 
         // Load current user model into AppPreference
         await AppPreference.loadCurrentUser();
+        // Ensure presence and session
+        await FirebaseService.setUserOnline();
+        await SessionService.ensure();
 
         // Show success message
         AppSnackbar.success(

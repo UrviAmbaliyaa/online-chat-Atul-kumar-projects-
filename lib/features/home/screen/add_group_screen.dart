@@ -256,8 +256,7 @@ class AddGroupScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: AppText(
-                        text:
-                            '${controller.selectedMemberIds.length} ${AppString.selected}',
+                        text: '${controller.selectedMemberIds.length} ${AppString.selected}',
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                         color: AppColor.primaryColor,
@@ -288,9 +287,7 @@ class AddGroupScreen extends StatelessWidget {
               constraints: BoxConstraints(
                 maxHeight: 300.h,
               ),
-              child: controller.filteredContacts.isEmpty
-                  ? _buildEmptyContactsState()
-                  : _buildContactsList(controller),
+              child: controller.filteredContacts.isEmpty ? _buildEmptyContactsState() : _buildContactsList(controller),
             ),
           ],
         ),
@@ -355,14 +352,10 @@ class AddGroupScreen extends StatelessWidget {
           vertical: Spacing.xs,
         ),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColor.primaryColor.withOpacity(0.1)
-              : Colors.transparent,
+          color: isSelected ? AppColor.primaryColor.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(6.r),
           border: Border.all(
-            color: isSelected
-                ? AppColor.primaryColor
-                : AppColor.lightGrey.withOpacity(0.5),
+            color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withOpacity(0.5),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -376,9 +369,7 @@ class AddGroupScreen extends StatelessWidget {
                 shape: BoxShape.circle,
                 color: isSelected ? AppColor.primaryColor : Colors.transparent,
                 border: Border.all(
-                  color: isSelected
-                      ? AppColor.primaryColor
-                      : AppColor.greyColor.withOpacity(0.5),
+                  color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withOpacity(0.5),
                   width: 1.5,
                 ),
               ),
@@ -441,8 +432,7 @@ class AddGroupScreen extends StatelessWidget {
           ],
         ),
       ),
-      child: contact.profileImage != null &&
-              contact.profileImage!.startsWith('http')
+      child: contact.profileImage != null && contact.profileImage!.startsWith('http')
           ? ClipOval(
               child: CachedNetworkImage(
                 imageUrl: contact.profileImage!,
@@ -462,9 +452,7 @@ class AddGroupScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: contact.name.isNotEmpty
-                          ? contact.name[0].toUpperCase()
-                          : 'U',
+                      text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -486,9 +474,7 @@ class AddGroupScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: contact.name.isNotEmpty
-                          ? contact.name[0].toUpperCase()
-                          : 'U',
+                      text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -512,9 +498,7 @@ class AddGroupScreen extends StatelessWidget {
               ),
               child: Center(
                 child: AppText(
-                  text: contact.name.isNotEmpty
-                      ? contact.name[0].toUpperCase()
-                      : 'U',
+                  text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColor.whiteColor,
@@ -528,9 +512,7 @@ class AddGroupScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: AppString.createGroup,
-        onPressed: controller.isCreating.value
-            ? () {}
-            : () => controller.createGroup(),
+        onPressed: controller.isCreating.value ? () {} : () => controller.createGroup(),
         isLoading: controller.isCreating.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,

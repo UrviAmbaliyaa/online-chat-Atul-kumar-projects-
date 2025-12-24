@@ -26,9 +26,7 @@ class ChatInfoModel {
     return ChatInfoModel(
       chatId: json['chatId'] ?? '',
       lastMessage: json['lastMessage'],
-      lastMessageTime: json['lastMessageTime'] != null
-          ? DateTime.parse(json['lastMessageTime'])
-          : null,
+      lastMessageTime: json['lastMessageTime'] != null ? DateTime.parse(json['lastMessageTime']) : null,
       unreadCount: json['unreadCount'] ?? 0,
     );
   }

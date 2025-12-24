@@ -16,8 +16,7 @@ class AgoraTokenService {
 
   // Token server URL (for production - optional)
   // If you have a token server, set this URL
-  static const String? tokenServerUrl =
-      null; // e.g., 'https://your-token-server.com/token'
+  static const String? tokenServerUrl = null; // e.g., 'https://your-token-server.com/token'
 
   /// Generate or fetch token for a specific channel
   ///
@@ -61,8 +60,7 @@ class AgoraTokenService {
     int expireTime,
   ) async {
     try {
-      final url = Uri.parse(
-          '$tokenServerUrl?channel=$channelName&uid=$uid&expire=$expireTime');
+      final url = Uri.parse('$tokenServerUrl?channel=$channelName&uid=$uid&expire=$expireTime');
       final response = await http.get(url);
 
       if (response.statusCode == 200) {
@@ -105,9 +103,7 @@ class AgoraTokenService {
   ) async {
     // If app certificate is not set, return empty string
     // Agora allows using App ID only for development (limited)
-    if (appCertificate.isEmpty ||
-        appCertificate == 'YOUR_APP_CERTIFICATE' ||
-        appId.isEmpty) {
+    if (appCertificate.isEmpty || appCertificate == 'YOUR_APP_CERTIFICATE' || appId.isEmpty) {
       developer.log(
         'App certificate/App ID not set. Using App ID only (development mode).',
         name: 'AgoraTokenService',

@@ -39,8 +39,7 @@ class AppRoutes {
     GetPage(name: homeScreen, page: () => HomeScreen()),
     GetPage(name: settingsScreen, page: () => SettingsScreen()),
     GetPage(name: editProfileScreen, page: () => const EditProfileScreen()),
-    GetPage(
-        name: changePasswordScreen, page: () => const ChangePasswordScreen()),
+    GetPage(name: changePasswordScreen, page: () => const ChangePasswordScreen()),
     GetPage(
       name: addContactScreen,
       page: () => const AddContactScreen(),

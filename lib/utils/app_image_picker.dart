@@ -177,8 +177,7 @@ class AppImagePicker {
                     }
                   },
                 ),
-              if (allowMultiple && onMultipleSelected != null)
-                SizedBox(height: Spacing.xs),
+              if (allowMultiple && onMultipleSelected != null) SizedBox(height: Spacing.xs),
               _buildDialogOption(
                 icon: Icons.photo_library,
                 title: AppString.gallery,

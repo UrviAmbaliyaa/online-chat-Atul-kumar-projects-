@@ -1,4 +1,5 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -8,7 +9,6 @@ import 'package:online_chat/features/home/controller/edit_members_controller.dar
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
@@ -102,9 +102,7 @@ class EditMembersScreen extends StatelessWidget {
                                 SizedBox(height: Spacing.xs),
                                 // Delete Group Button (Admin only)
                                 Obx(
-                                  () => controller.isCurrentUserAdmin.value
-                                      ? _buildDeleteGroupButton(controller)
-                                      : const SizedBox.shrink(),
+                                  () => controller.isCurrentUserAdmin.value ? _buildDeleteGroupButton(controller) : const SizedBox.shrink(),
                                 ),
                               ],
                             ),
@@ -306,8 +304,7 @@ class EditMembersScreen extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: AppText(
-                        text:
-                            '${controller.selectedMemberIds.length} ${AppString.selected}',
+                        text: '${controller.selectedMemberIds.length} ${AppString.selected}',
                         fontSize: 10.sp,
                         fontWeight: FontWeight.w600,
                         color: AppColor.primaryColor,
@@ -338,9 +335,7 @@ class EditMembersScreen extends StatelessWidget {
               constraints: BoxConstraints(
                 maxHeight: 300.h,
               ),
-              child: controller.filteredContacts.isEmpty
-                  ? _buildEmptyContactsState()
-                  : _buildContactsList(controller),
+              child: controller.filteredContacts.isEmpty ? _buildEmptyContactsState() : _buildContactsList(controller),
             ),
             SizedBox(height: Spacing.sm),
           ],
@@ -387,8 +382,7 @@ class EditMembersScreen extends StatelessWidget {
       separatorBuilder: (context, index) => SizedBox(height: Spacing.xs),
       itemBuilder: (context, index) {
         final contact = controller.filteredContacts[index];
-        final isSelected = controller.isMemberSelected(contact.id) &&
-            controller.isCurrentUserAdmin.value;
+        final isSelected = controller.isMemberSelected(contact.id) && controller.isCurrentUserAdmin.value;
 
         return _buildContactItem(controller, contact, isSelected);
       },
@@ -409,14 +403,10 @@ class EditMembersScreen extends StatelessWidget {
           vertical: Spacing.xs,
         ),
         decoration: BoxDecoration(
-          color: isSelected
-              ? AppColor.primaryColor.withOpacity(0.1)
-              : Colors.transparent,
+          color: isSelected ? AppColor.primaryColor.withOpacity(0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(6.r),
           border: Border.all(
-            color: isSelected
-                ? AppColor.primaryColor
-                : AppColor.lightGrey.withOpacity(0.5),
+            color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withOpacity(0.5),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -429,12 +419,9 @@ class EditMembersScreen extends StatelessWidget {
                 height: 20.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color:
-                      isSelected ? AppColor.primaryColor : Colors.transparent,
+                  color: isSelected ? AppColor.primaryColor : Colors.transparent,
                   border: Border.all(
-                    color: isSelected
-                        ? AppColor.primaryColor
-                        : AppColor.greyColor.withOpacity(0.5),
+                    color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withOpacity(0.5),
                     width: 1.5,
                   ),
                 ),
@@ -499,8 +486,7 @@ class EditMembersScreen extends StatelessWidget {
           ],
         ),
       ),
-      child: contact.profileImage != null &&
-              contact.profileImage!.startsWith('http')
+      child: contact.profileImage != null && contact.profileImage!.startsWith('http')
           ? ClipOval(
               child: CachedNetworkImage(
                 imageUrl: contact.profileImage!,
@@ -520,9 +506,7 @@ class EditMembersScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: contact.name.isNotEmpty
-                          ? contact.name[0].toUpperCase()
-                          : 'U',
+                      text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -544,9 +528,7 @@ class EditMembersScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: contact.name.isNotEmpty
-                          ? contact.name[0].toUpperCase()
-                          : 'U',
+                      text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -570,9 +552,7 @@ class EditMembersScreen extends StatelessWidget {
               ),
               child: Center(
                 child: AppText(
-                  text: contact.name.isNotEmpty
-                      ? contact.name[0].toUpperCase()
-                      : 'U',
+                  text: contact.name.isNotEmpty ? contact.name[0].toUpperCase() : 'U',
                   fontSize: 14.sp,
                   fontWeight: FontWeight.w600,
                   color: AppColor.whiteColor,
@@ -617,8 +597,7 @@ class EditMembersScreen extends StatelessWidget {
                 Obx(() => controller.isCurrentUserAdmin.value
                     ? TextButton(
                         onPressed: () async {
-                          final ok =
-                              await FirebaseService.clearGroupCallHistory(
+                          final ok = await FirebaseService.clearGroupCallHistory(
                             groupId: group.id,
                           );
                           if (!ok) {
@@ -682,15 +661,11 @@ class EditMembersScreen extends StatelessWidget {
                     dt = DateTime.now();
                   }
                   final durationSec = data['durationSec'] as int?;
-                  final duration = durationSec != null
-                      ? _formatTimeLength(Duration(seconds: durationSec))
-                      : null;
-                  final iconColor =
-                      missed ? AppColor.lightRedColor : AppColor.primaryColor;
+                  final duration = durationSec != null ? _formatTimeLength(Duration(seconds: durationSec)) : null;
+                  final iconColor = missed ? AppColor.lightRedColor : AppColor.primaryColor;
                   return ListTile(
                     dense: true,
-                    contentPadding: EdgeInsets.symmetric(
-                        horizontal: Spacing.md, vertical: Spacing.xs),
+                    contentPadding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
                     leading: Container(
                       width: 28.w,
                       height: 28.h,
@@ -711,8 +686,7 @@ class EditMembersScreen extends StatelessWidget {
                       color: AppColor.darkGrey,
                     ),
                     subtitle: AppText(
-                      text:
-                          '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
+                      text: '${_formatTime(dt)}${duration != null ? ' • $duration' : ''}',
                       fontSize: 11.sp,
                       color: AppColor.greyColor,
                     ),
@@ -776,8 +750,7 @@ class EditMembersScreen extends StatelessWidget {
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    final timeString =
-        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    final timeString = '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
     if (dateOnly == today) {
       return 'today at $timeString';
     } else if (dateOnly == today.subtract(const Duration(days: 1))) {
@@ -798,9 +771,7 @@ class EditMembersScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: AppString.updateGroup,
-        onPressed: controller.isUpdating.value
-            ? () {}
-            : () => controller.updateGroup(),
+        onPressed: controller.isUpdating.value ? () {} : () => controller.updateGroup(),
         isLoading: controller.isUpdating.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,
@@ -813,10 +784,7 @@ class EditMembersScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: AppString.deleteGroup,
-        onPressed:
-            controller.isDeletingGroup.value || controller.isUpdating.value
-                ? () {}
-                : controller.showDeleteGroupConfirmation,
+        onPressed: controller.isDeletingGroup.value || controller.isUpdating.value ? () {} : controller.showDeleteGroupConfirmation,
         isLoading: controller.isDeletingGroup.value,
         backgroundColor: AppColor.lightRedColor,
         borderRadius: 8,

@@ -55,8 +55,7 @@ class FirebaseConstants {
   }
 
   // Get Firestore Error Message
-  static String getFirestoreErrorMessage(String errorCode,
-      {String? defaultMessage}) {
+  static String getFirestoreErrorMessage(String errorCode, {String? defaultMessage}) {
     switch (errorCode) {
       case firestoreErrorPermissionDenied:
         return AppString.updateProfilePermissionDenied;

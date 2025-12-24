@@ -9,7 +9,6 @@ import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
 import 'package:online_chat/utils/app_textfield.dart';
-import 'package:online_chat/utils/country_code_picker.dart';
 
 class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
@@ -23,19 +22,14 @@ class SignUpScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-              horizontal: Spacing.md, vertical: Spacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.lg),
           child: Form(
             key: controller.formKey,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Welcome Text
-                _buildWelcomeSection()
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 100.ms)
-                    .slideY(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 100.ms),
+                _buildWelcomeSection().animate().fadeIn(duration: 600.ms, delay: 100.ms).slideY(begin: -0.1, end: 0, duration: 600.ms, delay: 100.ms),
 
                 SizedBox(height: 24.h),
 
@@ -55,8 +49,7 @@ class SignUpScreen extends StatelessWidget {
                 _buildNameField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 300.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
 
                 SizedBox(height: 16.h),
 
@@ -64,8 +57,7 @@ class SignUpScreen extends StatelessWidget {
                 _buildEmailField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 400.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
 
                 // SizedBox(height: 16.h),
 
@@ -82,8 +74,7 @@ class SignUpScreen extends StatelessWidget {
                 _buildPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 600.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 600.ms),
 
                 SizedBox(height: 16.h),
 
@@ -91,8 +82,7 @@ class SignUpScreen extends StatelessWidget {
                 _buildConfirmPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 700.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 700.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 700.ms),
 
                 // SizedBox(height: 16.h),
 
@@ -107,18 +97,12 @@ class SignUpScreen extends StatelessWidget {
                 _buildSignUpButton(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 900.ms)
-                    .scale(
-                        begin: const Offset(0.9, 0.9),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        delay: 900.ms),
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 900.ms),
 
                 SizedBox(height: 24.h),
 
                 // Sign In Link
-                _buildSignInLink(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 1000.ms),
+                _buildSignInLink(controller).animate().fadeIn(duration: 600.ms, delay: 1000.ms),
               ],
             ),
           ),
@@ -234,9 +218,7 @@ class SignUpScreen extends StatelessWidget {
             GestureDetector(
               onTap: controller.showImageSourceDialog,
               child: AppText(
-                text: controller.profileImage.value != null
-                    ? AppString.changeProfilePicture
-                    : AppString.addProfilePicture,
+                text: controller.profileImage.value != null ? AppString.changeProfilePicture : AppString.addProfilePicture,
                 fontSize: 12.sp,
                 color: AppColor.primaryColor,
                 fontWeight: FontWeight.w600,
@@ -355,9 +337,7 @@ class SignUpScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),
@@ -385,9 +365,7 @@ class SignUpScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isConfirmPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isConfirmPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),
@@ -414,13 +392,9 @@ class SignUpScreen extends StatelessWidget {
               height: 16.h,
               margin: EdgeInsets.only(top: 2.h),
               decoration: BoxDecoration(
-                color: controller.agreeToTerms.value
-                    ? AppColor.primaryColor
-                    : Colors.transparent,
+                color: controller.agreeToTerms.value ? AppColor.primaryColor : Colors.transparent,
                 border: Border.all(
-                  color: controller.agreeToTerms.value
-                      ? AppColor.primaryColor
-                      : AppColor.greyColor,
+                  color: controller.agreeToTerms.value ? AppColor.primaryColor : AppColor.greyColor,
                   width: 1.5,
                 ),
                 borderRadius: BorderRadius.circular(3.r),
@@ -432,9 +406,7 @@ class SignUpScreen extends StatelessWidget {
                       color: AppColor.whiteColor,
                     )
                   : null,
-            )
-                .animate(target: controller.agreeToTerms.value ? 1 : 0)
-                .scale(duration: 200.ms),
+            ).animate(target: controller.agreeToTerms.value ? 1 : 0).scale(duration: 200.ms),
             SizedBox(width: 8.w),
             Expanded(
               child: Wrap(

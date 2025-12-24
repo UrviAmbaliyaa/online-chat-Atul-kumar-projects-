@@ -318,8 +318,7 @@ class FirebaseService {
     int? limit,
   }) async {
     try {
-      Query query =
-          _firestore.collection(collection).where(field, isEqualTo: value);
+      Query query = _firestore.collection(collection).where(field, isEqualTo: value);
 
       if (orderBy != null) {
         query = query.orderBy(orderBy);
@@ -396,10 +395,7 @@ class FirebaseService {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .set(data);
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).set(data);
       return true;
     } catch (e) {
       AppSnackbar.error(
@@ -413,8 +409,7 @@ class FirebaseService {
   /// [userId] - User ID
   /// Returns user data on success, null on failure
   static Future<Map<String, dynamic>?> getUserDocument(String userId) async {
-    return await getDocument(
-        collection: FirebaseConstants.userCollection, docId: userId);
+    return await getDocument(collection: FirebaseConstants.userCollection, docId: userId);
   }
 
   /// Get current user document from Firestore
@@ -432,10 +427,7 @@ class FirebaseService {
       final userId = getCurrentUserId();
       if (userId == null) return null;
 
-      final doc = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .get();
+      final doc = await _firestore.collection(FirebaseConstants.userCollection).doc(userId).get();
       if (doc.exists && doc.data() != null) {
         return UserModel.fromFirestore(doc.data()!, doc.id);
       }
@@ -460,8 +452,7 @@ class FirebaseService {
 
       // Ensure profileImage URL is always included in the update if it exists
       // This ensures the profile image URL is stored in the user document
-      if (userModel.profileImage != null &&
-          userModel.profileImage!.isNotEmpty) {
+      if (userModel.profileImage != null && userModel.profileImage!.isNotEmpty) {
         data['profileImage'] = userModel.profileImage;
       }
 
@@ -469,10 +460,7 @@ class FirebaseService {
 
       // Update the user document in Firestore
       // The profileImage URL will be stored in the document with userId as documentId
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .update(data);
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).update(data);
       return true;
     } on FirebaseException catch (e) {
       // Handle Firebase specific errors with dynamic messages
@@ -485,8 +473,7 @@ class FirebaseService {
     } catch (e) {
       // Handle other errors
       String errorMessage = AppString.profileUpdateError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -510,10 +497,7 @@ class FirebaseService {
         'updatedAt': FieldValue.serverTimestamp(),
       };
 
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .update(data);
+      await _firestore.collection(FirebaseConstants.userCollection).doc(userId).update(data);
       return true;
     } on FirebaseException catch (e) {
       // Handle Firebase specific errors with dynamic messages
@@ -526,8 +510,7 @@ class FirebaseService {
     } catch (e) {
       // Handle other errors
       String errorMessage = AppString.profileUpdateError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -541,8 +524,7 @@ class FirebaseService {
   /// [userId] - User ID
   /// Returns true on success, false on failure
   static Future<bool> deleteUserDocument(String userId) async {
-    return await deleteDocument(
-        collection: FirebaseConstants.userCollection, docId: userId);
+    return await deleteDocument(collection: FirebaseConstants.userCollection, docId: userId);
   }
 
   // ==================== STORAGE METHODS ====================
@@ -645,15 +627,11 @@ class FirebaseService {
   static Future<UserExistsResult> checkUserExistsByEmail(String email) async {
     try {
       // Query Firestore for user with matching email
-      final querySnapshot = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .where('email', isEqualTo: email.toLowerCase())
-          .limit(1)
-          .get();
+      final querySnapshot =
+          await _firestore.collection(FirebaseConstants.userCollection).where('email', isEqualTo: email.toLowerCase()).limit(1).get();
 
       if (querySnapshot.docs.isNotEmpty) {
-        return UserExistsResult(
-            exists: true, userId: querySnapshot.docs.first.id);
+        return UserExistsResult(exists: true, userId: querySnapshot.docs.first.id);
       }
       return UserExistsResult(exists: false, userId: null);
     } catch (e) {
@@ -671,10 +649,7 @@ class FirebaseService {
     required String contactUserId,
   }) async {
     try {
-      final userDoc = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(currentUserId)
-          .get();
+      final userDoc = await _firestore.collection(FirebaseConstants.userCollection).doc(currentUserId).get();
 
       if (!userDoc.exists || userDoc.data() == null) {
         return false;
@@ -701,9 +676,7 @@ class FirebaseService {
     required String contactUserId,
   }) async {
     try {
-      final userRef = _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(currentUserId);
+      final userRef = _firestore.collection(FirebaseConstants.userCollection).doc(currentUserId);
 
       // Use FieldValue.arrayUnion to add contact if not already present
       await userRef.update({
@@ -721,8 +694,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.contactAddError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -737,10 +709,7 @@ class FirebaseService {
   /// Returns list of contact user IDs
   static Future<List<String>> getUserContacts(String userId) async {
     try {
-      final userDoc = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(userId)
-          .get();
+      final userDoc = await _firestore.collection(FirebaseConstants.userCollection).doc(userId).get();
 
       if (!userDoc.exists || userDoc.data() == null) {
         return [];
@@ -776,18 +745,13 @@ class FirebaseService {
           .collection(FirebaseConstants.userCollection)
           .orderBy('email')
           .startAt([qLower])
-          .endAt([ '$qLower\uf8ff' ])
+          .endAt(['$qLower\uf8ff'])
           .limit(limit)
           .get();
 
       // Name prefix search (best-effort; case-sensitive depending on stored data)
-      final nameSnap = await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .orderBy('name')
-          .startAt([q])
-          .endAt([ '$q\uf8ff' ])
-          .limit(limit)
-          .get();
+      final nameSnap =
+          await _firestore.collection(FirebaseConstants.userCollection).orderBy('name').startAt([q]).endAt(['$q\uf8ff']).limit(limit).get();
 
       final Map<String, UserModel> byId = {};
 
@@ -823,10 +787,7 @@ class FirebaseService {
 
       for (int i = 0; i < userIds.length; i += 10) {
         final batch = userIds.skip(i).take(10).toList();
-        final querySnapshot = await _firestore
-            .collection(FirebaseConstants.userCollection)
-            .where(FieldPath.documentId, whereIn: batch)
-            .get();
+        final querySnapshot = await _firestore.collection(FirebaseConstants.userCollection).where(FieldPath.documentId, whereIn: batch).get();
 
         for (var doc in querySnapshot.docs) {
           if (doc.exists) {
@@ -854,10 +815,7 @@ class FirebaseService {
     try {
       final uid = getCurrentUserId();
       if (uid == null) return;
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(uid)
-          .update({
+      await _firestore.collection(FirebaseConstants.userCollection).doc(uid).update({
         'isOnline': true,
         'lastSeen': FieldValue.serverTimestamp(),
       });
@@ -892,22 +850,14 @@ class FirebaseService {
       };
 
       // For current user
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(currentUserId)
-          .collection('callHistory')
-          .add({
+      await _firestore.collection(FirebaseConstants.userCollection).doc(currentUserId).collection('callHistory').add({
         ...base,
         'peerId': otherUserId,
         'direction': callerDirection,
       });
 
       // For other user
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(otherUserId)
-          .collection('callHistory')
-          .add({
+      await _firestore.collection(FirebaseConstants.userCollection).doc(otherUserId).collection('callHistory').add({
         ...base,
         'peerId': currentUserId,
         'direction': calleeDirection,
@@ -925,11 +875,7 @@ class FirebaseService {
     bool missed = false,
   }) async {
     try {
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .collection('callHistory')
-          .add({
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).collection('callHistory').add({
         'type': isVideo ? 'video' : 'audio',
         'startedAt': Timestamp.fromDate(startedAt),
         if (endedAt != null) 'endedAt': Timestamp.fromDate(endedAt),
@@ -978,12 +924,7 @@ class FirebaseService {
     required String entryId,
   }) async {
     try {
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .collection('callHistory')
-          .doc(entryId)
-          .delete();
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).collection('callHistory').doc(entryId).delete();
       return true;
     } catch (e) {
       return false;
@@ -995,11 +936,7 @@ class FirebaseService {
     required String groupId,
   }) async {
     try {
-      final snap = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .collection('callHistory')
-          .get();
+      final snap = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).collection('callHistory').get();
       final batch = _firestore.batch();
       for (final doc in snap.docs) {
         batch.delete(doc.reference);
@@ -1010,15 +947,13 @@ class FirebaseService {
       return false;
     }
   }
+
   /// Mark current user offline and update lastSeen
   static Future<void> setUserOffline() async {
     try {
       final uid = getCurrentUserId();
       if (uid == null) return;
-      await _firestore
-          .collection(FirebaseConstants.userCollection)
-          .doc(uid)
-          .update({
+      await _firestore.collection(FirebaseConstants.userCollection).doc(uid).update({
         'isOnline': false,
         'lastSeen': FieldValue.serverTimestamp(),
       });
@@ -1041,8 +976,7 @@ class FirebaseService {
   }) async {
     try {
       // Generate unique group ID
-      final groupRef =
-          _firestore.collection(FirebaseConstants.groupCollection).doc();
+      final groupRef = _firestore.collection(FirebaseConstants.groupCollection).doc();
       final groupId = groupRef.id;
 
       final groupData = {
@@ -1069,8 +1003,7 @@ class FirebaseService {
       return null;
     } catch (e) {
       String errorMessage = AppString.groupCreateError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1085,18 +1018,13 @@ class FirebaseService {
   /// Returns list of GroupChatModel
   static Future<List<GroupChatModel>> getUserGroups(String userId) async {
     try {
-      final querySnapshot = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .where('members', arrayContains: userId)
-          .get();
+      final querySnapshot = await _firestore.collection(FirebaseConstants.groupCollection).where('members', arrayContains: userId).get();
 
       // Sort by createdAt descending manually since we can't use orderBy with arrayContains
       final sortedDocs = querySnapshot.docs.toList()
         ..sort((a, b) {
-          final aTime =
-              (a.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
-          final bTime =
-              (b.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
+          final aTime = (a.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
+          final bTime = (b.data()['createdAt'] as Timestamp?)?.toDate() ?? DateTime(0);
           return bTime.compareTo(aTime);
         });
 
@@ -1108,8 +1036,7 @@ class FirebaseService {
           description: data['description'],
           groupImage: data['groupImage'],
           createdBy: data['createdBy'] ?? '',
-          createdAt:
-              (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+          createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
           members: List<String>.from(data['members'] ?? []),
           memberCount: data['memberCount'] ?? 0,
           lastMessage: data['lastMessage'],
@@ -1131,10 +1058,7 @@ class FirebaseService {
     required String newName,
   }) async {
     try {
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .update({
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).update({
         'name': newName.trim(),
         'updatedAt': FieldValue.serverTimestamp(),
       });
@@ -1148,8 +1072,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.groupUpdateError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1171,10 +1094,7 @@ class FirebaseService {
   }) async {
     try {
       // Check if user is admin
-      final groupDoc = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
+      final groupDoc = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).get();
 
       if (!groupDoc.exists || groupDoc.data() == null) {
         AppSnackbar.error(message: AppString.groupNotFound);
@@ -1187,10 +1107,8 @@ class FirebaseService {
         return false;
       }
 
-      final currentMembers =
-          List<String>.from(groupDoc.data()!['members'] ?? []);
-      final newMembers =
-          memberIds.where((id) => !currentMembers.contains(id)).toList();
+      final currentMembers = List<String>.from(groupDoc.data()!['members'] ?? []);
+      final newMembers = memberIds.where((id) => !currentMembers.contains(id)).toList();
 
       if (newMembers.isEmpty) {
         AppSnackbar.info(message: AppString.allMembersAlreadyAdded);
@@ -1199,10 +1117,7 @@ class FirebaseService {
 
       final updatedMembers = [...currentMembers, ...newMembers];
 
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .update({
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).update({
         'members': updatedMembers,
         'memberCount': updatedMembers.length,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -1218,8 +1133,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.groupUpdateError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1238,10 +1152,7 @@ class FirebaseService {
     required String userId,
   }) async {
     try {
-      final groupDoc = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
+      final groupDoc = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).get();
 
       if (!groupDoc.exists || groupDoc.data() == null) {
         AppSnackbar.error(message: AppString.groupNotFound);
@@ -1263,10 +1174,7 @@ class FirebaseService {
       final admins = List<String>.from(data['admins'] ?? []);
       admins.remove(userId);
 
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .update({
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).update({
         'members': currentMembers,
         'memberCount': currentMembers.length,
         'admins': admins,
@@ -1283,8 +1191,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.exitGroupError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1297,13 +1204,9 @@ class FirebaseService {
   /// Get group members with user details
   /// [groupId] - Group ID
   /// Returns list of maps with user info and admin status
-  static Future<List<Map<String, dynamic>>> getGroupMembers(
-      String groupId) async {
+  static Future<List<Map<String, dynamic>>> getGroupMembers(String groupId) async {
     try {
-      final groupDoc = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
+      final groupDoc = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).get();
 
       if (!groupDoc.exists || groupDoc.data() == null) {
         return [];
@@ -1322,10 +1225,7 @@ class FirebaseService {
 
       for (int i = 0; i < memberIds.length; i += 10) {
         final batch = memberIds.skip(i).take(10).toList();
-        final querySnapshot = await _firestore
-            .collection(FirebaseConstants.userCollection)
-            .where(FieldPath.documentId, whereIn: batch)
-            .get();
+        final querySnapshot = await _firestore.collection(FirebaseConstants.userCollection).where(FieldPath.documentId, whereIn: batch).get();
 
         for (var doc in querySnapshot.docs) {
           if (doc.exists) {
@@ -1377,10 +1277,7 @@ class FirebaseService {
   }) async {
     try {
       // Check if user is admin
-      final groupDoc = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
+      final groupDoc = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).get();
 
       if (!groupDoc.exists || groupDoc.data() == null) {
         AppSnackbar.error(message: AppString.groupNotFound);
@@ -1409,10 +1306,7 @@ class FirebaseService {
       // Remove member
       currentMembers.remove(memberId);
 
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .update({
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).update({
         'members': currentMembers,
         'memberCount': currentMembers.length,
         'updatedAt': FieldValue.serverTimestamp(),
@@ -1428,8 +1322,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.removeMemberError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1449,10 +1342,7 @@ class FirebaseService {
   }) async {
     try {
       // Check if user is admin
-      final groupDoc = await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .get();
+      final groupDoc = await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).get();
 
       if (!groupDoc.exists || groupDoc.data() == null) {
         AppSnackbar.error(message: AppString.groupNotFound);
@@ -1467,10 +1357,7 @@ class FirebaseService {
       }
 
       // Delete the group
-      await _firestore
-          .collection(FirebaseConstants.groupCollection)
-          .doc(groupId)
-          .delete();
+      await _firestore.collection(FirebaseConstants.groupCollection).doc(groupId).delete();
 
       return true;
     } on FirebaseException catch (e) {
@@ -1482,8 +1369,7 @@ class FirebaseService {
       return false;
     } catch (e) {
       String errorMessage = AppString.deleteGroupError;
-      if (e.toString().contains('network') ||
-          e.toString().contains('Network')) {
+      if (e.toString().contains('network') || e.toString().contains('Network')) {
         errorMessage = AppString.networkError;
       } else if (e.toString().contains('permission')) {
         errorMessage = AppString.permissionDenied;
@@ -1531,8 +1417,7 @@ class FirebaseService {
   }) async {
     try {
       final messageId = DateTime.now().millisecondsSinceEpoch.toString();
-      final now = DateTime.now();
-      final sevenDaysAgo = now.subtract(const Duration(days: 7));
+      final sevenDaysAgo = DateTime.now().subtract(const Duration(days: 7));
 
       final messageData = {
         'id': messageId,
@@ -1549,14 +1434,14 @@ class FirebaseService {
         'replyToMessageId': replyToMessageId,
         'replyToMessage': replyToMessage,
         'replyToSenderName': replyToSenderName,
-        'timestamp': Timestamp.fromDate(now),
+        // Use server-side time to avoid device clock skew
+        'timestamp': FieldValue.serverTimestamp(),
         'isRead': false,
         'readBy': [],
       };
 
       // Get chat document reference
-      final chatDocRef =
-          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
+      final chatDocRef = _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       // Get current chat document
       final chatDoc = await chatDocRef.get();
@@ -1568,9 +1453,7 @@ class FirebaseService {
 
         // Remove messages older than 7 days
         messages = messages.where((msg) {
-          final msgTimestamp = msg['timestamp'] is Timestamp
-              ? (msg['timestamp'] as Timestamp).toDate()
-              : DateTime.parse(msg['timestamp']);
+          final msgTimestamp = msg['timestamp'] is Timestamp ? (msg['timestamp'] as Timestamp).toDate() : DateTime.parse(msg['timestamp']);
           return msgTimestamp.isAfter(sevenDaysAgo);
         }).toList();
       }
@@ -1590,10 +1473,7 @@ class FirebaseService {
 
       // Update group last message if it's a group chat
       if (chatType == 'group') {
-        await _firestore
-            .collection(FirebaseConstants.groupCollection)
-            .doc(chatId)
-            .update({
+        await _firestore.collection(FirebaseConstants.groupCollection).doc(chatId).update({
           'lastMessage': message,
           'lastMessageTime': FieldValue.serverTimestamp(),
         });
@@ -1610,10 +1490,7 @@ class FirebaseService {
   /// [chatId] - Chat ID
   /// Returns stream of chat document with messages array
   static Stream<DocumentSnapshot> streamMessages(String chatId) {
-    return _firestore
-        .collection(FirebaseConstants.chatCollection)
-        .doc(chatId)
-        .snapshots();
+    return _firestore.collection(FirebaseConstants.chatCollection).doc(chatId).snapshots();
   }
 
   /// Upload image for chat
@@ -1625,13 +1502,8 @@ class FirebaseService {
     required String chatId,
   }) async {
     try {
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-      final ref = _storage
-          .ref()
-          .child(FirebaseConstants.chatImagesPath)
-          .child(chatId)
-          .child(fileName);
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final ref = _storage.ref().child(FirebaseConstants.chatImagesPath).child(chatId).child(fileName);
 
       final uploadTask = ref.putFile(file);
       final snapshot = await uploadTask;
@@ -1653,13 +1525,8 @@ class FirebaseService {
     required String chatId,
   }) async {
     try {
-      final fileName =
-          '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
-      final ref = _storage
-          .ref()
-          .child(FirebaseConstants.chatFilesPath)
-          .child(chatId)
-          .child(fileName);
+      final fileName = '${DateTime.now().millisecondsSinceEpoch}_${file.path.split('/').last}';
+      final ref = _storage.ref().child(FirebaseConstants.chatFilesPath).child(chatId).child(fileName);
 
       final uploadTask = ref.putFile(file);
       final snapshot = await uploadTask;
@@ -1683,8 +1550,7 @@ class FirebaseService {
     required String userId,
   }) async {
     try {
-      final chatDocRef =
-          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
+      final chatDocRef = _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       final chatDoc = await chatDocRef.get();
       if (!chatDoc.exists || chatDoc.data() == null) {
@@ -1715,6 +1581,53 @@ class FirebaseService {
     }
   }
 
+  /// Mark multiple messages as read in a single write
+  /// Updates 'readBy' and 'isRead' for provided message IDs (or all unread if messageIds is null)
+  static Future<bool> markMessagesAsReadBatch({
+    required String chatId,
+    required String userId,
+    List<String>? messageIds,
+  }) async {
+    try {
+      final chatDocRef = _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
+
+      final chatDoc = await chatDocRef.get();
+      if (!chatDoc.exists || chatDoc.data() == null) {
+        return false;
+      }
+
+      final data = chatDoc.data()!;
+      final messages = List<Map<String, dynamic>>.from(data['messages'] ?? []);
+
+      final Set<String>? ids = messageIds != null ? messageIds.toSet() : null;
+
+      bool changed = false;
+      for (int i = 0; i < messages.length; i++) {
+        final msg = messages[i];
+        final id = msg['id'] as String?;
+        final senderId = msg['senderId'] as String?;
+        if (id == null) continue;
+        if (senderId == userId) continue; // don't mark own messages
+        if (ids != null && !ids.contains(id)) continue;
+        final readBy = List<String>.from(msg['readBy'] ?? []);
+        if (!readBy.contains(userId)) {
+          readBy.add(userId);
+          msg['readBy'] = readBy;
+          msg['isRead'] = readBy.isNotEmpty;
+          messages[i] = msg;
+          changed = true;
+        }
+      }
+
+      if (changed) {
+        await chatDocRef.update({'messages': messages});
+      }
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
   /// Delete a message from chat
   /// [chatId] - Chat ID
   /// [messageId] - Message ID to delete
@@ -1726,8 +1639,7 @@ class FirebaseService {
     required String userId,
   }) async {
     try {
-      final chatDocRef =
-          _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
+      final chatDocRef = _firestore.collection(FirebaseConstants.chatCollection).doc(chatId);
 
       final chatDoc = await chatDocRef.get();
       if (!chatDoc.exists || chatDoc.data() == null) {
@@ -1779,18 +1691,12 @@ class FirebaseService {
       if (chatType == 'group') {
         if (messages.isNotEmpty) {
           final lastMessage = messages.last;
-          await _firestore
-              .collection(FirebaseConstants.groupCollection)
-              .doc(chatId)
-              .update({
+          await _firestore.collection(FirebaseConstants.groupCollection).doc(chatId).update({
             'lastMessage': lastMessage['message'] ?? '',
             'lastMessageTime': lastMessage['timestamp'],
           });
         } else {
-          await _firestore
-              .collection(FirebaseConstants.groupCollection)
-              .doc(chatId)
-              .update({
+          await _firestore.collection(FirebaseConstants.groupCollection).doc(chatId).update({
             'lastMessage': '',
             'lastMessageTime': null,
           });
@@ -1823,10 +1729,7 @@ class FirebaseService {
   }) async {
     try {
       final chatId = getOneToOneChatId(currentUserId, otherUserId);
-      final chatDoc = await _firestore
-          .collection(FirebaseConstants.chatCollection)
-          .doc(chatId)
-          .get();
+      final chatDoc = await _firestore.collection(FirebaseConstants.chatCollection).doc(chatId).get();
 
       if (chatDoc.exists && chatDoc.data() != null) {
         final data = chatDoc.data()!;
@@ -1851,19 +1754,14 @@ class FirebaseService {
 
     try {
       // Get all chat IDs
-      final chatIds = userIds
-          .map((userId) => getOneToOneChatId(currentUserId, userId))
-          .toList();
+      final chatIds = userIds.map((userId) => getOneToOneChatId(currentUserId, userId)).toList();
 
       // Batch fetch chat documents
       for (int i = 0; i < chatIds.length; i += 10) {
         final batch = chatIds.skip(i).take(10).toList();
         final futures = batch.map((chatId) async {
           try {
-            final chatDoc = await _firestore
-                .collection(FirebaseConstants.chatCollection)
-                .doc(chatId)
-                .get();
+            final chatDoc = await _firestore.collection(FirebaseConstants.chatCollection).doc(chatId).get();
 
             if (chatDoc.exists && chatDoc.data() != null) {
               final data = chatDoc.data()!;
@@ -1902,11 +1800,7 @@ class FirebaseService {
     required String chatId,
     required String currentUserId,
   }) {
-    return _firestore
-        .collection(FirebaseConstants.chatCollection)
-        .doc(chatId)
-        .snapshots()
-        .map((snapshot) {
+    return _firestore.collection(FirebaseConstants.chatCollection).doc(chatId).snapshots().map((snapshot) {
       if (!snapshot.exists || snapshot.data() == null) {
         return null;
       }
@@ -1925,10 +1819,7 @@ class FirebaseService {
     required String currentUserId,
   }) async {
     try {
-      final chatDoc = await _firestore
-          .collection(FirebaseConstants.chatCollection)
-          .doc(chatId)
-          .get();
+      final chatDoc = await _firestore.collection(FirebaseConstants.chatCollection).doc(chatId).get();
 
       if (!chatDoc.exists || chatDoc.data() == null) {
         return 0;

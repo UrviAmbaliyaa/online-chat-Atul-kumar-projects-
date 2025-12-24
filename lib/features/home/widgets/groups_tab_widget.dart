@@ -64,9 +64,7 @@ class _GroupsTabWidgetState extends State<GroupsTabWidget> {
         final query = widget.controller.searchQuery.value.trim().toLowerCase();
         final list = query.isEmpty
             ? widget.controller.createdGroups
-            : widget.controller.createdGroups
-                .where((g) => g.name.toLowerCase().contains(query))
-                .toList();
+            : widget.controller.createdGroups.where((g) => g.name.toLowerCase().contains(query)).toList();
         final count = list.length;
         final showCount = count == 0 ? 0 : (_visibleCount.clamp(0, count));
         return list.isEmpty
@@ -129,8 +127,7 @@ class _GroupsTabWidgetState extends State<GroupsTabWidget> {
               final unreadCount = widget.controller.getUnreadCountForGroup(group.id);
               if (unreadCount > 0) {
                 return Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
+                  padding: EdgeInsets.symmetric(horizontal: 5.w, vertical: 1.h),
                   decoration: BoxDecoration(
                     color: AppColor.primaryColor,
                     borderRadius: BorderRadius.circular(10.r),
@@ -168,8 +165,7 @@ class _GroupsTabWidgetState extends State<GroupsTabWidget> {
         trailing: Builder(
           builder: (BuildContext itemContext) {
             final currentUserId = FirebaseService.getCurrentUserId();
-            final isAdmin =
-                currentUserId != null && _isUserAdmin(group, currentUserId);
+            final isAdmin = currentUserId != null && _isUserAdmin(group, currentUserId);
 
             return PopupMenuButton<String>(
               color: AppColor.whiteColor,
@@ -301,8 +297,7 @@ class _GroupsTabWidgetState extends State<GroupsTabWidget> {
       }
 
       // Check if user is the creator/admin (double check)
-      if (group.createdBy == currentUserId ||
-          _isUserAdmin(group, currentUserId)) {
+      if (group.createdBy == currentUserId || _isUserAdmin(group, currentUserId)) {
         AppSnackbar.warning(message: AppString.adminCannotExitGroup);
         return;
       }

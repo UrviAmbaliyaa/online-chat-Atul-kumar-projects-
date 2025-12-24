@@ -244,9 +244,7 @@ class AddContactScreen extends StatelessWidget {
               ),
               ConstrainedBox(
                 constraints: BoxConstraints(maxHeight: 300.h),
-                child: hasData
-                    ? _buildSuggestionList(controller)
-                    : _buildEmptySuggestionsState(),
+                child: hasData ? _buildSuggestionList(controller) : _buildEmptySuggestionsState(),
               ),
             ],
           ),
@@ -389,9 +387,7 @@ class AddContactScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: user.name.isNotEmpty
-                          ? user.name[0].toUpperCase()
-                          : 'U',
+                      text: user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -413,9 +409,7 @@ class AddContactScreen extends StatelessWidget {
                   ),
                   child: Center(
                     child: AppText(
-                      text: user.name.isNotEmpty
-                          ? user.name[0].toUpperCase()
-                          : 'U',
+                      text: user.name.isNotEmpty ? user.name[0].toUpperCase() : 'U',
                       fontSize: 14.sp,
                       fontWeight: FontWeight.w600,
                       color: AppColor.whiteColor,
@@ -439,8 +433,7 @@ class AddContactScreen extends StatelessWidget {
     return Obx(
       () => CustomButton(
         text: AppString.addContact,
-        onPressed:
-            controller.isAdding.value ? () {} : () => controller.addContact(),
+        onPressed: controller.isAdding.value ? () {} : () => controller.addContact(),
         isLoading: controller.isAdding.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,

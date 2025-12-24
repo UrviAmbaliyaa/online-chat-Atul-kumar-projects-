@@ -55,10 +55,7 @@ class EditMembersController extends GetxController {
       final currentUserId = FirebaseService.getCurrentUserId();
       if (currentUserId == null) return;
 
-      final groupDoc = await FirebaseFirestore.instance
-          .collection('group')
-          .doc(group.id)
-          .get();
+      final groupDoc = await FirebaseFirestore.instance.collection('group').doc(group.id).get();
 
       if (groupDoc.exists) {
         final admins = List<String>.from(groupDoc.data()?['admins'] ?? []);
@@ -77,8 +74,7 @@ class EditMembersController extends GetxController {
 
       // Pre-select current members (excluding current user)
       final currentUserId = FirebaseService.getCurrentUserId();
-      selectedMemberIds.value =
-          group.members.where((id) => id != currentUserId).toList();
+      selectedMemberIds.value = group.members.where((id) => id != currentUserId).toList();
 
       // Listen to search changes
       searchController.addListener(_filterContacts);
@@ -95,11 +91,8 @@ class EditMembersController extends GetxController {
     if (query.isEmpty) {
       filteredContacts.value = availableContacts.toList();
     } else {
-      filteredContacts.value = availableContacts
-          .where((contact) =>
-              contact.name.toLowerCase().contains(query) ||
-              contact.email.toLowerCase().contains(query))
-          .toList();
+      filteredContacts.value =
+          availableContacts.where((contact) => contact.name.toLowerCase().contains(query) || contact.email.toLowerCase().contains(query)).toList();
     }
   }
 
@@ -159,21 +152,14 @@ class EditMembersController extends GetxController {
       final allMembers = [currentUserId, ...selectedMemberIds];
 
       // Get current members from Firebase
-      final groupDoc = await FirebaseFirestore.instance
-          .collection('group')
-          .doc(group.id)
-          .get();
+      final groupDoc = await FirebaseFirestore.instance.collection('group').doc(group.id).get();
 
       if (groupDoc.exists) {
-        final currentMembers =
-            List<String>.from(groupDoc.data()?['members'] ?? []);
+        final currentMembers = List<String>.from(groupDoc.data()?['members'] ?? []);
 
         // Find members to add and remove
-        final membersToAdd =
-            allMembers.where((id) => !currentMembers.contains(id)).toList();
-        final membersToRemove = currentMembers
-            .where((id) => !allMembers.contains(id) && id != currentUserId)
-            .toList();
+        final membersToAdd = allMembers.where((id) => !currentMembers.contains(id)).toList();
+        final membersToRemove = currentMembers.where((id) => !allMembers.contains(id) && id != currentUserId).toList();
 
         // Add new members
         if (membersToAdd.isNotEmpty) {

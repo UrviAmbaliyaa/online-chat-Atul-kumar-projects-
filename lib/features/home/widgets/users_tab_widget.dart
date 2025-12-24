@@ -63,11 +63,7 @@ class _UsersTabWidgetState extends State<UsersTabWidget> {
         final query = widget.controller.searchQuery.value.trim().toLowerCase();
         final list = query.isEmpty
             ? widget.controller.addedUsers
-            : widget.controller.addedUsers
-                .where((u) =>
-                    u.name.toLowerCase().contains(query) ||
-                    (u.email.toLowerCase().contains(query)))
-                .toList();
+            : widget.controller.addedUsers.where((u) => u.name.toLowerCase().contains(query) || (u.email.toLowerCase().contains(query))).toList();
         final count = list.length;
         final showCount = count == 0 ? 0 : (_visibleCount.clamp(0, count));
         return count == 0
@@ -142,8 +138,7 @@ class _UsersTabWidgetState extends State<UsersTabWidget> {
                     width: 12.w,
                     height: 12.h,
                     decoration: BoxDecoration(
-                      color:
-                          isOnline ? AppColor.accentColor : AppColor.greyColor,
+                      color: isOnline ? AppColor.accentColor : AppColor.greyColor,
                       shape: BoxShape.circle,
                       border: Border.all(
                         color: AppColor.whiteColor,
@@ -157,6 +152,8 @@ class _UsersTabWidgetState extends State<UsersTabWidget> {
           },
         ),
         title: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          mainAxisAlignment: MainAxisAlignment.end,
           children: [
             Expanded(
               child: AppText(
@@ -189,33 +186,50 @@ class _UsersTabWidgetState extends State<UsersTabWidget> {
             }),
           ],
         ),
-        subtitle: Obx(() {
-          final chatInfo = widget.controller.getChatInfoForUser(user.id);
-          final lastMessage = chatInfo?.lastMessage ??
-              widget.controller.getLastMessageForUser(user.id);
-          if (lastMessage != null && lastMessage.isNotEmpty) {
-            return Padding(
-              padding: EdgeInsets.only(top: 2.h),
-              child: AppText(
-                text: lastMessage.length > 42
-                    ? '${lastMessage.substring(0, 42)}...'
-                    : lastMessage,
-                fontSize: 12.sp,
-                color: AppColor.greyColor,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-            );
-          }
-          return Padding(
-            padding: EdgeInsets.only(top: 2.h),
-            child: AppText(
-              text: AppString.noMessagesYet,
-              fontSize: 12.sp,
-              color: AppColor.greyColor.withOpacity(0.6),
-            ),
-          );
-        }),
+        subtitle: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Obx(() {
+              final chatInfo = widget.controller.getChatInfoForUser(user.id);
+              final lastMessage = chatInfo?.lastMessage ?? widget.controller.getLastMessageForUser(user.id);
+              if (lastMessage != null && lastMessage.isNotEmpty) {
+                return Padding(
+                  padding: EdgeInsets.only(top: 2.h),
+                  child: AppText(
+                    text: lastMessage.length > 42 ? '${lastMessage.substring(0, 42)}...' : lastMessage,
+                    fontSize: 12.sp,
+                    color: AppColor.greyColor,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                );
+              }
+              return Padding(
+                padding: EdgeInsets.only(top: 2.h),
+                child: AppText(
+                  text: AppString.noMessagesYet,
+                  fontSize: 12.sp,
+                  color: AppColor.greyColor.withOpacity(0.6),
+                ),
+              );
+            }),
+            Obx(() {
+              final chatInfo = widget.controller.getChatInfoForUser(user.id);
+              final lastTime = chatInfo?.lastMessageTime;
+              if (lastTime != null) {
+                return Padding(
+                  padding: EdgeInsets.only(right: 6.w),
+                  child: AppText(
+                    text: _formatMessageTime(lastTime),
+                    fontSize: 10.sp,
+                    color: AppColor.greyColor,
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            }),
+          ],
+        ),
       ),
     );
   }
@@ -268,6 +282,21 @@ class _UsersTabWidgetState extends State<UsersTabWidget> {
       return '${difference.inDays}d ago';
     } else {
       return DateFormat('MMM d').format(dateTime);
+    }
+  }
+
+  String _formatMessageTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final msgDate = DateTime(dateTime.year, dateTime.month, dateTime.day);
+
+    if (msgDate == today) {
+      return DateFormat('h:mm a').format(dateTime); // e.g., 3:45 PM
+    } else if (msgDate == yesterday) {
+      return 'Yesterday';
+    } else {
+      return DateFormat('MMM d').format(dateTime); // e.g., Sep 12
     }
   }
 }

@@ -68,8 +68,7 @@ class AppPreference {
   }
 
   /// Get String list
-  static List<String> getStringList(String key,
-      {List<String> defaultValue = const []}) {
+  static List<String> getStringList(String key, {List<String> defaultValue = const []}) {
     return AppLocalStorage.getStringList(key, defaultValue: defaultValue);
   }
 

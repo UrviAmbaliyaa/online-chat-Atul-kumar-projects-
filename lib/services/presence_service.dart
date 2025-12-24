@@ -32,10 +32,9 @@ class PresenceService extends GetxService with WidgetsBindingObserver {
         FirebaseService.setUserOffline();
         break;
       case AppLifecycleState.hidden:
-        // TODO: Handle this case.
-        throw UnimplementedError();
+        // Treat hidden similar to paused on platforms that support it
+        FirebaseService.setUserOffline();
+        break;
     }
   }
 }
-
-

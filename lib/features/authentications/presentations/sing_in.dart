@@ -23,8 +23,7 @@ class AuthScreen extends StatelessWidget {
       body: SafeArea(
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.symmetric(
-              horizontal: Spacing.md, vertical: Spacing.lg),
+          padding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.lg),
           child: Form(
             key: controller.formKey,
             child: Column(
@@ -36,11 +35,7 @@ class AuthScreen extends StatelessWidget {
                 SizedBox(height: 40.h),
 
                 // Welcome Text
-                _buildWelcomeSection()
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 200.ms)
-                    .slideY(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 200.ms),
+                _buildWelcomeSection().animate().fadeIn(duration: 600.ms, delay: 200.ms).slideY(begin: -0.1, end: 0, duration: 600.ms, delay: 200.ms),
 
                 SizedBox(height: 40.h),
 
@@ -48,8 +43,7 @@ class AuthScreen extends StatelessWidget {
                 _buildEmailField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 300.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 300.ms),
 
                 SizedBox(height: 20.h),
 
@@ -57,15 +51,12 @@ class AuthScreen extends StatelessWidget {
                 _buildPasswordField(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 400.ms)
-                    .slideX(
-                        begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
+                    .slideX(begin: -0.1, end: 0, duration: 600.ms, delay: 400.ms),
 
                 SizedBox(height: 12.h),
 
                 // Remember Me & Forgot Password
-                _buildRememberAndForgot(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 500.ms),
+                _buildRememberAndForgot(controller).animate().fadeIn(duration: 600.ms, delay: 500.ms),
 
                 SizedBox(height: 32.h),
 
@@ -73,18 +64,12 @@ class AuthScreen extends StatelessWidget {
                 _buildSignInButton(controller)
                     .animate()
                     .fadeIn(duration: 600.ms, delay: 600.ms)
-                    .scale(
-                        begin: const Offset(0.9, 0.9),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        delay: 600.ms),
+                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1, 1), duration: 600.ms, delay: 600.ms),
 
                 SizedBox(height: 32.h),
 
                 // Sign Up Link
-                _buildSignUpLink(controller)
-                    .animate()
-                    .fadeIn(duration: 600.ms, delay: 700.ms),
+                _buildSignUpLink(controller).animate().fadeIn(duration: 600.ms, delay: 700.ms),
               ],
             ),
           ),
@@ -147,9 +132,7 @@ class AuthScreen extends StatelessWidget {
           size: 18.sp,
         ),
         suffixIcon: Icon(
-          controller.isPasswordVisible.value
-              ? Icons.visibility_outlined
-              : Icons.visibility_off_outlined,
+          controller.isPasswordVisible.value ? Icons.visibility_outlined : Icons.visibility_off_outlined,
           color: AppColor.greyColor,
           size: 18.sp,
         ),

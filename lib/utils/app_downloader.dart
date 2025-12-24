@@ -3,9 +3,9 @@ import 'dart:typed_data';
 
 import 'package:file_saver/file_saver.dart';
 import 'package:http/http.dart' as http;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/app_string.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class AppDownloader {
   static const String _androidDownloads = '/storage/emulated/0/Download';
@@ -49,8 +49,7 @@ class AppDownloader {
           onProgress(received / contentLength);
         }
       }
-      final inferredName =
-          fileName ?? url.split('/').last.split('?').first.split('#').first;
+      final inferredName = fileName ?? url.split('/').last.split('?').first.split('#').first;
       final ext = inferredName.contains('.') ? inferredName.split('.').last : '';
       return saveBytes(
         bytes: builder.toBytes(),
@@ -76,8 +75,7 @@ class AppDownloader {
         if (!await dir.exists()) {
           await dir.create(recursive: true);
         }
-        final sanitizedName =
-            fileName.endsWith('.$ext') ? fileName : '$fileName.$ext';
+        final sanitizedName = fileName.endsWith('.$ext') ? fileName : '$fileName.$ext';
         final fullPath = '${dir.path}/$sanitizedName';
         final outFile = File(fullPath);
         await outFile.writeAsBytes(bytes, flush: true);
@@ -117,10 +115,8 @@ class AppDownloader {
     try {
       final response = await http.get(Uri.parse(url));
       if (response.statusCode == 200) {
-        final inferredName =
-            fileName ?? url.split('/').last.split('?').first.split('#').first;
-        final ext =
-            inferredName.contains('.') ? inferredName.split('.').last : '';
+        final inferredName = fileName ?? url.split('/').last.split('?').first.split('#').first;
+        final ext = inferredName.contains('.') ? inferredName.split('.').last : '';
         return saveBytes(
           bytes: response.bodyBytes,
           fileName: inferredName,
@@ -133,5 +129,3 @@ class AppDownloader {
     }
   }
 }
-
-

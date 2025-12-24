@@ -157,8 +157,7 @@ class _USPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '(${text.substring(0, 3)}) ${text.substring(3)}';
     } else {
-      formatted =
-          '(${text.substring(0, 3)}) ${text.substring(3, 6)}-${text.substring(6, 10)}';
+      formatted = '(${text.substring(0, 3)}) ${text.substring(3, 6)}-${text.substring(6, 10)}';
     }
 
     return TextEditingValue(
@@ -241,8 +240,7 @@ class _AustraliaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 4)} ${text.substring(4)}';
     } else {
-      formatted =
-          '${text.substring(0, 4)} ${text.substring(4, 7)} ${text.substring(7, 10)}';
+      formatted = '${text.substring(0, 4)} ${text.substring(4, 7)} ${text.substring(7, 10)}';
     }
 
     return TextEditingValue(
@@ -329,8 +327,7 @@ class _JapanPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
 
     return TextEditingValue(
@@ -359,8 +356,7 @@ class _ChinaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 7)} ${text.substring(7, 11)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 7)} ${text.substring(7, 11)}';
     }
 
     return TextEditingValue(
@@ -389,8 +385,7 @@ class _BrazilPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '(${text.substring(0, 2)}) ${text.substring(2)}';
     } else {
-      formatted =
-          '(${text.substring(0, 2)}) ${text.substring(2, 7)}-${text.substring(7, 11)}';
+      formatted = '(${text.substring(0, 2)}) ${text.substring(2, 7)}-${text.substring(7, 11)}';
     }
 
     return TextEditingValue(
@@ -419,11 +414,9 @@ class _RussiaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else if (text.length <= 8) {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6, 8)}-${text.substring(8, 10)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)}-${text.substring(6, 8)}-${text.substring(8, 10)}';
     }
 
     return TextEditingValue(
@@ -452,8 +445,7 @@ class _SouthKoreaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
 
     return TextEditingValue(
@@ -482,8 +474,7 @@ class _ItalyPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 10)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 10)}';
     }
 
     return TextEditingValue(
@@ -512,8 +503,7 @@ class _SpainPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 9)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 9)}';
     }
 
     return TextEditingValue(
@@ -542,8 +532,7 @@ class _MexicoPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted =
-          '${text.substring(0, 2)} ${text.substring(2, 6)} ${text.substring(6, 10)}';
+      formatted = '${text.substring(0, 2)} ${text.substring(2, 6)} ${text.substring(6, 10)}';
     }
 
     return TextEditingValue(
@@ -572,8 +561,7 @@ class _IndonesiaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 7) {
       formatted = '${text.substring(0, 3)}-${text.substring(3)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
+      formatted = '${text.substring(0, 3)}-${text.substring(3, 7)}-${text.substring(7, 11)}';
     }
 
     return TextEditingValue(
@@ -602,11 +590,9 @@ class _TurkeyPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 6) {
       formatted = '${text.substring(0, 3)} ${text.substring(3)}';
     } else if (text.length <= 8) {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6)}';
     } else {
-      formatted =
-          '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 8)} ${text.substring(8, 10)}';
+      formatted = '${text.substring(0, 3)} ${text.substring(3, 6)} ${text.substring(6, 8)} ${text.substring(8, 10)}';
     }
 
     return TextEditingValue(
@@ -635,8 +621,7 @@ class _SaudiArabiaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted =
-          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
 
     return TextEditingValue(
@@ -665,8 +650,7 @@ class _UAEPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted =
-          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
 
     return TextEditingValue(
@@ -695,8 +679,7 @@ class _SouthAfricaPhoneFormatter extends TextInputFormatter {
     } else if (text.length <= 5) {
       formatted = '${text.substring(0, 2)} ${text.substring(2)}';
     } else {
-      formatted =
-          '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
+      formatted = '${text.substring(0, 2)} ${text.substring(2, 5)} ${text.substring(5, 9)}';
     }
 
     return TextEditingValue(

@@ -15,6 +15,7 @@ import 'package:online_chat/utils/app_local_storage.dart';
 import 'package:online_chat/utils/app_preference.dart';
 import 'package:online_chat/utils/app_snackbar.dart';
 import 'package:online_chat/utils/firebase_constants.dart';
+import 'package:online_chat/utils/session_service.dart';
 
 class HomeController extends GetxController {
   // Observables
@@ -23,18 +24,15 @@ class HomeController extends GetxController {
   final RxBool isLoading = false.obs;
   final RxInt selectedTab = 0.obs; // 0 = Users, 1 = Groups
   final RxMap<String, String?> userLastMessages = <String, String?>{}.obs;
-  final RxMap<String, ChatInfoModel> userChatInfo =
-      <String, ChatInfoModel>{}.obs;
-  final RxMap<String, ChatInfoModel> groupChatInfo =
-      <String, ChatInfoModel>{}.obs;
+  final RxMap<String, ChatInfoModel> userChatInfo = <String, ChatInfoModel>{}.obs;
+  final RxMap<String, ChatInfoModel> groupChatInfo = <String, ChatInfoModel>{}.obs;
 
   // Search
   final RxBool isSearching = false.obs;
   final RxString searchQuery = ''.obs;
 
   // Stream subscriptions
-  final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions =
-      {};
+  final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions = {};
   StreamSubscription<QuerySnapshot>? _callNotificationSubscription;
 
   @override
@@ -45,6 +43,8 @@ class HomeController extends GetxController {
     if (AppPreference.currentUser.value == null) {
       AppPreference.loadCurrentUser();
     }
+    // Start session monitoring after home init
+    SessionService.ensure();
     // Initialize FCM token and listen for call notifications
     _initializeCallNotifications();
   }
@@ -132,9 +132,7 @@ class HomeController extends GetxController {
       try {
         final usersJson = AppLocalStorage.getList('added_users');
         if (usersJson != null && usersJson.isNotEmpty) {
-          addedUsers.value = usersJson
-              .map((json) => UserModel.fromJson(json as Map<String, dynamic>))
-              .toList();
+          addedUsers.value = usersJson.map((json) => UserModel.fromJson(json as Map<String, dynamic>)).toList();
         } else {
           addedUsers.value = [];
         }
@@ -172,10 +170,7 @@ class HomeController extends GetxController {
       try {
         final groupsJson = AppLocalStorage.getList('created_groups');
         if (groupsJson != null && groupsJson.isNotEmpty) {
-          createdGroups.value = groupsJson
-              .map((json) =>
-                  GroupChatModel.fromJson(json as Map<String, dynamic>))
-              .toList();
+          createdGroups.value = groupsJson.map((json) => GroupChatModel.fromJson(json as Map<String, dynamic>)).toList();
         } else {
           createdGroups.value = [];
         }
@@ -252,12 +247,17 @@ class HomeController extends GetxController {
     try {
       isLoading.value = true;
 
+      // Set user offline before signing out
+      await FirebaseService.setUserOffline();
+
       // Sign out from Firebase
       final success = await FirebaseService.signOut();
 
       if (success) {
         // Clear local storage
         await AppLocalStorage.logout();
+        // Clear in-memory current user cache
+        AppPreference.clearCurrentUser();
 
         // Show success message
         AppSnackbar.success(
@@ -444,10 +444,7 @@ class HomeController extends GetxController {
     for (var user in users) {
       final chatId = FirebaseService.getOneToOneChatId(currentUserId, user.id);
       try {
-        final chatDoc = await FirebaseFirestore.instance
-            .collection(FirebaseConstants.chatCollection)
-            .doc(chatId)
-            .get();
+        final chatDoc = await FirebaseFirestore.instance.collection(FirebaseConstants.chatCollection).doc(chatId).get();
 
         DateTime? lastMessageTime;
         if (chatDoc.exists && chatDoc.data() != null) {
@@ -592,7 +589,7 @@ class HomeController extends GetxController {
         if (snapshot.docs.isNotEmpty) {
           final notification = snapshot.docs.first.data();
           final isRead = notification['isRead'] as bool? ?? false;
-          
+
           // Only handle unread notifications
           if (!isRead) {
             _handleIncomingCallNotification(notification);
@@ -641,10 +638,7 @@ class HomeController extends GetxController {
 
       if (isGroupCall) {
         // Get group information
-        final groupDoc = await FirebaseFirestore.instance
-            .collection(FirebaseConstants.groupCollection)
-            .doc(chatId)
-            .get();
+        final groupDoc = await FirebaseFirestore.instance.collection(FirebaseConstants.groupCollection).doc(chatId).get();
 
         if (groupDoc.exists && groupDoc.data() != null) {
           final data = groupDoc.data()!;
@@ -654,21 +648,16 @@ class HomeController extends GetxController {
             description: data['description'],
             groupImage: data['groupImage'],
             createdBy: data['createdBy'] ?? '',
-            createdAt: (data['createdAt'] as Timestamp?)?.toDate() ??
-                DateTime.now(),
+            createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
             members: List<String>.from(data['members'] ?? []),
             memberCount: data['memberCount'] ?? 0,
             lastMessage: data['lastMessage'],
-            lastMessageTime:
-                (data['lastMessageTime'] as Timestamp?)?.toDate(),
+            lastMessageTime: (data['lastMessageTime'] as Timestamp?)?.toDate(),
           );
         }
       } else {
         // Get caller user information
-        final callerDoc = await FirebaseFirestore.instance
-            .collection(FirebaseConstants.userCollection)
-            .doc(callerId)
-            .get();
+        final callerDoc = await FirebaseFirestore.instance.collection(FirebaseConstants.userCollection).doc(callerId).get();
 
         if (callerDoc.exists && callerDoc.data() != null) {
           caller = UserModel.fromFirestore(callerDoc.data()!, callerId);

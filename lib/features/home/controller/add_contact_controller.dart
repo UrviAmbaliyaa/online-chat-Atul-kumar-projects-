@@ -59,13 +59,10 @@ class AddContactController extends GetxController {
     try {
       isSearching.value = true;
       final currentUserId = FirebaseService.getCurrentUserId();
-      final homeController = Get.isRegistered<HomeController>()
-          ? Get.find<HomeController>()
-          : null;
+      final homeController = Get.isRegistered<HomeController>() ? Get.find<HomeController>() : null;
       final addedIds = homeController?.addedUsers.map((u) => u.id).toSet() ?? {};
 
-      final results =
-          await FirebaseService.searchUsersByQuery(query: query, limit: 20);
+      final results = await FirebaseService.searchUsersByQuery(query: query, limit: 20);
 
       final filtered = results.where((u) {
         if (currentUserId != null && u.id == currentUserId) return false;

@@ -49,9 +49,7 @@ class GroupChatModel {
       members: List<String>.from(json['members'] ?? []),
       memberCount: json['memberCount'] ?? 0,
       lastMessage: json['lastMessage'],
-      lastMessageTime: json['lastMessageTime'] != null
-          ? DateTime.parse(json['lastMessageTime'])
-          : null,
+      lastMessageTime: json['lastMessageTime'] != null ? DateTime.parse(json['lastMessageTime']) : null,
     );
   }
 }

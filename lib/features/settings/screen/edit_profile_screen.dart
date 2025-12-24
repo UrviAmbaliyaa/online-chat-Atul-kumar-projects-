@@ -120,9 +120,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   child: AppProfileImage(
                     width: 96.w,
                     height: 96.w,
-                    username: controller.nameController.text.isNotEmpty
-                        ? controller.nameController.text
-                        : 'User',
+                    username: controller.nameController.text.isNotEmpty ? controller.nameController.text : 'User',
                     imageUrl: controller.currentProfileImageUrl,
                     imageFile: controller.profileImage.value,
                     borderWidth: 3,
@@ -226,8 +224,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               size: 18.sp,
             ),
             onChanged: (p0) {
-              if (p0.trim().isNotEmpty &&
-                  AppPreference.currentUser.value?.name[0] != p0.trim()[0]) {
+              if (p0.trim().isNotEmpty && AppPreference.currentUser.value?.name[0] != p0.trim()[0]) {
                 setState(() {});
               }
             },
@@ -306,8 +303,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   ),
                   validator: controller.validatePhone,
                   focusNode: controller.phoneFocusNode,
-                  contentPadding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
+                  contentPadding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
                   inputFormatters: controller.getPhoneFormatters(),
                   maxLength: controller.getPhoneMaxLength(),
                   textStyle: TextStyle(
@@ -328,9 +324,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Obx(
       () => CustomButton(
         text: AppString.editProfile,
-        onPressed: controller.isSaving.value
-            ? () {}
-            : () => controller.updateProfile(),
+        onPressed: controller.isSaving.value ? () {} : () => controller.updateProfile(),
         isLoading: controller.isSaving.value,
         backgroundColor: AppColor.primaryColor,
         borderRadius: 8,
@@ -343,10 +337,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     return Obx(
       () => CustomButton(
         text: AppString.deleteAccount,
-        onPressed:
-            controller.isDeletingAccount.value || controller.isSaving.value
-                ? () {}
-                : controller.showDeleteAccountConfirmation,
+        onPressed: controller.isDeletingAccount.value || controller.isSaving.value ? () {} : controller.showDeleteAccountConfirmation,
         isLoading: controller.isDeletingAccount.value,
         backgroundColor: AppColor.lightRedColor,
         borderRadius: 8,

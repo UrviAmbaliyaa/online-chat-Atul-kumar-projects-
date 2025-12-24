@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -41,6 +42,9 @@ class ChatController extends GetxController {
 
   // Scroll controller
   final ScrollController scrollController = ScrollController();
+
+  // Pending picked file for live-updated media preview (for non-image files)
+  final Rx<File?> pendingPickedFile = Rx<File?>(null);
 
   // Track highlighted message (for reply navigation)
   final RxString highlightedMessageId = ''.obs;
@@ -158,8 +162,7 @@ class ChatController extends GetxController {
 
                 return MessageModel.fromJson(
                   messageWithChatInfo,
-                  msgMap['id'] ??
-                      DateTime.now().millisecondsSinceEpoch.toString(),
+                  msgMap['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
                 );
               } catch (e) {
                 return null;
@@ -168,9 +171,6 @@ class ChatController extends GetxController {
             .whereType<MessageModel>()
             .toList();
 
-        // Sort messages by timestamp
-        newMessages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-
         // Remove messages from pending list if they appear in the stream (successfully sent)
         final currentMessageIds = newMessages.map((m) => m.id).toSet();
         pendingMessageIds.removeWhere((id) => currentMessageIds.contains(id));
@@ -178,15 +178,14 @@ class ChatController extends GetxController {
         messages.value = newMessages;
         isLoadingMessages.value = false;
 
-        // Mark all unread messages as read when chat is opened
-        _markAllMessagesAsRead(newMessages);
+        // Mark unread messages as read in a single batched call
+        _markAllUnreadAsReadBatch(newMessages);
 
         // Auto-scroll to bottom when new message arrives or on initial load
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (newMessages.isNotEmpty) {
             // If it's the first load or a new message was added, scroll to bottom
-            if (previousMessageCount == 0 ||
-                newMessages.length > previousMessageCount) {
+            if (previousMessageCount == 0 || newMessages.length > previousMessageCount) {
               _scrollToBottom(animate: previousMessageCount > 0);
             }
           }
@@ -212,6 +211,11 @@ class ChatController extends GetxController {
         scrollController.jumpTo(scrollController.position.maxScrollExtent);
       }
     }
+  }
+
+  /// Public wrapper to allow UI widgets to request scroll-to-bottom
+  void scrollToBottom({bool animate = true}) {
+    _scrollToBottom(animate: animate);
   }
 
   /// Scroll to a specific message by its ID
@@ -257,18 +261,14 @@ class ChatController extends GetxController {
         } else {
           final prevDate = messages[i - 1].timestamp;
           final currDate = messages[i].timestamp;
-          if (prevDate.year != currDate.year ||
-              prevDate.month != currDate.month ||
-              prevDate.day != currDate.day) {
+          if (prevDate.year != currDate.year || prevDate.month != currDate.month || prevDate.day != currDate.day) {
             dateSeparatorCount++;
           }
         }
       }
 
       // Calculate offset: padding + (message index * message height) + (date separators * separator height)
-      final estimatedOffset = padding +
-          (messageIndex * estimatedMessageHeight) +
-          (dateSeparatorCount * dateSeparatorHeight);
+      final estimatedOffset = padding + (messageIndex * estimatedMessageHeight) + (dateSeparatorCount * dateSeparatorHeight);
 
       final maxScroll = scrollController.position.maxScrollExtent;
       final targetOffset = estimatedOffset.clamp(0.0, maxScroll);
@@ -284,6 +284,11 @@ class ChatController extends GetxController {
 
   void updateMessageText(String text) {
     messageText.value = text;
+    // Auto-scroll to bottom when user starts typing
+    // Delay slightly to allow keyboard/layout changes
+    Future.microtask(() {
+      _scrollToBottom(animate: true);
+    });
   }
 
   void setReplyingToMessage(MessageModel? message) {
@@ -293,6 +298,30 @@ class ChatController extends GetxController {
   void clearReply() {
     replyingToMessage.value = null;
     message.clear();
+  }
+
+  Future<void> _ensureReciprocalContact() async {
+    try {
+      if (chatType.value != ChatType.oneToOne || otherUser.value == null) {
+        return;
+      }
+      final currentUserId = FirebaseService.getCurrentUserId();
+      final otherId = otherUser.value!.id;
+      if (currentUserId == null || currentUserId == otherId) return;
+
+      final exists = await FirebaseService.checkContactExists(
+        currentUserId: otherId,
+        contactUserId: currentUserId,
+      );
+      if (!exists) {
+        await FirebaseService.addContact(
+          currentUserId: otherId,
+          contactUserId: currentUserId,
+        );
+      }
+    } catch (_) {
+      // Non-critical: ignore failures
+    }
   }
 
   Future<void> sendTextMessage() async {
@@ -334,6 +363,9 @@ class ChatController extends GetxController {
         messageText.value = '';
 
         clearReply();
+
+        // Ensure sender is auto-added to recipient's contacts
+        _ensureReciprocalContact();
       }
     } catch (e) {
       AppSnackbar.error(message: AppString.sendMessageError);
@@ -388,6 +420,9 @@ class ChatController extends GetxController {
       if (messageId != null) {
         pendingMessageIds.add(messageId);
         AppSnackbar.success(message: AppString.operationSuccess);
+
+        // Ensure sender is auto-added to recipient's contacts
+        _ensureReciprocalContact();
       }
 
       clearReply();
@@ -450,6 +485,9 @@ class ChatController extends GetxController {
       if (messageId != null) {
         pendingMessageIds.add(messageId);
         AppSnackbar.success(message: AppString.operationSuccess);
+
+        // Ensure sender is auto-added to recipient's contacts
+        _ensureReciprocalContact();
       }
 
       clearReply();
@@ -511,10 +549,23 @@ class ChatController extends GetxController {
   }
 
   Future<void> pickAndSendFile() async {
+    // Reset pending file and navigate immediately to preview
+    pendingPickedFile.value = null;
+    Get.to(() => const MediaPreviewScreen(isImage: false));
+
+    // Start the picker in background; update preview when done
     final file = await AppFilePicker.pickPDFOrZIP();
-    if (file != null) {
-      Get.to(() => MediaPreviewScreen(file: file, isImage: false));
+    log("file ::::::::::::::::::::::::::$file");
+    if (file == null) {
+      // User cancelled picking - close preview if still open
+      if (Get.isOverlaysOpen || Get.currentRoute.contains('MediaPreviewScreen')) {
+        if (Get.key.currentState?.canPop() == true) {
+          Get.back();
+        }
+      }
+      return;
     }
+    pendingPickedFile.value = file;
   }
 
   String getChatTitle() {
@@ -566,28 +617,26 @@ class ChatController extends GetxController {
     }
   }
 
-  /// Mark all unread messages as read
-  Future<void> _markAllMessagesAsRead(List<MessageModel> messagesList) async {
+  /// Mark all unread messages as read with a single backend call.
+  /// Optimized to minimize Firestore writes.
+  Future<void> _markAllUnreadAsReadBatch(List<MessageModel> messagesList) async {
     final currentUserId = FirebaseService.getCurrentUserId();
     if (currentUserId == null || messagesList.isEmpty) return;
 
     try {
-      // Get all unread messages (messages not sent by current user and not read by current user)
-      final unreadMessages = messagesList.where((msg) {
-        return msg.senderId != currentUserId &&
-            !msg.readBy.contains(currentUserId);
-      }).toList();
+      // Collect unread message IDs (not sent by current user and not yet read by them)
+      final unreadIds = messagesList.where((msg) => msg.senderId != currentUserId && !msg.readBy.contains(currentUserId)).map((m) => m.id).toList();
 
-      if (unreadMessages.isEmpty) return;
+      if (unreadIds.isEmpty) return;
 
-      // Mark each unread message as read
-      for (var message in unreadMessages) {
-        await FirebaseService.markMessageAsRead(
-          chatId: chatId.value,
-          messageId: message.id,
-          userId: currentUserId,
-        );
-      }
+      // Single Firestore write to mark all as read
+      // Fire-and-forget; UI already shows messages immediately
+      // ignore: unawaited_futures
+      FirebaseService.markMessagesAsReadBatch(
+        chatId: chatId.value,
+        userId: currentUserId,
+        messageIds: unreadIds,
+      );
     } catch (e) {
       // Silently fail - marking as read is not critical
     }

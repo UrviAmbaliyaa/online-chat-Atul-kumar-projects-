@@ -1,11 +1,11 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/entities/ios_params.dart';
-import 'package:flutter_callkit_incoming/entities/android_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:online_chat/utils/app_button.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_spacing.dart';
@@ -77,7 +77,8 @@ class _CallkitDemoScreenState extends State<CallkitDemoScreen> {
       appName: 'Online Chat',
       avatar: 'https://i.pravatar.cc/100?img=12',
       handle: '+1 202 555 0101',
-      type: 0, // 0 = audio, 1 = video
+      type: 0,
+      // 0 = audio, 1 = video
       textAccept: 'Accept',
       textDecline: 'Decline',
       duration: 30000,
@@ -111,7 +112,8 @@ class _CallkitDemoScreenState extends State<CallkitDemoScreen> {
       appName: 'Online Chat',
       avatar: 'https://i.pravatar.cc/100?img=25',
       handle: '+44 20 7946 0958',
-      type: 1, // video
+      type: 1,
+      // video
       textAccept: 'Accept',
       textDecline: 'Decline',
       duration: 30000,
@@ -216,5 +218,3 @@ class _CallkitDemoScreenState extends State<CallkitDemoScreen> {
     return List.generate(32, (_) => rnd.nextInt(16).toRadixString(16)).join();
   }
 }
-
-

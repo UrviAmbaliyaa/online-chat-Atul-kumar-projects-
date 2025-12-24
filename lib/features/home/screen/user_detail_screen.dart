@@ -1,8 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_color.dart';
@@ -283,8 +283,7 @@ class UserDetailScreen extends StatelessWidget {
               dt = DateTime.now();
             }
             final durationSec = data['durationSec'] as int?;
-            final duration =
-                durationSec != null ? _formatDuration(Duration(seconds: durationSec)) : null;
+            final duration = durationSec != null ? _formatDuration(Duration(seconds: durationSec)) : null;
             IconData leadingIcon;
             Color iconColor;
             if (direction == 'missed') {
@@ -299,8 +298,7 @@ class UserDetailScreen extends StatelessWidget {
             }
             return ListTile(
               dense: true,
-              contentPadding:
-                  EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
+              contentPadding: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
               leading: Container(
                 width: 36.w,
                 height: 36.h,
@@ -321,8 +319,7 @@ class UserDetailScreen extends StatelessWidget {
                 color: AppColor.darkGrey,
               ),
               subtitle: AppText(
-                text:
-                    '${_formatLastSeen(dt)}${duration != null ? ' • $duration' : ''}',
+                text: '${_formatLastSeen(dt)}${duration != null ? ' • $duration' : ''}',
                 fontSize: 11.sp,
                 color: AppColor.greyColor,
               ),
@@ -355,8 +352,7 @@ class UserDetailScreen extends StatelessWidget {
     final minute = dateTime.minute;
     final period = hour >= 12 ? 'PM' : 'AM';
     final displayHour = hour > 12 ? hour - 12 : (hour == 0 ? 12 : hour);
-    final timeString =
-        '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
+    final timeString = '${displayHour.toString().padLeft(2, '0')}:${minute.toString().padLeft(2, '0')} $period';
 
     if (messageDate == today) {
       return 'today at $timeString';
