@@ -161,6 +161,7 @@ class AppLocalStorage {
   static Future<bool> logout() async {
     bool success = await setUserLoggedIn(false);
     success = success && await clearUserData();
+    success = success && await _prefs.remove(AppLocalKeys.sessionId);
     return success;
   }
 
@@ -384,5 +385,15 @@ class AppLocalStorage {
   /// Get all keys
   static Set<String> getKeys() {
     return _prefs.getKeys();
+  }
+
+  // ==================== SESSION METHODS ====================
+
+  static Future<bool> saveSessionId(String sessionId) async {
+    return await _prefs.setString(AppLocalKeys.sessionId, sessionId);
+  }
+
+  static String getSessionId() {
+    return _prefs.getString(AppLocalKeys.sessionId) ?? '';
   }
 }

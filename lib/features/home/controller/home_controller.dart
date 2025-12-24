@@ -589,7 +589,24 @@ class HomeController extends GetxController {
         if (snapshot.docs.isNotEmpty) {
           final notification = snapshot.docs.first.data();
           final isRead = notification['isRead'] as bool? ?? false;
-
+          final ts = notification['timestamp'];
+          DateTime? tsDate;
+          if (ts is Timestamp) tsDate = ts.toDate();
+          // Ignore stale notifications (> 60 seconds old)
+          if (tsDate != null &&
+              DateTime.now().difference(tsDate) > const Duration(minutes: 1)) {
+            // Mark as read/cleanup to prevent popup spam after being offline
+            try {
+              FirebaseFirestore.instance
+                  .collection(FirebaseConstants.userCollection)
+                  .doc(currentUserId)
+                  .collection('callNotifications')
+                  .doc(notification['id'] as String)
+                  .update({'isRead': true});
+            } catch (_) {}
+            return;
+          }
+          
           // Only handle unread notifications
           if (!isRead) {
             _handleIncomingCallNotification(notification);

@@ -213,7 +213,7 @@ class ChatScreen extends StatelessWidget {
             color: AppColor.whiteColor,
             size: 24.sp,
           ),
-          onPressed: () => _handleCallOption(controller, 'video'),
+          onPressed: () => _handleCallOption(controller, 'audio'),
         ),
         SizedBox(width: Spacing.xs),
       ],

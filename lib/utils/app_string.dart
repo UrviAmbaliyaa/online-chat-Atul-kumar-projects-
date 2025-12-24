@@ -352,4 +352,10 @@ class AppString {
   static const String callInitializationError = "Failed to start call. Please try again.";
   static const String callNetworkError = "Network error. Please check your internet connection.";
   static const String callServiceError = "Call service error. Please try again.";
+
+  // Single session dialog
+  static const String singleSessionTitle = "Logged in on another device";
+  static const String singleSessionMessage =
+      "Your account was signed in from another device. Please logout and sign in again to continue.";
+  static const String forceLogout = "Logout";
 }

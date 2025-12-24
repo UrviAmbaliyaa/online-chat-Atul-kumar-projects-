@@ -126,6 +126,22 @@ class CallNotificationService {
     String? groupName,
   }) async {
     try {
+      // Avoid duplicate/unanswered stacking: if there is an unread recent notification for same chat, skip creating a new one
+      final cutoff = DateTime.now().subtract(const Duration(minutes: 1));
+      final existing = await _firestore
+          .collection(FirebaseConstants.userCollection)
+          .doc(userId)
+          .collection('callNotifications')
+          .where('chatId', isEqualTo: chatId)
+          .where('isRead', isEqualTo: false)
+          .where('timestamp', isGreaterThan: Timestamp.fromDate(cutoff))
+          .limit(1)
+          .get();
+      if (existing.docs.isNotEmpty) {
+        log('Skipping duplicate call notification for user: $userId chat: $chatId');
+        return;
+      }
+
       final notificationId = DateTime.now().millisecondsSinceEpoch.toString();
 
       await _firestore.collection(FirebaseConstants.userCollection).doc(userId).collection('callNotifications').doc(notificationId).set({

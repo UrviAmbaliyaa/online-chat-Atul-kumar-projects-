@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'dart:math';
 
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
+import 'package:audioplayers/audioplayers.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -57,6 +58,8 @@ class CallingController extends GetxController {
   final callStartTime = Rx<DateTime?>(null);
   final callDuration = Duration.zero.obs;
   Timer? _remoteEmptyTimer;
+  Timer? _noAnswerTimer;
+  final AudioPlayer _outgoingPlayer = AudioPlayer();
 
   // Call rejection listener
   StreamSubscription<QuerySnapshot>? _rejectionListener;
@@ -89,6 +92,8 @@ class CallingController extends GetxController {
     _localVideoViewController?.dispose();
     _engine?.leaveChannel();
     _engine?.release();
+    _stopOutgoingTone();
+    _outgoingPlayer.dispose();
     super.onClose();
   }
 
@@ -199,9 +204,20 @@ class CallingController extends GetxController {
 
       // Send call notifications to all members (only if it's an outgoing call)
       if (!isIncoming) {
+        _playOutgoingTone();
+
         _sendCallNotifications();
         // Listen for call rejections
         _listenForCallRejections();
+        // Auto end if no one joins within 60 seconds (no-answer)
+        _noAnswerTimer?.cancel();
+        _noAnswerTimer = Timer(const Duration(minutes: 1), () {
+          if (!isConnected.value && remoteUsers.isEmpty) {
+            AppSnackbar.warning(message: 'No answer. Ending call');
+            _playBusyCallTone().then((value) => endCall().then((value) => Get.back()));
+          }
+        });
+        // Start outgoing tone until joined or end
       }
 
       // Join channel with the dynamically generated token
@@ -225,6 +241,8 @@ class CallingController extends GetxController {
     _callDurationTimer?.cancel();
     _remoteEmptyTimer?.cancel();
     _remoteEmptyTimer = null;
+    _noAnswerTimer?.cancel();
+    _noAnswerTimer = null;
     // Cancel rejection listener when call ends
     _rejectionListener?.cancel();
     _rejectionListener = null;
@@ -543,12 +561,16 @@ class CallingController extends GetxController {
 
   Future<void> endCall() async {
     try {
+      _stopOutgoingTone();
+      _noAnswerTimer?.cancel();
+      _noAnswerTimer = null;
       callState.value = CallState.ended;
       // Cancel rejection listener before ending call
       _rejectionListener?.cancel();
       _rejectionListener = null;
       await _engine?.leaveChannel();
       _callDurationTimer?.cancel();
+
       developer.log('Call ended by user');
       // Get.back();
     } catch (e, stackTrace) {
@@ -567,6 +589,9 @@ class CallingController extends GetxController {
 
   Future<void> rejectCall() async {
     try {
+      _stopOutgoingTone();
+      _noAnswerTimer?.cancel();
+      _noAnswerTimer = null;
       callState.value = CallState.rejected;
       await _engine?.leaveChannel();
       developer.log('Call rejected');
@@ -650,6 +675,34 @@ class CallingController extends GetxController {
     // Update call state
     callState.value = CallState.failed;
     isConnected.value = false;
+  }
+
+  // ==================== RINGTONE HELPERS ====================
+  Future<void> _playOutgoingTone() async {
+    try {
+      developer.log(":::::::::::::::::::::::::::::::::::::: Play Out Going call sound");
+      await _outgoingPlayer.setReleaseMode(ReleaseMode.loop);
+      await _outgoingPlayer.play(AssetSource('audio/outgoin_call.mp3'));
+    } catch (e) {
+      developer.log('Error playing outgoing tone: $e');
+    }
+  }
+
+  Future<void> _playBusyCallTone() async {
+    try {
+      developer.log(":::::::::::::::::::::::::::::::::::::: Play Busy Person call sound");
+      await _outgoingPlayer.play(AssetSource('audio/busy_user_ring.mp3'));
+    } catch (e) {
+      developer.log('Error playing outgoing tone: $e');
+    }
+  }
+
+  Future<void> _stopOutgoingTone() async {
+    try {
+      await _outgoingPlayer.stop();
+    } catch (e) {
+      developer.log('Error stopping outgoing tone: $e');
+    }
   }
 
   /// Send call notifications to all members
@@ -742,7 +795,7 @@ class CallingController extends GetxController {
           // Call was rejected, end the call
           developer.log('Call rejected by user, ending call');
           AppSnackbar.error(message: 'Call was rejected');
-          endCall();
+          _playBusyCallTone().then((value) => endCall().then((value) => Get.back()));
         }
       });
     } catch (e, stackTrace) {

@@ -43,18 +43,35 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
   bool _isRinging = true;
   final AudioPlayer _audioPlayer = AudioPlayer();
   StreamSubscription<DocumentSnapshot>? _notifSubscription;
+  Timer? _autoCloseTimer;
 
   @override
   void initState() {
     super.initState();
     _startRingtone();
     _listenNotificationCancelled();
+    // Auto-close after 60 seconds if not acted upon
+    _autoCloseTimer = Timer(const Duration(minutes: 1), () async {
+      try {
+        final currentUserId = FirebaseService.getCurrentUserId();
+        if (currentUserId != null) {
+          await CallNotificationService.deleteCallNotification(
+            userId: currentUserId,
+            notificationId: widget.notificationId,
+          );
+        }
+      } catch (_) {}
+      if (mounted) {
+        Get.back();
+      }
+    });
   }
 
   @override
   void dispose() {
     _stopRingtone();
     _notifSubscription?.cancel();
+    _autoCloseTimer?.cancel();
     _audioPlayer.dispose();
     super.dispose();
   }
