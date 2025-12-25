@@ -1,8 +1,10 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:online_chat/features/home/controller/chat_controller.dart';
 import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/group_chat_model.dart';
+import 'package:online_chat/features/home/models/message_model.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/features/home/widgets/delete_group_confirmation_dialog.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
@@ -20,9 +22,11 @@ class EditMembersController extends GetxController {
 
   final RxList<UserModel> availableContacts = <UserModel>[].obs;
   final RxList<UserModel> filteredContacts = <UserModel>[].obs;
+  final RxList<UserModel> groupMembers = <UserModel>[].obs;
+  final RxMap<String, bool> memberAdminStatus = <String, bool>{}.obs; // userId -> isAdmin
   final RxList<String> selectedMemberIds = <String>[].obs;
   final RxList<String> currentMemberIds = <String>[].obs;
-  final RxBool isLoading = false.obs;
+  final RxBool isLoading = true.obs; // Start with true to show shimmer immediately
   final RxBool isUpdating = false.obs;
   final RxBool isDeletingGroup = false.obs;
   final RxBool isCurrentUserAdmin = false.obs;
@@ -38,8 +42,12 @@ class EditMembersController extends GetxController {
     super.onInit();
     groupNameController.text = group.name;
     currentMemberIds.value = List.from(group.members);
-    loadContacts();
-    _checkAdminStatus();
+    _initializeData();
+  }
+
+  Future<void> _initializeData() async {
+    await _checkAdminStatus();
+    await loadContacts();
   }
 
   @override
@@ -69,18 +77,39 @@ class EditMembersController extends GetxController {
   Future<void> loadContacts() async {
     try {
       isLoading.value = true;
-      availableContacts.value = homeController.addedUsers.toList();
-      filteredContacts.value = availableContacts.toList();
 
-      // Pre-select current members (excluding current user)
-      final currentUserId = FirebaseService.getCurrentUserId();
-      selectedMemberIds.value = group.members.where((id) => id != currentUserId).toList();
+      // Load all group members with admin status
+      final membersList = await FirebaseService.getGroupMembers(group.id);
+      groupMembers.value = membersList.map((m) => m['user'] as UserModel).toList();
+
+      // Store admin status for each member
+      memberAdminStatus.clear();
+      for (var memberData in membersList) {
+        final user = memberData['user'] as UserModel;
+        final isAdmin = memberData['isAdmin'] as bool;
+        memberAdminStatus[user.id] = isAdmin;
+      }
+
+      // For admins: also load available contacts to add new members
+      if (isCurrentUserAdmin.value) {
+        availableContacts.value = homeController.addedUsers.toList();
+        filteredContacts.value = availableContacts.toList();
+
+        // Pre-select current members (excluding current user)
+        final currentUserId = FirebaseService.getCurrentUserId();
+        selectedMemberIds.value = group.members.where((id) => id != currentUserId).toList();
+      } else {
+        // For non-admins: show only group members
+        availableContacts.value = [];
+        filteredContacts.value = [];
+      }
 
       // Listen to search changes
       searchController.addListener(_filterContacts);
     } catch (e) {
       availableContacts.value = [];
       filteredContacts.value = [];
+      groupMembers.value = [];
     } finally {
       isLoading.value = false;
     }
@@ -108,6 +137,12 @@ class EditMembersController extends GetxController {
 
   void toggleMemberSelection(String userId) {
     if (!isCurrentUserAdmin.value) return;
+
+    // Prevent selecting admins or current user
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (userId == currentUserId) return; // Can't select yourself
+    if (memberAdminStatus[userId] == true) return; // Can't select admins
+
     if (selectedMemberIds.contains(userId)) {
       selectedMemberIds.remove(userId);
     } else {
@@ -182,6 +217,23 @@ class EditMembersController extends GetxController {
         }
       }
       await homeController.refreshGroups();
+
+      // Update ChatController's group if it exists (when user is in chat screen)
+      try {
+        if (Get.isRegistered<ChatController>()) {
+          final chatController = Get.find<ChatController>();
+          // Check if this ChatController is for the group we just updated
+          if (chatController.chatType.value == ChatType.group && chatController.group.value?.id == group.id) {
+            final updatedGroup = homeController.createdGroups.firstWhereOrNull((g) => g.id == group.id);
+            if (updatedGroup != null) {
+              chatController.group.value = updatedGroup;
+            }
+          }
+        }
+      } catch (e) {
+        // ChatController doesn't exist or not found, which is fine
+      }
+
       AppNavigation.back();
       AppSnackbar.success(message: AppString.groupUpdatedSuccessfully);
     } catch (e) {

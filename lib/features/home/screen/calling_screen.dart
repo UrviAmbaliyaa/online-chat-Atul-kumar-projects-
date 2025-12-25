@@ -2,10 +2,6 @@ import 'dart:developer' as developer;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_callkit_incoming/entities/android_params.dart';
-import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
-import 'package:flutter_callkit_incoming/entities/ios_params.dart';
-import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 import 'package:online_chat/features/home/controller/calling_controller.dart';
@@ -64,10 +60,6 @@ class _CallingScreenState extends State<CallingScreen> {
             children: [
               // Background with gradient
               _buildBackground(),
-              // Video grid for group calls or local video
-              // Obx(
-              //   () => controller.isVideoCall ? _buildVideoGrid(controller) : const SizedBox.shrink(),
-              // ),
               // Main content overlay
               _buildMainContent(controller),
               // Control buttons at bottom
@@ -360,100 +352,90 @@ class _CallingScreenState extends State<CallingScreen> {
     final title = isGroup ? controller.group?.name ?? AppString.groupCall : controller.user?.name ?? AppString.calling;
     final image = isGroup ? controller.group?.groupImage : controller.user?.profileImage;
 
-    return Obx(
-      () {
-        // Hide main content when video call is active and connected
-        if (controller.isVideoCall && controller.isConnected.value && controller.remoteUsers.isNotEmpty) {
-          return const SizedBox.shrink();
-        }
-
-        return SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              children: [
-                SizedBox(height: Spacing.xl * 2),
-                // Status text with animation
-                Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: Spacing.md,
-                    vertical: Spacing.xs,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColor.whiteColor.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20.r),
-                    border: Border.all(
-                      color: AppColor.whiteColor.withOpacity(0.3),
-                      width: 1,
-                    ),
-                  ),
-                  child: AppText(
-                    text: controller.getCallStatus(),
-                    fontSize: 14.sp,
-                    color: AppColor.whiteColor.withOpacity(0.95),
-                    fontWeight: FontWeight.w600,
-                  ),
-                )
-                    .animate(onPlay: (controller) => controller.repeat())
-                    .fade(duration: 1500.ms, begin: 0.7, end: 1.0)
-                    .scale(duration: 1500.ms, begin: const Offset(0.98, 0.98), end: const Offset(1, 1)),
-                SizedBox(height: Spacing.xl * 2),
-                // Profile image with pulsing animation
-                _buildProfileImage(controller, title, image, isGroup)
-                    .animate(onPlay: (controller) => controller.repeat())
-                    .scale(
-                      duration: 2000.ms,
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.05, 1.05),
-                      curve: Curves.easeInOut,
-                    )
-                    .then()
-                    .scale(
-                      duration: 2000.ms,
-                      begin: const Offset(1.05, 1.05),
-                      end: const Offset(1, 1),
-                      curve: Curves.easeInOut,
-                    ),
-                SizedBox(height: Spacing.xl),
-                // Name
-                AppText(
-                  text: title,
-                  fontSize: 32.sp,
-                  color: AppColor.whiteColor,
-                  fontWeight: FontWeight.w700,
-                  textAlign: TextAlign.center,
-                ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
-                SizedBox(height: Spacing.sm),
-                // Additional info
-                if (isGroup)
-                  Obx(
-                    () => AppText(
-                      text:
-                          '${controller.remoteUsers.length + (controller.isVideoCall && controller.isVideoEnabled.value ? 1 : 0)} ${AppString.participants}',
-                      fontSize: 16.sp,
-                      color: AppColor.whiteColor.withOpacity(0.8),
-                      fontWeight: FontWeight.w500,
-                    ),
-                  )
-                else
-                  AppText(
-                    text: controller.user?.email ?? '',
-                    fontSize: 16.sp,
-                    color: AppColor.whiteColor.withOpacity(0.8),
-                    fontWeight: FontWeight.w500,
-                  ),
-                SizedBox(height: Spacing.xl * 1.5),
-                // Call duration (when connected)
-                Obx(
-                  () => controller.isConnected.value
-                      ? _buildCallDuration(controller).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), duration: 300.ms)
-                      : const SizedBox.shrink(),
+    return SafeArea(
+      child: SizedBox(
+        width: double.infinity,
+        child: Column(
+          children: [
+            SizedBox(height: Spacing.xl * 2),
+            // Status text with animation
+            Container(
+              padding: EdgeInsets.symmetric(
+                horizontal: Spacing.md,
+                vertical: Spacing.xs,
+              ),
+              decoration: BoxDecoration(
+                color: AppColor.whiteColor.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20.r),
+                border: Border.all(
+                  color: AppColor.whiteColor.withOpacity(0.3),
+                  width: 1,
                 ),
-              ],
+              ),
+              child: AppText(
+                text: controller.getCallStatus(),
+                fontSize: 14.sp,
+                color: AppColor.whiteColor.withOpacity(0.95),
+                fontWeight: FontWeight.w600,
+              ),
+            )
+                .animate(onPlay: (controller) => controller.repeat())
+                .fade(duration: 1500.ms, begin: 0.7, end: 1.0)
+                .scale(duration: 1500.ms, begin: const Offset(0.98, 0.98), end: const Offset(1, 1)),
+            SizedBox(height: Spacing.xl * 2),
+            // Profile image with pulsing animation
+            _buildProfileImage(controller, title, image, isGroup)
+                .animate(onPlay: (controller) => controller.repeat())
+                .scale(
+                  duration: 2000.ms,
+                  begin: const Offset(1, 1),
+                  end: const Offset(1.05, 1.05),
+                  curve: Curves.easeInOut,
+                )
+                .then()
+                .scale(
+                  duration: 2000.ms,
+                  begin: const Offset(1.05, 1.05),
+                  end: const Offset(1, 1),
+                  curve: Curves.easeInOut,
+                ),
+            SizedBox(height: Spacing.xl),
+            // Name
+            AppText(
+              text: title,
+              fontSize: 32.sp,
+              color: AppColor.whiteColor,
+              fontWeight: FontWeight.w700,
+              textAlign: TextAlign.center,
+            ).animate().fadeIn(duration: 500.ms, delay: 200.ms).slideY(begin: 0.2, end: 0, duration: 500.ms, delay: 200.ms),
+            SizedBox(height: Spacing.sm),
+            // Additional info
+            if (isGroup)
+              Obx(
+                () => AppText(
+                  text: '${controller.remoteUsers.length + 1} ${AppString.participants}',
+                  fontSize: 16.sp,
+                  color: AppColor.whiteColor.withOpacity(0.8),
+                  fontWeight: FontWeight.w500,
+                ),
+              )
+            else
+              AppText(
+                text: controller.user?.email ?? '',
+                fontSize: 16.sp,
+                color: AppColor.whiteColor.withOpacity(0.8),
+                fontWeight: FontWeight.w500,
+              ),
+            SizedBox(height: Spacing.xl * 1.5),
+            // Call duration (when connected)
+            Obx(
+              () => controller.isConnected.value
+                  ? _buildCallDuration(controller).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.9, 0.9), duration: 300.ms)
+                  : const SizedBox.shrink(),
             ),
-          ),
-        );
-      },
+          ],
+        ),
+      ),
     );
   }
 
@@ -529,40 +511,31 @@ class _CallingScreenState extends State<CallingScreen> {
     return Obx(
       () => Container(
         padding: EdgeInsets.symmetric(
-          horizontal: Spacing.lg,
-          vertical: Spacing.md,
+          horizontal: Spacing.xl,
+          vertical: Spacing.md + 2.h,
         ),
         decoration: BoxDecoration(
-          color: AppColor.whiteColor.withOpacity(0.2),
-          borderRadius: BorderRadius.circular(25.r),
+          color: AppColor.whiteColor.withOpacity(0.15),
+          borderRadius: BorderRadius.circular(30.r),
           border: Border.all(
-            color: AppColor.whiteColor.withOpacity(0.3),
-            width: 1,
+            color: AppColor.whiteColor.withOpacity(0.25),
+            width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColor.blackColor.withOpacity(0.2),
-              blurRadius: 10,
-              spreadRadius: 2,
+              color: AppColor.blackColor.withOpacity(0.3),
+              blurRadius: 15,
+              spreadRadius: 0,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              Icons.call,
-              color: AppColor.whiteColor,
-              size: 16.sp,
-            ),
-            SizedBox(width: Spacing.xs),
-            AppText(
-              text: controller.getCallDuration(),
-              fontSize: 18.sp,
-              color: AppColor.whiteColor,
-              fontWeight: FontWeight.w700,
-            ),
-          ],
+        child: AppText(
+          text: controller.getCallDuration(),
+          fontSize: 24.sp,
+          color: AppColor.whiteColor,
+          fontWeight: FontWeight.w800,
+          letterSpacing: 1.2,
         ),
       ),
     );
@@ -612,22 +585,6 @@ class _CallingScreenState extends State<CallingScreen> {
                   isActive: controller.isSpeakerOn.value,
                 ),
               ),
-              // Video toggle (for video calls)
-              // Obx(
-              //   () => controller.isVideoCall
-              //       ? _buildControlButton(
-              //           icon: controller.isVideoEnabled.value
-              //               ? Icons.videocam
-              //               : Icons.videocam_off,
-              //           onPressed: controller.toggleVideo,
-              //           backgroundColor: controller.isVideoEnabled.value
-              //               ? AppColor.blueColor.withOpacity(0.8)
-              //               : AppColor.whiteColor.withOpacity(0.2),
-              //           iconColor: AppColor.whiteColor,
-              //           isActive: controller.isVideoEnabled.value,
-              //         )
-              //       : const SizedBox.shrink(),
-              // ),
               // End call button
               _buildControlButton(
                 icon: Icons.call_end,

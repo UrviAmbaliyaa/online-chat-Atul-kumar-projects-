@@ -97,8 +97,7 @@ class AppString {
 
   // General Messages
   static const String somethingWentWrong = "Something went wrong. Please try again.";
-  static const String operationSuccess = "Operation completed successfully";
-  static const String operationFailed = "Operation failed. Please try again.";
+  static const String operationFailed = "Upload File failed. Please try again.";
   static const String pleaseTryAgain = "Please try again";
 
   // Home Screen
@@ -355,7 +354,6 @@ class AppString {
 
   // Single session dialog
   static const String singleSessionTitle = "Logged in on another device";
-  static const String singleSessionMessage =
-      "Your account was signed in from another device. Please logout and sign in again to continue.";
+  static const String singleSessionMessage = "Your account was signed in from another device. Please logout and sign in again to continue.";
   static const String forceLogout = "Logout";
 }

@@ -22,7 +22,6 @@ Future<void> main() async {
   runApp(const MyApp());
 }
 
-
 /*
 The FCM HTTP v1 API's platform override feature enables a message send request to have different behaviors on different platforms. One use case of this feature is to display different notification message content based on the platform. The feature is most fully used when targeting multiple devices (which might span multiple platforms) with topic messaging. This section walks you through the steps to make your app receive a topic message customized for each platform.
 
@@ -43,8 +42,7 @@ The FCM JS SDK currently does not support client-side topic subscription. Instea
    List<String> registrationTokens =
        Arrays.asList(
            "REPLACE_WITH_FCM_REGISTRATION_TOKEN"); // TODO: add FCM Registration Tokens to
-   // subscribe
-   String topicName = "app_promotion";
+   // subscribe String topicName = "app_promotion";
 
    TopicManagementResponse response =     FirebaseMessaging.getInstance().subscribeToTopic(registrationTokens, topicName);
    System.out.printf("Num tokens successfully subscribed %d", response.getSuccessCount());

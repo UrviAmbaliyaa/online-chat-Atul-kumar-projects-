@@ -146,13 +146,15 @@ class CallingController extends GetxController {
               callState.value = CallState.connected;
               isConnected.value = true;
               callStartTime.value = DateTime.now();
+              // Stop outgoing ringtone when user joins
+              _stopOutgoingTone();
               // Cancel any pending auto-end due to empty channel
               _remoteEmptyTimer?.cancel();
               _remoteEmptyTimer = null;
               // Cancel rejection listener once someone joins (call is accepted)
               _rejectionListener?.cancel();
               _rejectionListener = null;
-              developer.log('User joined, cancelling rejection listener');
+              developer.log('User joined, cancelling rejection listener and stopping ringtone');
             }
             _startCallDurationTimer();
             developer.log('User joined: $remoteUid');
@@ -204,11 +206,16 @@ class CallingController extends GetxController {
 
       // Send call notifications to all members (only if it's an outgoing call)
       if (!isIncoming) {
+        // Start outgoing ringtone (don't await - let it play in background until user joins)
         _playOutgoingTone();
 
+        // Send notifications and set up listeners (non-blocking)
         _sendCallNotifications();
-        // Listen for call rejections
-        _listenForCallRejections();
+        // Listen for call rejections (only for one-to-one calls, not group calls)
+        // In group calls, one rejection shouldn't end the call for everyone
+        if (group == null) {
+          _listenForCallRejections();
+        }
         // Auto end if no one joins within 60 seconds (no-answer)
         _noAnswerTimer?.cancel();
         _noAnswerTimer = Timer(const Duration(minutes: 1), () {
@@ -217,10 +224,9 @@ class CallingController extends GetxController {
             _playBusyCallTone().then((value) => endCall().then((value) => Get.back()));
           }
         });
-        // Start outgoing tone until joined or end
       }
 
-      // Join channel with the dynamically generated token
+      // Join channel with the dynamically generated token (this won't block the ringtone)
       await _joinChannel();
     } catch (e, stackTrace) {
       developer.log(
@@ -265,12 +271,13 @@ class CallingController extends GetxController {
           duration: missed ? null : dur,
         );
         // Cancel incoming notification for callee
+        // Pass null to cancel all notifications for this chat (since we don't track exact call initiation time)
         final currentUserId = FirebaseService.getCurrentUserId();
         if (currentUserId != null) {
           CallNotificationService.cancelCallNotificationsForUsers(
             userIds: [user!.id],
             chatId: chatId,
-            since: started,
+            since: null, // Cancel all notifications for this chat
           );
         }
       } else if (group != null) {
@@ -283,18 +290,22 @@ class CallingController extends GetxController {
           duration: missed ? null : dur,
           missed: missed,
         );
-        // Cancel incoming notifications for group members (except self)
+        // For group calls, only cancel notifications if this is the caller (initiator)
+        // When a member leaves, they should only leave themselves, not cancel others' notifications
+        // Only cancel notifications when the original caller ends the call
         final currentUserId = FirebaseService.getCurrentUserId();
-        if (currentUserId != null) {
+        if (currentUserId != null && !isIncoming) {
+          // This is the caller ending the call - cancel notifications for all members
           final memberIds = List<String>.from(group!.members)..removeWhere((id) => id == currentUserId);
           if (memberIds.isNotEmpty) {
             CallNotificationService.cancelCallNotificationsForUsers(
               userIds: memberIds,
               chatId: chatId,
-              since: started,
+              since: null, // Cancel all notifications for this chat
             );
           }
         }
+        // If it's an incoming call (member), don't cancel others' notifications - they just leave themselves
       }
     } catch (_) {}
   }
@@ -762,40 +773,45 @@ class CallingController extends GetxController {
   }
 
   /// Listen for call rejections and end call if rejected
+  /// Note: Only used for one-to-one calls. For group calls, one rejection shouldn't end the call for everyone.
   void _listenForCallRejections() {
     try {
+      // Don't listen for rejections in group calls - one rejection shouldn't end the call for everyone
+      if (group != null) {
+        return;
+      }
+
       final currentUserId = FirebaseService.getCurrentUserId();
       if (currentUserId == null) return;
 
       final firestore = FirebaseFirestore.instance;
       final callStartTime = DateTime.now();
-      Query query;
 
-      if (group != null) {
-        // For group calls, listen to group call rejections
-        query = firestore
-            .collection(FirebaseConstants.groupCollection)
-            .doc(chatId)
-            .collection('callRejections')
-            .where('rejectedBy', isNotEqualTo: currentUserId)
-            .where('timestamp', isGreaterThan: Timestamp.fromDate(callStartTime));
-      } else {
-        // For one-to-one calls, listen to chat call rejections
-        query = firestore
-            .collection(FirebaseConstants.chatCollection)
-            .doc(chatId)
-            .collection('callRejections')
-            .where('rejectedBy', isNotEqualTo: currentUserId)
-            .where('timestamp', isGreaterThan: Timestamp.fromDate(callStartTime));
-      }
+      // For one-to-one calls, listen to chat call rejections
+      final query = firestore
+          .collection(FirebaseConstants.chatCollection)
+          .doc(chatId)
+          .collection('callRejections')
+          .where('rejectedBy', isNotEqualTo: currentUserId)
+          .where('timestamp', isGreaterThan: Timestamp.fromDate(callStartTime));
 
       _rejectionListener = query.snapshots().listen((snapshot) {
         // Only process rejections if call is still active and not connected yet
         if (snapshot.docs.isNotEmpty && callState.value != CallState.ended && !isConnected.value && remoteUsers.isEmpty) {
-          // Call was rejected, end the call
+          // Call was rejected, end the call and navigate back immediately
           developer.log('Call rejected by user, ending call');
           AppSnackbar.error(message: 'Call was rejected');
-          _playBusyCallTone().then((value) => endCall().then((value) => Get.back()));
+          // Stop outgoing tone, end call, and navigate back
+          _stopOutgoingTone();
+          _noAnswerTimer?.cancel();
+          _noAnswerTimer = null;
+          callState.value = CallState.ended;
+          _rejectionListener?.cancel();
+          _rejectionListener = null;
+          _engine?.leaveChannel();
+          _callDurationTimer?.cancel();
+          // Navigate back immediately
+          Get.back();
         }
       });
     } catch (e, stackTrace) {

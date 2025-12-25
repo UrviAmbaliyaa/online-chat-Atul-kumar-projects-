@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
@@ -6,14 +7,13 @@ import 'package:online_chat/features/home/controller/home_controller.dart';
 import 'package:online_chat/features/home/models/user_model.dart';
 import 'package:online_chat/features/home/screen/chat_screen.dart';
 import 'package:online_chat/navigations/app_navigation.dart';
+import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/app_color.dart';
 import 'package:online_chat/utils/app_profile_image.dart';
 import 'package:online_chat/utils/app_spacing.dart';
 import 'package:online_chat/utils/app_string.dart';
 import 'package:online_chat/utils/app_text.dart';
-import 'package:online_chat/services/firebase_service.dart';
 import 'package:online_chat/utils/firebase_constants.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UsersTabWidget extends StatefulWidget {
   final HomeController controller;

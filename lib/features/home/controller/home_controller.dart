@@ -34,6 +34,7 @@ class HomeController extends GetxController {
   // Stream subscriptions
   final Map<String, StreamSubscription<ChatInfoModel?>> _chatInfoSubscriptions = {};
   StreamSubscription<QuerySnapshot>? _callNotificationSubscription;
+  StreamSubscription<QuerySnapshot>? _groupsSubscription;
 
   @override
   void onInit() {
@@ -57,6 +58,7 @@ class HomeController extends GetxController {
     }
     _chatInfoSubscriptions.clear();
     _callNotificationSubscription?.cancel();
+    _groupsSubscription?.cancel();
     super.onClose();
   }
 
@@ -142,30 +144,79 @@ class HomeController extends GetxController {
     }
   }
 
-  // Load created groups
+  // Load created groups with real-time updates
   Future<void> loadCreatedGroups() async {
+    final currentUserId = FirebaseService.getCurrentUserId();
+    if (currentUserId == null) {
+      createdGroups.value = [];
+      return;
+    }
+
+    // Cancel existing subscription if any
+    _groupsSubscription?.cancel();
+
     try {
-      final currentUserId = FirebaseService.getCurrentUserId();
-      if (currentUserId == null) {
-        createdGroups.value = [];
-        return;
-      }
+      // Load initial data from local storage for immediate display
+      try {
+        final groupsJson = AppLocalStorage.getList('created_groups');
+        if (groupsJson != null && groupsJson.isNotEmpty) {
+          final localGroups = groupsJson.map((json) => GroupChatModel.fromJson(json as Map<String, dynamic>)).toList();
+          createdGroups.value = localGroups;
+          // Setup chat info streams for local groups
+          final groupIds = localGroups.map((group) => group.id).toList();
+          _setupChatInfoStreams(groupIds, isGroup: true);
+        }
+      } catch (_) {}
 
-      // Get groups from Firebase where user is a member
-      final groups = await FirebaseService.getUserGroups(currentUserId);
+      // Set up real-time stream listener for groups
+      _groupsSubscription = FirebaseService.streamUserGroups(currentUserId).listen(
+        (querySnapshot) {
+          try {
+            // Convert QuerySnapshot to GroupChatModel list
+            final groups = querySnapshot.docs.map((doc) {
+              final data = doc.data() as Map<String, dynamic>;
+              return GroupChatModel(
+                id: data['id'] ?? doc.id,
+                name: data['name'] ?? '',
+                description: data['description'],
+                groupImage: data['groupImage'],
+                createdBy: data['createdBy'] ?? '',
+                createdAt: (data['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+                members: List<String>.from(data['members'] ?? []),
+                memberCount: data['memberCount'] ?? 0,
+                lastMessage: data['lastMessage'],
+                lastMessageTime: (data['lastMessageTime'] as Timestamp?)?.toDate(),
+              );
+            }).toList();
 
-      // Sort groups by last message time (most recent first)
-      final sortedGroups = _sortGroupsByLastMessage(groups);
-      createdGroups.value = sortedGroups;
+            // Sort groups by last message time (most recent first)
+            final sortedGroups = _sortGroupsByLastMessage(groups);
+            createdGroups.value = sortedGroups;
 
-      // Setup real-time chat info streams for all groups
-      final groupIds = sortedGroups.map((group) => group.id).toList();
-      _setupChatInfoStreams(groupIds, isGroup: true);
+            // Setup real-time chat info streams for all groups
+            final groupIds = sortedGroups.map((group) => group.id).toList();
+            _setupChatInfoStreams(groupIds, isGroup: true);
 
-      // Save to local storage for offline access
-      final groupsJson = sortedGroups.map((group) => group.toJson()).toList();
-      await AppLocalStorage.setList('created_groups', groupsJson);
+            // Save to local storage for offline access
+            final groupsJson = sortedGroups.map((group) => group.toJson()).toList();
+            AppLocalStorage.setList('created_groups', groupsJson);
+          } catch (e) {
+            log('Error processing groups stream: $e');
+          }
+        },
+        onError: (error) {
+          log('Error in groups stream: $error');
+          // Fallback to local storage on error
+          try {
+            final groupsJson = AppLocalStorage.getList('created_groups');
+            if (groupsJson != null && groupsJson.isNotEmpty) {
+              createdGroups.value = groupsJson.map((json) => GroupChatModel.fromJson(json as Map<String, dynamic>)).toList();
+            }
+          } catch (_) {}
+        },
+      );
     } catch (e) {
+      log('Error setting up groups stream: $e');
       // Fallback to local storage on error
       try {
         final groupsJson = AppLocalStorage.getList('created_groups');
@@ -593,8 +644,7 @@ class HomeController extends GetxController {
           DateTime? tsDate;
           if (ts is Timestamp) tsDate = ts.toDate();
           // Ignore stale notifications (> 60 seconds old)
-          if (tsDate != null &&
-              DateTime.now().difference(tsDate) > const Duration(minutes: 1)) {
+          if (tsDate != null && DateTime.now().difference(tsDate) > const Duration(minutes: 1)) {
             // Mark as read/cleanup to prevent popup spam after being offline
             try {
               FirebaseFirestore.instance
@@ -606,7 +656,7 @@ class HomeController extends GetxController {
             } catch (_) {}
             return;
           }
-          
+
           // Only handle unread notifications
           if (!isRead) {
             _handleIncomingCallNotification(notification);
@@ -634,19 +684,35 @@ class HomeController extends GetxController {
         return;
       }
 
-      // Mark as read immediately to avoid repeated dialogs
       final currentUserId = FirebaseService.getCurrentUserId();
-      if (currentUserId != null) {
-        try {
-          await FirebaseFirestore.instance
-              .collection(FirebaseConstants.userCollection)
-              .doc(currentUserId)
-              .collection('callNotifications')
-              .doc(notificationId)
-              .update({'isRead': true});
-        } catch (_) {
-          // ignore
-        }
+      if (currentUserId == null) {
+        return;
+      }
+
+      // Verify notification still exists before proceeding (caller may have ended the call)
+      // This check prevents showing dialog for calls that have already ended
+      final notificationDoc = await FirebaseFirestore.instance
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId)
+          .collection('callNotifications')
+          .doc(notificationId)
+          .get();
+
+      // If notification doesn't exist, caller has already ended the call - don't show dialog
+      if (!notificationDoc.exists) {
+        return;
+      }
+
+      // Mark as read immediately to avoid repeated dialogs
+      try {
+        await FirebaseFirestore.instance
+            .collection(FirebaseConstants.userCollection)
+            .doc(currentUserId)
+            .collection('callNotifications')
+            .doc(notificationId)
+            .update({'isRead': true});
+      } catch (_) {
+        // ignore - notification may have been deleted
       }
 
       // Get caller information
@@ -679,6 +745,20 @@ class HomeController extends GetxController {
         if (callerDoc.exists && callerDoc.data() != null) {
           caller = UserModel.fromFirestore(callerDoc.data()!, callerId);
         }
+      }
+
+      // Verify notification still exists one more time after loading user/group data
+      // (in case it was deleted while we were loading)
+      final notificationDocAfterLoad = await FirebaseFirestore.instance
+          .collection(FirebaseConstants.userCollection)
+          .doc(currentUserId)
+          .collection('callNotifications')
+          .doc(notificationId)
+          .get();
+
+      // If notification doesn't exist, caller has already ended the call - don't show dialog
+      if (!notificationDocAfterLoad.exists) {
+        return;
       }
 
       // Show incoming call dialog instead of navigating directly

@@ -50,6 +50,7 @@ class ChatController extends GetxController {
   final RxString highlightedMessageId = ''.obs;
 
   StreamSubscription<DocumentSnapshot>? _messagesSubscription;
+  StreamSubscription<DocumentSnapshot>? _userPresenceSubscription;
 
   @override
   void onInit() {
@@ -60,6 +61,7 @@ class ChatController extends GetxController {
   @override
   void onClose() {
     _messagesSubscription?.cancel();
+    _userPresenceSubscription?.cancel();
     scrollController.dispose();
     super.onClose();
   }
@@ -83,9 +85,49 @@ class ChatController extends GetxController {
           );
         }
         groupMemberNames.clear();
+        // Set up real-time presence listener for the other user
+        _setupUserPresenceListener(otherUser.value!.id);
       }
     }
     _loadMessages();
+  }
+
+  /// Set up real-time presence listener for the other user (online status and lastSeen)
+  void _setupUserPresenceListener(String userId) {
+    // Cancel existing subscription if any
+    _userPresenceSubscription?.cancel();
+
+    // Set up real-time stream for user presence
+    _userPresenceSubscription = FirebaseService.streamUserPresence(userId).listen(
+      (docSnapshot) {
+        if (docSnapshot.exists && otherUser.value != null) {
+          try {
+            final data = docSnapshot.data() as Map<String, dynamic>;
+            final isOnline = data['isOnline'] as bool? ?? false;
+            final lastSeenTimestamp = data['lastSeen'];
+            DateTime? lastSeen;
+            if (lastSeenTimestamp != null) {
+              if (lastSeenTimestamp is Timestamp) {
+                lastSeen = lastSeenTimestamp.toDate();
+              } else if (lastSeenTimestamp is String) {
+                lastSeen = DateTime.parse(lastSeenTimestamp);
+              }
+            }
+
+            // Update otherUser with new presence data
+            otherUser.value = otherUser.value!.copyWith(
+              isOnline: isOnline,
+              lastSeen: lastSeen,
+            );
+          } catch (e) {
+            log('Error updating user presence: $e');
+          }
+        }
+      },
+      onError: (error) {
+        log('Error in user presence stream: $error');
+      },
+    );
   }
 
   /// Load group member names (first 4, excluding current user)
@@ -191,8 +233,10 @@ class ChatController extends GetxController {
           }
         });
       },
-      onError: (error) {
+      onError: (error, starck) {
+        log(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: 11111 >>>>>>> $error >>>>>>> $starck");
         isLoadingMessages.value = false;
+
         AppSnackbar.error(message: AppString.sendMessageError);
       },
     );
@@ -367,7 +411,8 @@ class ChatController extends GetxController {
         // Ensure sender is auto-added to recipient's contacts
         _ensureReciprocalContact();
       }
-    } catch (e) {
+    } catch (error, starck) {
+      log(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: 11111 >>>>>>> $error >>>>>>> $starck");
       AppSnackbar.error(message: AppString.sendMessageError);
     } finally {
       isSending.value = false;
@@ -419,7 +464,6 @@ class ChatController extends GetxController {
 
       if (messageId != null) {
         pendingMessageIds.add(messageId);
-        AppSnackbar.success(message: AppString.operationSuccess);
 
         // Ensure sender is auto-added to recipient's contacts
         _ensureReciprocalContact();
@@ -484,7 +528,6 @@ class ChatController extends GetxController {
 
       if (messageId != null) {
         pendingMessageIds.add(messageId);
-        AppSnackbar.success(message: AppString.operationSuccess);
 
         // Ensure sender is auto-added to recipient's contacts
         _ensureReciprocalContact();

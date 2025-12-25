@@ -288,12 +288,12 @@ class EditMembersScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   AppText(
-                    text: AppString.selectMembers,
+                    text: 'Group Members (${controller.groupMembers.length})',
                     fontSize: 12.sp,
                     fontWeight: FontWeight.w600,
                     color: AppColor.darkGrey,
                   ),
-                  if (controller.selectedMemberIds.isNotEmpty)
+                  if (controller.isCurrentUserAdmin.value && controller.selectedMemberIds.isNotEmpty)
                     Container(
                       padding: EdgeInsets.symmetric(
                         horizontal: 6.w,
@@ -313,30 +313,66 @@ class EditMembersScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Search field
-            Padding(
-              padding: EdgeInsets.symmetric(horizontal: Spacing.md),
-              child: AppTextField(
-                controller: controller.searchController,
-                hintText: 'Search members...',
-                prefixIcon: Icon(
-                  Icons.search,
-                  color: AppColor.primaryColor,
-                  size: 18.sp,
-                ),
-                textStyle: TextStyle(
-                  fontSize: 13.sp,
-                  color: AppColor.darkGrey,
+            // Search field (only for admins who can add members)
+            if (controller.isCurrentUserAdmin.value)
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+                child: AppTextField(
+                  controller: controller.searchController,
+                  hintText: 'Search members...',
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: AppColor.primaryColor,
+                    size: 18.sp,
+                  ),
+                  textStyle: TextStyle(
+                    fontSize: 13.sp,
+                    color: AppColor.darkGrey,
+                  ),
                 ),
               ),
-            ),
             SizedBox(height: Spacing.sm),
             ConstrainedBox(
               constraints: BoxConstraints(
                 maxHeight: 300.h,
               ),
-              child: controller.filteredContacts.isEmpty ? _buildEmptyContactsState() : _buildContactsList(controller),
+              child: Obx(() {
+                // Show group members list (all members can see this)
+                if (controller.groupMembers.isEmpty) {
+                  return _buildEmptyContactsState();
+                }
+                return _buildGroupMembersList(controller);
+              }),
             ),
+            // For admins: show contacts section to add new members
+            if (controller.isCurrentUserAdmin.value) ...[
+              SizedBox(height: Spacing.md),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+                child: Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: AppColor.lightGrey.withOpacity(0.5),
+                ),
+              ),
+              SizedBox(height: Spacing.sm),
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+                child: AppText(
+                  text: 'Add New Members',
+                  fontSize: 12.sp,
+                  fontWeight: FontWeight.w600,
+                  color: AppColor.darkGrey,
+                ),
+              ),
+              SizedBox(height: Spacing.sm),
+              ConstrainedBox(
+                constraints: BoxConstraints(
+                  maxHeight: 300.h,
+                ),
+                child: controller.filteredContacts.isEmpty ? _buildEmptyContactsState() : _buildContactsList(controller),
+              ),
+            ],
             SizedBox(height: Spacing.sm),
           ],
         ),
@@ -373,6 +409,27 @@ class EditMembersScreen extends StatelessWidget {
     );
   }
 
+  Widget _buildGroupMembersList(EditMembersController controller) {
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const AlwaysScrollableScrollPhysics(),
+      padding: EdgeInsets.symmetric(horizontal: Spacing.md),
+      itemCount: controller.groupMembers.length,
+      separatorBuilder: (context, index) => SizedBox(height: Spacing.xs),
+      itemBuilder: (context, index) {
+        final member = controller.groupMembers[index];
+        final isAdmin = controller.memberAdminStatus[member.id] ?? false;
+        final currentUserId = FirebaseService.getCurrentUserId();
+        final isCurrentUser = member.id == currentUserId;
+        // Admins cannot be selected for removal, and current user cannot select themselves
+        final canSelect = controller.isCurrentUserAdmin.value && !isAdmin && !isCurrentUser;
+        final isSelected = canSelect && controller.isMemberSelected(member.id);
+
+        return _buildGroupMemberItem(controller, member, isAdmin, isSelected, isCurrentUser);
+      },
+    );
+  }
+
   Widget _buildContactsList(EditMembersController controller) {
     return ListView.separated(
       shrinkWrap: true,
@@ -382,18 +439,132 @@ class EditMembersScreen extends StatelessWidget {
       separatorBuilder: (context, index) => SizedBox(height: Spacing.xs),
       itemBuilder: (context, index) {
         final contact = controller.filteredContacts[index];
+        // Don't show contacts that are already group members
+        final isAlreadyMember = controller.groupMembers.any((m) => m.id == contact.id);
+        if (isAlreadyMember) {
+          return const SizedBox.shrink();
+        }
         final isSelected = controller.isMemberSelected(contact.id) && controller.isCurrentUserAdmin.value;
 
-        return _buildContactItem(controller, contact, isSelected);
+        return _buildContactItem(controller, contact, isSelected, isAdmin: false);
       },
     );
+  }
+
+  Widget _buildGroupMemberItem(
+    EditMembersController controller,
+    UserModel member,
+    bool isAdmin,
+    bool isSelected,
+    bool isCurrentUser,
+  ) {
+    // Admins and current user cannot be selected
+    final canSelect = controller.isCurrentUserAdmin.value && !isAdmin && !isCurrentUser;
+
+    return InkWell(
+        onTap: canSelect ? () => controller.toggleMemberSelection(member.id) : null,
+        borderRadius: BorderRadius.circular(6.r),
+        child: Container(
+          padding: EdgeInsets.symmetric(
+            horizontal: Spacing.sm,
+            vertical: Spacing.xs,
+          ),
+          decoration: BoxDecoration(
+            color: isSelected ? AppColor.primaryColor.withOpacity(0.1) : Colors.transparent,
+            borderRadius: BorderRadius.circular(6.r),
+            border: Border.all(
+              color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withOpacity(0.5),
+              width: isSelected ? 1.5 : 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              // Checkbox (only for non-admin, non-current-user members when current user is admin)
+              if (canSelect) ...[
+                Container(
+                  width: 20.w,
+                  height: 20.h,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isSelected ? AppColor.primaryColor : Colors.transparent,
+                    border: Border.all(
+                      color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withOpacity(0.5),
+                      width: 1.5,
+                    ),
+                  ),
+                  child: isSelected
+                      ? Icon(
+                          Icons.check,
+                          color: AppColor.whiteColor,
+                          size: 14.sp,
+                        )
+                      : null,
+                ),
+                SizedBox(width: Spacing.sm),
+              ],
+
+              // Profile Picture
+              _buildContactAvatar(member),
+              SizedBox(width: Spacing.sm),
+              // Contact Info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: AppText(
+                            text: isCurrentUser ? '${member.name} (You)' : member.name,
+                            fontSize: 13.sp,
+                            fontWeight: FontWeight.w600,
+                            color: AppColor.darkGrey,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        if (isAdmin)
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 6.w,
+                              vertical: 2.h,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColor.primaryColor.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(4.r),
+                            ),
+                            child: AppText(
+                              text: 'Admin',
+                              fontSize: 9.sp,
+                              fontWeight: FontWeight.w700,
+                              color: AppColor.primaryColor,
+                            ),
+                          ),
+                      ],
+                    ),
+                    SizedBox(height: 1.h),
+                    AppText(
+                      text: member.email,
+                      fontSize: 11.sp,
+                      color: AppColor.greyColor,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ));
   }
 
   Widget _buildContactItem(
     EditMembersController controller,
     UserModel contact,
-    bool isSelected,
-  ) {
+    bool isSelected, {
+    bool isAdmin = false,
+  }) {
     return InkWell(
       onTap: () => controller.toggleMemberSelection(contact.id),
       borderRadius: BorderRadius.circular(6.r),
@@ -445,13 +616,36 @@ class EditMembersScreen extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  AppText(
-                    text: contact.name,
-                    fontSize: 13.sp,
-                    fontWeight: FontWeight.w600,
-                    color: AppColor.darkGrey,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppText(
+                          text: contact.name,
+                          fontSize: 13.sp,
+                          fontWeight: FontWeight.w600,
+                          color: AppColor.darkGrey,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (isAdmin)
+                        Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 6.w,
+                            vertical: 2.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColor.primaryColor.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(4.r),
+                          ),
+                          child: AppText(
+                            text: 'Admin',
+                            fontSize: 9.sp,
+                            fontWeight: FontWeight.w700,
+                            color: AppColor.primaryColor,
+                          ),
+                        ),
+                    ],
                   ),
                   SizedBox(height: 1.h),
                   AppText(

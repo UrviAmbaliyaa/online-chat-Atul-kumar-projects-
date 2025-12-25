@@ -960,6 +960,13 @@ class FirebaseService {
     } catch (_) {}
   }
 
+  /// Stream user presence (isOnline and lastSeen) for real-time updates
+  /// [userId] - User ID to stream presence for
+  /// Returns stream of DocumentSnapshot with user presence data
+  static Stream<DocumentSnapshot> streamUserPresence(String userId) {
+    return _firestore.collection(FirebaseConstants.userCollection).doc(userId).snapshots();
+  }
+
   // ==================== GROUP METHODS ====================
 
   /// Create a new group
@@ -1047,6 +1054,13 @@ class FirebaseService {
       log("Get user groups error: $e");
       return [];
     }
+  }
+
+  /// Stream groups where user is a member (real-time updates)
+  /// [userId] - User ID
+  /// Returns stream of QuerySnapshot containing groups
+  static Stream<QuerySnapshot> streamUserGroups(String userId) {
+    return _firestore.collection(FirebaseConstants.groupCollection).where('members', arrayContains: userId).snapshots();
   }
 
   /// Update group name
@@ -1434,8 +1448,8 @@ class FirebaseService {
         'replyToMessageId': replyToMessageId,
         'replyToMessage': replyToMessage,
         'replyToSenderName': replyToSenderName,
-        // Use server-side time to avoid device clock skew
-        'timestamp': FieldValue.serverTimestamp(),
+        // Use client-side timestamp (FieldValue.serverTimestamp() is not supported inside arrays)
+        'timestamp': Timestamp.fromDate(DateTime.now()),
         'isRead': false,
         'readBy': [],
       };
@@ -1480,7 +1494,8 @@ class FirebaseService {
       }
 
       return messageId;
-    } catch (e) {
+    } catch (error, starck) {
+      log(":::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::: 11111 >>>>>>> $error >>>>>>> $starck");
       AppSnackbar.error(message: AppString.sendMessageError);
       return null;
     }

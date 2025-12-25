@@ -11,6 +11,7 @@ class AppText extends StatelessWidget {
   final Color? color;
   final FontWeight? fontWeight;
   final double? fontSize;
+  final double? letterSpacing;
 
   const AppText({
     required this.text,
@@ -22,6 +23,7 @@ class AppText extends StatelessWidget {
     this.color,
     this.fontWeight,
     this.fontSize,
+    this.letterSpacing,
   });
 
   @override
@@ -31,9 +33,9 @@ class AppText extends StatelessWidget {
         maxLines: maxLines,
         overflow: overflow,
         style: TextStyle(
-          fontSize: fontSize ?? 14.r,
-          color: color ?? AppColor.blackColor,
-          fontWeight: fontWeight ?? FontWeight.w400,
-        ));
+            fontSize: fontSize ?? 14.r,
+            color: color ?? AppColor.blackColor,
+            fontWeight: fontWeight ?? FontWeight.w400,
+            letterSpacing: letterSpacing));
   }
 }

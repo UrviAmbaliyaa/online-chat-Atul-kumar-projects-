@@ -178,24 +178,19 @@ class ChatScreen extends StatelessWidget {
                         if (otherUser == null) {
                           return const SizedBox.shrink();
                         }
-                        return StreamBuilder<DateTime>(
-                          stream: Stream.periodic(const Duration(seconds: 30), (_) => DateTime.now()),
-                          initialData: DateTime.now(),
-                          builder: (context, snapshot) {
-                            String statusText;
-                            if (otherUser.isOnline) {
-                              statusText = AppString.online;
-                            } else if (otherUser.lastSeen != null) {
-                              statusText = '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
-                            } else {
-                              statusText = AppString.offline;
-                            }
-                            return AppText(
-                              text: statusText,
-                              fontSize: 12.sp,
-                              color: AppColor.whiteColor.withOpacity(0.8),
-                            );
-                          },
+                        // Real-time status text based on updated otherUser value
+                        String statusText;
+                        if (otherUser.isOnline) {
+                          statusText = AppString.online;
+                        } else if (otherUser.lastSeen != null) {
+                          statusText = '${AppString.lastSeen} ${_formatLastSeen(otherUser.lastSeen!)}';
+                        } else {
+                          statusText = AppString.offline;
+                        }
+                        return AppText(
+                          text: statusText,
+                          fontSize: 12.sp,
+                          color: AppColor.whiteColor.withOpacity(0.8),
                         );
                       }),
                   ],
@@ -206,15 +201,28 @@ class ChatScreen extends StatelessWidget {
         );
       }),
       actions: [
-        // Direct call button
-        IconButton(
-          icon: Icon(
-            Icons.call_rounded,
-            color: AppColor.whiteColor,
-            size: 24.sp,
-          ),
-          onPressed: () => _handleCallOption(controller, 'audio'),
-        ),
+        // Audio call button - Hide for groups with only one member
+        Obx(() {
+          final isGroup = controller.chatType.value == ChatType.group;
+          final group = controller.group.value;
+
+          // Hide button if it's a group with only one member
+          if (isGroup && group != null) {
+            if (group.members.length <= 1 || group.memberCount <= 1) {
+              return const SizedBox.shrink();
+            }
+          }
+
+          return IconButton(
+            icon: Icon(
+              Icons.call_rounded,
+              color: AppColor.whiteColor,
+              size: 24.sp,
+            ),
+            onPressed: () => _handleCallOption(controller, 'audio'),
+            tooltip: 'Audio call',
+          );
+        }),
         SizedBox(width: Spacing.xs),
       ],
     );
