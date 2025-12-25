@@ -121,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
             borderRadius: BorderRadius.circular(6.r),
             boxShadow: [
               BoxShadow(
-                color: AppColor.primaryColor.withOpacity(0.08),
+                color: AppColor.primaryColor.withValues(alpha: 0.08),
                 blurRadius: 6,
                 spreadRadius: 0,
                 offset: const Offset(0, 2),
@@ -227,7 +227,7 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(6.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 6,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -259,7 +259,7 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -284,7 +284,7 @@ class SettingsScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -331,7 +331,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
-          color: (iconColor ?? AppColor.primaryColor).withOpacity(0.1),
+          color: (iconColor ?? AppColor.primaryColor).withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
@@ -369,7 +369,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
-          color: AppColor.primaryColor.withOpacity(0.1),
+          color: AppColor.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
@@ -389,7 +389,7 @@ class SettingsScreen extends StatelessWidget {
         onChanged: onChanged,
         activeColor: AppColor.primaryColor,
         inactiveThumbColor: AppColor.lightGrey,
-        inactiveTrackColor: AppColor.lightGrey.withOpacity(0.5),
+        inactiveTrackColor: AppColor.lightGrey.withValues(alpha: 0.5),
       ),
     );
   }
@@ -408,7 +408,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
-          color: AppColor.primaryColor.withOpacity(0.1),
+          color: AppColor.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(
@@ -456,7 +456,7 @@ class SettingsScreen extends StatelessWidget {
       leading: Container(
         padding: EdgeInsets.all(6.w),
         decoration: BoxDecoration(
-          color: AppColor.primaryColor.withOpacity(0.1),
+          color: AppColor.primaryColor.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(6.r),
         ),
         child: Icon(

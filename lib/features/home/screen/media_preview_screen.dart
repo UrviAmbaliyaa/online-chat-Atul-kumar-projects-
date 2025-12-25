@@ -126,7 +126,7 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
           width: 44.w,
           height: 44.h,
           decoration: BoxDecoration(
-            color: AppColor.primaryColor.withOpacity(0.1),
+            color: AppColor.primaryColor.withValues(alpha: 0.1),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -187,11 +187,11 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
           width: 44.w,
           height: 44.h,
           decoration: BoxDecoration(
-            color: isDisabled ? AppColor.primaryColor.withOpacity(0.5) : AppColor.primaryColor,
+            color: isDisabled ? AppColor.primaryColor.withValues(alpha: 0.5) : AppColor.primaryColor,
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColor.primaryColor.withOpacity(0.3),
+                color: AppColor.primaryColor.withValues(alpha: 0.3),
                 blurRadius: 8,
                 spreadRadius: 0,
                 offset: const Offset(0, 2),
@@ -304,7 +304,7 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
             AppText(
               text: fileSize,
               fontSize: 12.sp,
-              color: AppColor.primaryColor.withOpacity(0.8),
+              color: AppColor.primaryColor.withValues(alpha: 0.8),
               textAlign: TextAlign.center,
             ),
         ],
@@ -373,7 +373,7 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColor.primaryColor.withOpacity(0.3),
+              color: AppColor.primaryColor.withValues(alpha: 0.3),
               blurRadius: 8,
               spreadRadius: 0,
               offset: const Offset(0, 2),
@@ -411,7 +411,7 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
                   value: _downloadProgress > 0 && _downloadProgress < 1 ? _downloadProgress : null,
                   strokeWidth: 2,
                   color: AppColor.whiteColor,
-                  backgroundColor: AppColor.whiteColor.withOpacity(0.2),
+                  backgroundColor: AppColor.whiteColor.withValues(alpha: 0.2),
                 ),
               ),
               SizedBox(width: Spacing.sm),

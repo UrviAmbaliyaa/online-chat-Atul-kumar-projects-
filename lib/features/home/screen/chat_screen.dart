@@ -74,7 +74,7 @@ class ChatScreen extends StatelessWidget {
                         return Container(
                           decoration: isHighlighted
                               ? BoxDecoration(
-                                  color: AppColor.primaryColor.withOpacity(0.1),
+                                  color: AppColor.primaryColor.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(8.r),
                                 )
                               : null,
@@ -167,7 +167,7 @@ class ChatScreen extends StatelessWidget {
                         return AppText(
                           text: memberNames.join(', '),
                           fontSize: 12.sp,
-                          color: AppColor.whiteColor.withOpacity(0.8),
+                          color: AppColor.whiteColor.withValues(alpha: 0.8),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         );
@@ -190,7 +190,7 @@ class ChatScreen extends StatelessWidget {
                         return AppText(
                           text: statusText,
                           fontSize: 12.sp,
-                          color: AppColor.whiteColor.withOpacity(0.8),
+                          color: AppColor.whiteColor.withValues(alpha: 0.8),
                         );
                       }),
                   ],
@@ -241,10 +241,10 @@ class ChatScreen extends StatelessWidget {
         margin: EdgeInsets.symmetric(horizontal: Spacing.md, vertical: Spacing.xs),
         padding: EdgeInsets.all(Spacing.md),
         decoration: BoxDecoration(
-          color: AppColor.primaryColor.withOpacity(0.05),
+          color: AppColor.primaryColor.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12.r),
           border: Border.all(
-            color: AppColor.primaryColor.withOpacity(0.2),
+            color: AppColor.primaryColor.withValues(alpha: 0.2),
             width: 1,
           ),
         ),
@@ -313,7 +313,7 @@ class ChatScreen extends StatelessWidget {
         color: AppColor.whiteColor,
         boxShadow: [
           BoxShadow(
-            color: AppColor.greyColor.withOpacity(0.1),
+            color: AppColor.greyColor.withValues(alpha: 0.1),
             blurRadius: 8,
             offset: const Offset(0, -2),
           ),
@@ -331,7 +331,7 @@ class ChatScreen extends StatelessWidget {
               // Attachment button
               Container(
                 decoration: BoxDecoration(
-                  color: AppColor.primaryColor.withOpacity(0.1),
+                  color: AppColor.primaryColor.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12.r),
                 ),
                 child: IconButton(
@@ -363,7 +363,7 @@ class ChatScreen extends StatelessWidget {
                         controller.scrollToBottom(animate: true); // private but same lib
                       });
                     },
-                    fillColor: AppColor.lightGrey.withOpacity(0.3),
+                    fillColor: AppColor.lightGrey.withValues(alpha: 0.3),
                     borderColor: Colors.transparent,
                     borderRadius: 8.r,
                     contentPadding: EdgeInsets.symmetric(
@@ -401,7 +401,7 @@ class ChatScreen extends StatelessWidget {
                     width: 44.w,
                     height: 44.h,
                     decoration: BoxDecoration(
-                      color: AppColor.primaryColor.withOpacity(0.1),
+                      color: AppColor.primaryColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: Center(
@@ -428,7 +428,7 @@ class ChatScreen extends StatelessWidget {
                       boxShadow: hasText
                           ? [
                               BoxShadow(
-                                color: AppColor.primaryColor.withOpacity(0.3),
+                                color: AppColor.primaryColor.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 spreadRadius: 0,
                                 offset: const Offset(0, 2),
@@ -546,12 +546,12 @@ class ChatScreen extends StatelessWidget {
             color: AppColor.whiteColor,
             borderRadius: BorderRadius.circular(12.r),
             border: Border.all(
-              color: AppColor.lightGrey.withOpacity(0.3),
+              color: AppColor.lightGrey.withValues(alpha: 0.3),
               width: 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: optionColor.withOpacity(0.08),
+                color: optionColor.withValues(alpha: 0.08),
                 blurRadius: 6,
                 spreadRadius: 0,
                 offset: const Offset(0, 2),
@@ -568,14 +568,14 @@ class ChatScreen extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      optionColor.withOpacity(0.2),
-                      optionColor.withOpacity(0.1),
+                      optionColor.withValues(alpha: 0.2),
+                      optionColor.withValues(alpha: 0.1),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(10.r),
                   boxShadow: [
                     BoxShadow(
-                      color: optionColor.withOpacity(0.15),
+                      color: optionColor.withValues(alpha: 0.15),
                       blurRadius: 3,
                       spreadRadius: 0,
                       offset: const Offset(0, 1),
@@ -611,7 +611,7 @@ class ChatScreen extends StatelessWidget {
               ),
               Icon(
                 Icons.chevron_right_rounded,
-                color: AppColor.greyColor.withOpacity(0.5),
+                color: AppColor.greyColor.withValues(alpha: 0.5),
                 size: 18.sp,
               ),
             ],
@@ -709,7 +709,7 @@ class ChatScreen extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.all(Spacing.md),
         decoration: BoxDecoration(
-          color: AppColor.lightGrey.withOpacity(0.3),
+          color: AppColor.lightGrey.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(12.r),
         ),
         child: Row(

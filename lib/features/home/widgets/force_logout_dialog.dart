@@ -34,7 +34,7 @@ class ForceLogoutDialog extends StatelessWidget {
                 height: 80.h,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: AppColor.primaryColor.withOpacity(0.1),
+                  color: AppColor.primaryColor.withValues(alpha: 0.1),
                 ),
                 child: Icon(
                   Icons.login_rounded,
@@ -77,7 +77,7 @@ class ForceLogoutDialog extends StatelessWidget {
                         color: AppColor.primaryColor,
                         boxShadow: [
                           BoxShadow(
-                            color: AppColor.primaryColor.withOpacity(0.3),
+                            color: AppColor.primaryColor.withValues(alpha: 0.3),
                             blurRadius: 8,
                             spreadRadius: 0,
                             offset: const Offset(0, 4),

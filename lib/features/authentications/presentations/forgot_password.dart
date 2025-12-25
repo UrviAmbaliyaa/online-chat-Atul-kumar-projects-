@@ -149,7 +149,7 @@ class ForgotPasswordScreen extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppColor.primaryColor.withOpacity(0.3),
+              color: AppColor.primaryColor.withValues(alpha: 0.3),
               blurRadius: 20,
               spreadRadius: 5,
             ),
@@ -162,7 +162,7 @@ class ForgotPasswordScreen extends StatelessWidget {
         ),
       )
           .animate(onPlay: (controller) => controller.repeat())
-          .shimmer(duration: 2000.ms, color: AppColor.whiteColor.withOpacity(0.3))
+          .shimmer(duration: 2000.ms, color: AppColor.whiteColor.withValues(alpha: 0.3))
           .then()
           .scale(duration: 1000.ms, begin: const Offset(1, 1), end: const Offset(1.05, 1.05))
           .then()
@@ -250,7 +250,7 @@ class ForgotPasswordScreen extends StatelessWidget {
       width: 120.w,
       height: 120.h,
       decoration: BoxDecoration(
-        color: AppColor.successColor.withOpacity(0.1),
+        color: AppColor.successColor.withValues(alpha: 0.1),
         shape: BoxShape.circle,
       ),
       child: Icon(

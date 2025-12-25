@@ -28,13 +28,13 @@ class ChatEmptyState extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      AppColor.primaryColor.withOpacity(0.2),
-                      AppColor.primaryColor.withOpacity(0.1),
+                      AppColor.primaryColor.withValues(alpha: 0.2),
+                      AppColor.primaryColor.withValues(alpha: 0.1),
                     ],
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColor.primaryColor.withOpacity(0.2),
+                      color: AppColor.primaryColor.withValues(alpha: 0.2),
                       blurRadius: 20,
                       spreadRadius: 5,
                     ),
@@ -46,7 +46,7 @@ class ChatEmptyState extends StatelessWidget {
                     height: 100.h,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColor.primaryColor.withOpacity(0.15),
+                      color: AppColor.primaryColor.withValues(alpha: 0.15),
                     ),
                     child: Icon(
                       Icons.chat_bubble_outline_rounded,
@@ -85,7 +85,7 @@ class ChatEmptyState extends StatelessWidget {
                 shaderCallback: (bounds) => LinearGradient(
                   colors: [
                     AppColor.primaryColor,
-                    AppColor.primaryColor.withOpacity(0.8),
+                    AppColor.primaryColor.withValues(alpha: 0.8),
                   ],
                 ).createShader(bounds),
                 child: AppText(
@@ -107,7 +107,7 @@ class ChatEmptyState extends StatelessWidget {
                   .shimmer(
                     duration: 2000.ms,
                     delay: 1000.ms,
-                    color: Colors.white.withOpacity(0.3),
+                    color: Colors.white.withValues(alpha: 0.3),
                   ),
               SizedBox(height: Spacing.md),
               // Subtitle with fade animation
@@ -155,7 +155,7 @@ class ChatEmptyState extends StatelessWidget {
                     margin: EdgeInsets.symmetric(horizontal: 4.w),
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: AppColor.primaryColor.withOpacity(0.3),
+                      color: AppColor.primaryColor.withValues(alpha: 0.3),
                     ),
                   )
                       .animate(onPlay: (controller) => controller.repeat())

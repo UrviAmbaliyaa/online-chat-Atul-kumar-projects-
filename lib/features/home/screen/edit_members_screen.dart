@@ -87,7 +87,7 @@ class EditMembersScreen extends StatelessWidget {
                               color: AppColor.whiteColor,
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppColor.greyColor.withOpacity(0.1),
+                                  color: AppColor.greyColor.withValues(alpha: 0.1),
                                   blurRadius: 4,
                                   spreadRadius: 0,
                                   offset: const Offset(0, -2),
@@ -145,7 +145,7 @@ class EditMembersScreen extends StatelessWidget {
       bottom: PreferredSize(
         preferredSize: Size.fromHeight(1.h),
         child: Container(
-          color: AppColor.lightGrey.withOpacity(0.5),
+          color: AppColor.lightGrey.withValues(alpha: 0.5),
           height: 1.h,
         ),
       ),
@@ -160,7 +160,7 @@ class EditMembersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(12.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 15,
             spreadRadius: 0,
             offset: const Offset(0, 4),
@@ -185,7 +185,7 @@ class EditMembersScreen extends StatelessWidget {
               ),
               boxShadow: [
                 BoxShadow(
-                  color: AppColor.primaryColor.withOpacity(0.3),
+                  color: AppColor.primaryColor.withValues(alpha: 0.3),
                   blurRadius: 15,
                   spreadRadius: 0,
                   offset: const Offset(0, 4),
@@ -225,7 +225,7 @@ class EditMembersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -272,7 +272,7 @@ class EditMembersScreen extends StatelessWidget {
           borderRadius: BorderRadius.circular(8.r),
           boxShadow: [
             BoxShadow(
-              color: AppColor.primaryColor.withOpacity(0.08),
+              color: AppColor.primaryColor.withValues(alpha: 0.08),
               blurRadius: 10,
               spreadRadius: 0,
               offset: const Offset(0, 2),
@@ -300,7 +300,7 @@ class EditMembersScreen extends StatelessWidget {
                         vertical: 2.h,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColor.primaryColor.withOpacity(0.1),
+                        color: AppColor.primaryColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(10.r),
                       ),
                       child: AppText(
@@ -352,7 +352,7 @@ class EditMembersScreen extends StatelessWidget {
                 child: Divider(
                   height: 1,
                   thickness: 1,
-                  color: AppColor.lightGrey.withOpacity(0.5),
+                  color: AppColor.lightGrey.withValues(alpha: 0.5),
                 ),
               ),
               SizedBox(height: Spacing.sm),
@@ -395,7 +395,7 @@ class EditMembersScreen extends StatelessWidget {
           Icon(
             Icons.person_outline,
             size: 40.sp,
-            color: AppColor.greyColor.withOpacity(0.5),
+            color: AppColor.greyColor.withValues(alpha: 0.5),
           ),
           SizedBox(height: Spacing.sm),
           AppText(
@@ -470,10 +470,10 @@ class EditMembersScreen extends StatelessWidget {
             vertical: Spacing.xs,
           ),
           decoration: BoxDecoration(
-            color: isSelected ? AppColor.primaryColor.withOpacity(0.1) : Colors.transparent,
+            color: isSelected ? AppColor.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
             borderRadius: BorderRadius.circular(6.r),
             border: Border.all(
-              color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withOpacity(0.5),
+              color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withValues(alpha: 0.5),
               width: isSelected ? 1.5 : 1,
             ),
           ),
@@ -488,7 +488,7 @@ class EditMembersScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     color: isSelected ? AppColor.primaryColor : Colors.transparent,
                     border: Border.all(
-                      color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withOpacity(0.5),
+                      color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withValues(alpha: 0.5),
                       width: 1.5,
                     ),
                   ),
@@ -531,7 +531,7 @@ class EditMembersScreen extends StatelessWidget {
                               vertical: 2.h,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColor.primaryColor.withOpacity(0.15),
+                              color: AppColor.primaryColor.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(4.r),
                             ),
                             child: AppText(
@@ -574,10 +574,10 @@ class EditMembersScreen extends StatelessWidget {
           vertical: Spacing.xs,
         ),
         decoration: BoxDecoration(
-          color: isSelected ? AppColor.primaryColor.withOpacity(0.1) : Colors.transparent,
+          color: isSelected ? AppColor.primaryColor.withValues(alpha: 0.1) : Colors.transparent,
           borderRadius: BorderRadius.circular(6.r),
           border: Border.all(
-            color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withOpacity(0.5),
+            color: isSelected ? AppColor.primaryColor : AppColor.lightGrey.withValues(alpha: 0.5),
             width: isSelected ? 1.5 : 1,
           ),
         ),
@@ -592,7 +592,7 @@ class EditMembersScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                   color: isSelected ? AppColor.primaryColor : Colors.transparent,
                   border: Border.all(
-                    color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withOpacity(0.5),
+                    color: isSelected ? AppColor.primaryColor : AppColor.greyColor.withValues(alpha: 0.5),
                     width: 1.5,
                   ),
                 ),
@@ -635,7 +635,7 @@ class EditMembersScreen extends StatelessWidget {
                             vertical: 2.h,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColor.primaryColor.withOpacity(0.15),
+                            color: AppColor.primaryColor.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: AppText(
@@ -763,7 +763,7 @@ class EditMembersScreen extends StatelessWidget {
         borderRadius: BorderRadius.circular(8.r),
         boxShadow: [
           BoxShadow(
-            color: AppColor.primaryColor.withOpacity(0.08),
+            color: AppColor.primaryColor.withValues(alpha: 0.08),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -812,7 +812,7 @@ class EditMembersScreen extends StatelessWidget {
           Divider(
             height: 1,
             thickness: 1,
-            color: AppColor.lightGrey.withOpacity(0.5),
+            color: AppColor.lightGrey.withValues(alpha: 0.5),
           ),
           StreamBuilder<QuerySnapshot>(
             stream: FirebaseService.streamGroupCallHistory(
@@ -839,7 +839,7 @@ class EditMembersScreen extends StatelessWidget {
                 separatorBuilder: (_, __) => Divider(
                   height: 1,
                   thickness: 1,
-                  color: AppColor.lightGrey.withOpacity(0.3),
+                  color: AppColor.lightGrey.withValues(alpha: 0.3),
                 ),
                 itemBuilder: (context, index) {
                   final data = docs[index].data() as Map<String, dynamic>;
@@ -864,7 +864,7 @@ class EditMembersScreen extends StatelessWidget {
                       width: 28.w,
                       height: 28.h,
                       decoration: BoxDecoration(
-                        color: iconColor.withOpacity(0.12),
+                        color: iconColor.withValues(alpha: 0.12),
                         borderRadius: BorderRadius.circular(8.r),
                       ),
                       child: Icon(
@@ -923,7 +923,7 @@ class EditMembersScreen extends StatelessWidget {
           Icon(
             Icons.call_outlined,
             size: 20.sp,
-            color: AppColor.greyColor.withOpacity(0.5),
+            color: AppColor.greyColor.withValues(alpha: 0.5),
           ),
           SizedBox(width: Spacing.xs),
           AppText(

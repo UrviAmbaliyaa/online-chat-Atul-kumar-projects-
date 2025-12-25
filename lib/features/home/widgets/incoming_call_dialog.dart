@@ -216,14 +216,14 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppColor.primaryColor.withOpacity(0.95),
-              AppColor.secondaryColor.withOpacity(0.9),
+              AppColor.primaryColor.withValues(alpha: 0.95),
+              AppColor.secondaryColor.withValues(alpha: 0.9),
             ],
           ),
           borderRadius: BorderRadius.circular(24.r),
           boxShadow: [
             BoxShadow(
-              color: AppColor.blackColor.withOpacity(0.3),
+              color: AppColor.blackColor.withValues(alpha: 0.3),
               blurRadius: 20,
               spreadRadius: 5,
             ),
@@ -241,7 +241,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
                   vertical: Spacing.xs,
                 ),
                 decoration: BoxDecoration(
-                  color: AppColor.whiteColor.withOpacity(0.2),
+                  color: AppColor.whiteColor.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(20.r),
                 ),
                 child: Row(
@@ -293,7 +293,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
               AppText(
                 text: subtitle,
                 fontSize: 14.sp,
-                color: AppColor.whiteColor.withOpacity(0.8),
+                color: AppColor.whiteColor.withValues(alpha: 0.8),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: Spacing.xl * 1.5),
@@ -338,7 +338,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColor.whiteColor.withOpacity(0.3),
+              color: AppColor.whiteColor.withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -353,7 +353,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColor.whiteColor.withOpacity(0.4),
+              color: AppColor.whiteColor.withValues(alpha: 0.4),
               width: 2,
             ),
           ),
@@ -369,7 +369,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColor.whiteColor.withOpacity(0.3),
+                color: AppColor.whiteColor.withValues(alpha: 0.3),
                 blurRadius: 20,
                 spreadRadius: 5,
               ),
@@ -408,7 +408,7 @@ class _IncomingCallDialogState extends State<IncomingCallDialog> with SingleTick
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: backgroundColor.withOpacity(0.5),
+              color: backgroundColor.withValues(alpha: 0.5),
               blurRadius: 15,
               spreadRadius: 3,
             ),

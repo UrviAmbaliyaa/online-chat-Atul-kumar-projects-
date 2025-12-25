@@ -105,7 +105,7 @@ class _CallingScreenState extends State<CallingScreen> {
               AppText(
                 text: 'Please try again',
                 fontSize: 14.sp,
-                color: AppColor.whiteColor.withOpacity(0.7),
+                color: AppColor.whiteColor.withValues(alpha: 0.7),
               ),
             ],
           ),
@@ -148,9 +148,9 @@ class _CallingScreenState extends State<CallingScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppColor.primaryColor.withOpacity(0.95),
-            AppColor.secondaryColor.withOpacity(0.9),
-            AppColor.blackColor.withOpacity(0.95),
+            AppColor.primaryColor.withValues(alpha: 0.95),
+            AppColor.secondaryColor.withValues(alpha: 0.9),
+            AppColor.blackColor.withValues(alpha: 0.95),
           ],
         ),
       ),
@@ -165,7 +165,7 @@ class _CallingScreenState extends State<CallingScreen> {
               height: 300.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColor.whiteColor.withOpacity(0.05),
+                color: AppColor.whiteColor.withValues(alpha: 0.05),
               ),
             )
                 .animate(onPlay: (controller) => controller.repeat())
@@ -180,7 +180,7 @@ class _CallingScreenState extends State<CallingScreen> {
               height: 400.h,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColor.accentColor.withOpacity(0.05),
+                color: AppColor.accentColor.withValues(alpha: 0.05),
               ),
             )
                 .animate(onPlay: (controller) => controller.repeat())
@@ -229,7 +229,7 @@ class _CallingScreenState extends State<CallingScreen> {
                   borderRadius: BorderRadius.circular(16.r),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColor.blackColor.withOpacity(0.3),
+                      color: AppColor.blackColor.withValues(alpha: 0.3),
                       blurRadius: 10,
                       spreadRadius: 2,
                     ),
@@ -251,7 +251,7 @@ class _CallingScreenState extends State<CallingScreen> {
                             vertical: 2.h,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColor.blackColor.withOpacity(0.6),
+                            color: AppColor.blackColor.withValues(alpha: 0.6),
                             borderRadius: BorderRadius.circular(4.r),
                           ),
                           child: AppText(
@@ -288,7 +288,7 @@ class _CallingScreenState extends State<CallingScreen> {
                     borderRadius: BorderRadius.circular(16.r),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColor.blackColor.withOpacity(0.3),
+                        color: AppColor.blackColor.withValues(alpha: 0.3),
                         blurRadius: 10,
                         spreadRadius: 2,
                       ),
@@ -303,7 +303,7 @@ class _CallingScreenState extends State<CallingScreen> {
                             child: Center(
                               child: Icon(
                                 Icons.person,
-                                color: AppColor.whiteColor.withOpacity(0.5),
+                                color: AppColor.whiteColor.withValues(alpha: 0.5),
                                 size: 80.sp,
                               ),
                             ),
@@ -328,7 +328,7 @@ class _CallingScreenState extends State<CallingScreen> {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColor.blackColor.withOpacity(0.5),
+                          color: AppColor.blackColor.withValues(alpha: 0.5),
                           blurRadius: 10,
                           spreadRadius: 2,
                         ),
@@ -365,17 +365,17 @@ class _CallingScreenState extends State<CallingScreen> {
                 vertical: Spacing.xs,
               ),
               decoration: BoxDecoration(
-                color: AppColor.whiteColor.withOpacity(0.15),
+                color: AppColor.whiteColor.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(20.r),
                 border: Border.all(
-                  color: AppColor.whiteColor.withOpacity(0.3),
+                  color: AppColor.whiteColor.withValues(alpha: 0.3),
                   width: 1,
                 ),
               ),
               child: AppText(
                 text: controller.getCallStatus(),
                 fontSize: 14.sp,
-                color: AppColor.whiteColor.withOpacity(0.95),
+                color: AppColor.whiteColor.withValues(alpha: 0.95),
                 fontWeight: FontWeight.w600,
               ),
             )
@@ -415,7 +415,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 () => AppText(
                   text: '${controller.remoteUsers.length + 1} ${AppString.participants}',
                   fontSize: 16.sp,
-                  color: AppColor.whiteColor.withOpacity(0.8),
+                  color: AppColor.whiteColor.withValues(alpha: 0.8),
                   fontWeight: FontWeight.w500,
                 ),
               )
@@ -423,7 +423,7 @@ class _CallingScreenState extends State<CallingScreen> {
               AppText(
                 text: controller.user?.email ?? '',
                 fontSize: 16.sp,
-                color: AppColor.whiteColor.withOpacity(0.8),
+                color: AppColor.whiteColor.withValues(alpha: 0.8),
                 fontWeight: FontWeight.w500,
               ),
             SizedBox(height: Spacing.xl * 1.5),
@@ -455,7 +455,7 @@ class _CallingScreenState extends State<CallingScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColor.whiteColor.withOpacity(0.2),
+              color: AppColor.whiteColor.withValues(alpha: 0.2),
               width: 2,
             ),
           ),
@@ -470,7 +470,7 @@ class _CallingScreenState extends State<CallingScreen> {
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
-              color: AppColor.whiteColor.withOpacity(0.3),
+              color: AppColor.whiteColor.withValues(alpha: 0.3),
               width: 2,
             ),
           ),
@@ -486,7 +486,7 @@ class _CallingScreenState extends State<CallingScreen> {
             shape: BoxShape.circle,
             boxShadow: [
               BoxShadow(
-                color: AppColor.whiteColor.withOpacity(0.4),
+                color: AppColor.whiteColor.withValues(alpha: 0.4),
                 blurRadius: 40,
                 spreadRadius: 10,
               ),
@@ -515,15 +515,15 @@ class _CallingScreenState extends State<CallingScreen> {
           vertical: Spacing.md + 2.h,
         ),
         decoration: BoxDecoration(
-          color: AppColor.whiteColor.withOpacity(0.15),
+          color: AppColor.whiteColor.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(30.r),
           border: Border.all(
-            color: AppColor.whiteColor.withOpacity(0.25),
+            color: AppColor.whiteColor.withValues(alpha: 0.25),
             width: 1.5,
           ),
           boxShadow: [
             BoxShadow(
-              color: AppColor.blackColor.withOpacity(0.3),
+              color: AppColor.blackColor.withValues(alpha: 0.3),
               blurRadius: 15,
               spreadRadius: 0,
               offset: const Offset(0, 4),
@@ -558,7 +558,7 @@ class _CallingScreenState extends State<CallingScreen> {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                AppColor.blackColor.withOpacity(0.9),
+                AppColor.blackColor.withValues(alpha: 0.9),
               ],
             ),
           ),
@@ -570,7 +570,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 () => _buildControlButton(
                   icon: controller.isMuted.value ? Icons.mic_off : Icons.mic,
                   onPressed: controller.toggleMute,
-                  backgroundColor: controller.isMuted.value ? AppColor.redColor.withOpacity(0.8) : AppColor.whiteColor.withOpacity(0.2),
+                  backgroundColor: controller.isMuted.value ? AppColor.redColor.withValues(alpha: 0.8) : AppColor.whiteColor.withValues(alpha: 0.2),
                   iconColor: AppColor.whiteColor,
                   isActive: controller.isMuted.value,
                 ),
@@ -580,7 +580,7 @@ class _CallingScreenState extends State<CallingScreen> {
                 () => _buildControlButton(
                   icon: controller.isSpeakerOn.value ? Icons.volume_up : Icons.volume_down,
                   onPressed: controller.toggleSpeaker,
-                  backgroundColor: controller.isSpeakerOn.value ? AppColor.accentColor.withOpacity(0.8) : AppColor.whiteColor.withOpacity(0.2),
+                  backgroundColor: controller.isSpeakerOn.value ? AppColor.accentColor.withValues(alpha: 0.8) : AppColor.whiteColor.withValues(alpha: 0.2),
                   iconColor: AppColor.whiteColor,
                   isActive: controller.isSpeakerOn.value,
                 ),
@@ -621,14 +621,14 @@ class _CallingScreenState extends State<CallingScreen> {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: isEndCall ? AppColor.redColor.withOpacity(0.5) : AppColor.blackColor.withOpacity(0.4),
+              color: isEndCall ? AppColor.redColor.withValues(alpha: 0.5) : AppColor.blackColor.withValues(alpha: 0.4),
               blurRadius: isEndCall ? 20 : 15,
               spreadRadius: isEndCall ? 5 : 3,
             ),
           ],
           border: isActive
               ? Border.all(
-                  color: iconColor.withOpacity(0.5),
+                  color: iconColor.withValues(alpha: 0.5),
                   width: 2,
                 )
               : null,
