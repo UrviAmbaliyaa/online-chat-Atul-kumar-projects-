@@ -82,7 +82,7 @@ class MessageBubble extends StatelessWidget {
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColor.greyColor.withOpacity(0.1),
+                      color: AppColor.greyColor.withValues(alpha: 0.1),
                       blurRadius: 4,
                       offset: const Offset(0, 2),
                     ),
@@ -103,7 +103,7 @@ class MessageBubble extends StatelessWidget {
                         AppText(
                           text: _formatTime(message.timestamp),
                           fontSize: 11.sp,
-                          color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.7) : AppColor.greyColor,
+                          color: isCurrentUser ? AppColor.whiteColor.withValues(alpha: 0.7) : AppColor.greyColor,
                         ),
                         if (isCurrentUser) ...[
                           SizedBox(width: 4.w),
@@ -135,7 +135,7 @@ class MessageBubble extends StatelessWidget {
         margin: EdgeInsets.only(bottom: Spacing.sm),
         padding: EdgeInsets.all(Spacing.sm),
         decoration: BoxDecoration(
-          color: (isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor).withOpacity(0.2),
+          color: (isCurrentUser ? AppColor.whiteColor : AppColor.primaryColor).withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(8.r),
           border: Border(
             left: BorderSide(
@@ -157,7 +157,7 @@ class MessageBubble extends StatelessWidget {
             AppText(
               text: message.replyToMessage ?? '',
               fontSize: 12.sp,
-              color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.8) : AppColor.darkGrey,
+              color: isCurrentUser ? AppColor.whiteColor.withValues(alpha: 0.8) : AppColor.darkGrey,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
             ),
@@ -288,7 +288,7 @@ class MessageBubble extends StatelessWidget {
       child: Container(
         padding: EdgeInsets.symmetric(horizontal: Spacing.sm, vertical: Spacing.xs),
         decoration: BoxDecoration(
-          color: (isCurrentUser ? AppColor.whiteColor : AppColor.lightGrey).withOpacity(0.3),
+          color: (isCurrentUser ? AppColor.whiteColor : AppColor.lightGrey).withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(8.r),
         ),
         child: Row(
@@ -297,7 +297,7 @@ class MessageBubble extends StatelessWidget {
             Container(
               padding: EdgeInsets.all(Spacing.xs),
               decoration: BoxDecoration(
-                color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.2) : AppColor.primaryColor.withOpacity(0.1),
+                color: isCurrentUser ? AppColor.whiteColor.withValues(alpha: 0.2) : AppColor.primaryColor.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8.r),
               ),
               child: Icon(
@@ -329,7 +329,7 @@ class MessageBubble extends StatelessWidget {
                     AppText(
                       text: message.fileSize!,
                       fontSize: 10.sp,
-                      color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.7) : AppColor.greyColor,
+                      color: isCurrentUser ? AppColor.whiteColor.withValues(alpha: 0.7) : AppColor.greyColor,
                     ),
                   ],
                 ],
@@ -354,7 +354,7 @@ class MessageBubble extends StatelessWidget {
                   height: 28.h,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
-                    color: isCurrentUser ? AppColor.whiteColor.withOpacity(0.15) : AppColor.primaryColor.withOpacity(0.1),
+                    color: isCurrentUser ? AppColor.whiteColor.withValues(alpha: 0.15) : AppColor.primaryColor.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(6.r),
                   ),
                   child: isThisDownloading
@@ -387,7 +387,7 @@ class MessageBubble extends StatelessWidget {
         AppText(
           text: AppString.sending,
           fontSize: 11.sp,
-          color: AppColor.whiteColor.withOpacity(0.7),
+          color: AppColor.whiteColor.withValues(alpha: 0.7),
         ),
         SizedBox(width: 4.w),
         Row(
@@ -400,7 +400,7 @@ class MessageBubble extends StatelessWidget {
               margin: EdgeInsets.symmetric(horizontal: 1.5.w),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColor.whiteColor.withOpacity(0.7),
+                color: AppColor.whiteColor.withValues(alpha: 0.7),
               ),
             )
                 .animate(onPlay: (controller) => controller.repeat())

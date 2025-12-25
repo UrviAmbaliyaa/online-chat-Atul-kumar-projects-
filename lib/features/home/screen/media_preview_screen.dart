@@ -64,12 +64,11 @@ class _MediaPreviewScreenState extends State<MediaPreviewScreen> {
         _buildCancelButton(),
         if (_isDownloading) _buildDownloadProgressOverlay(),
         // Loader while waiting for file selection (for non-image files)
-        // Obx(() {
+        // Only show loader when there's no file and no network URL (i.e., when picking a file)
         if (!widget.isImage)
           Obx(
-            () => (_effectiveFile(controller) == null) ? _buildPickerOverlay() : const SizedBox.shrink(),
+            () => (_effectiveFile(controller) == null && widget.networkUrl == null) ? _buildPickerOverlay() : const SizedBox.shrink(),
           )
-        // }),
       ],
     );
   }
