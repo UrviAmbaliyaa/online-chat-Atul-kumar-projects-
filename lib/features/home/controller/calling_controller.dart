@@ -313,21 +313,83 @@ class CallingController extends GetxController {
   Future<bool> _requestPermissions() async {
     try {
       if (isVideoCall) {
-        final cameraStatus = await Permission.camera.request();
-        final microphoneStatus = await Permission.microphone.request();
+        // Check camera permission status first
+        final cameraStatus = await Permission.camera.status;
+        PermissionStatus finalCameraStatus;
+        
+        if (cameraStatus.isGranted) {
+          finalCameraStatus = cameraStatus;
+        } else if (cameraStatus.isDenied) {
+          // Request permission if not granted
+          finalCameraStatus = await Permission.camera.request();
+        } else if (cameraStatus.isPermanentlyDenied) {
+          developer.log('Camera permission permanently denied. User needs to enable it in Settings.');
+          _handleError(
+            userMessage: 'Camera permission is required. Please enable it in Settings.',
+            developerMessage: 'Camera permission permanently denied',
+          );
+          // Optionally open settings
+          await openAppSettings();
+          return false;
+        } else {
+          finalCameraStatus = cameraStatus;
+        }
 
-        if (cameraStatus.isDenied || microphoneStatus.isDenied) {
-          developer.log('Permissions denied - Camera: $cameraStatus, Microphone: $microphoneStatus');
+        // Check microphone permission status first
+        final microphoneStatus = await Permission.microphone.status;
+        PermissionStatus finalMicrophoneStatus;
+        
+        if (microphoneStatus.isGranted) {
+          finalMicrophoneStatus = microphoneStatus;
+        } else if (microphoneStatus.isDenied) {
+          // Request permission if not granted
+          finalMicrophoneStatus = await Permission.microphone.request();
+        } else if (microphoneStatus.isPermanentlyDenied) {
+          developer.log('Microphone permission permanently denied. User needs to enable it in Settings.');
+          _handleError(
+            userMessage: 'Microphone permission is required. Please enable it in Settings.',
+            developerMessage: 'Microphone permission permanently denied',
+          );
+          // Optionally open settings
+          await openAppSettings();
+          return false;
+        } else {
+          finalMicrophoneStatus = microphoneStatus;
+        }
+
+        if (!finalCameraStatus.isGranted || !finalMicrophoneStatus.isGranted) {
+          developer.log('Permissions denied - Camera: $finalCameraStatus, Microphone: $finalMicrophoneStatus');
           return false;
         }
-        return cameraStatus.isGranted && microphoneStatus.isGranted;
+        return true;
       } else {
-        final microphoneStatus = await Permission.microphone.request();
-        if (microphoneStatus.isDenied) {
-          developer.log('Microphone permission denied: $microphoneStatus');
+        // Audio call - only microphone needed
+        final microphoneStatus = await Permission.microphone.status;
+        PermissionStatus finalMicrophoneStatus;
+        
+        if (microphoneStatus.isGranted) {
+          finalMicrophoneStatus = microphoneStatus;
+        } else if (microphoneStatus.isDenied) {
+          // Request permission if not granted
+          finalMicrophoneStatus = await Permission.microphone.request();
+        } else if (microphoneStatus.isPermanentlyDenied) {
+          developer.log('Microphone permission permanently denied. User needs to enable it in Settings.');
+          _handleError(
+            userMessage: 'Microphone permission is required for audio calls. Please enable it in Settings.',
+            developerMessage: 'Microphone permission permanently denied',
+          );
+          // Optionally open settings
+          await openAppSettings();
+          return false;
+        } else {
+          finalMicrophoneStatus = microphoneStatus;
+        }
+        
+        if (!finalMicrophoneStatus.isGranted) {
+          developer.log('Microphone permission denied: $finalMicrophoneStatus');
           return false;
         }
-        return microphoneStatus.isGranted;
+        return true;
       }
     } catch (e, stackTrace) {
       developer.log(
